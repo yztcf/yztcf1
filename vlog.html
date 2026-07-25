@@ -371,7 +371,7 @@
 </head>
 <body>
 <div id="douyin-modal">
-    <a href="https://yztcf.de5.net/vlog2.html" target="_blank" class="vlog-btn" id="vlogBtn">
+    <a href="https://yztcf.de5.net/vlog.html" target="_blank" class="vlog-btn" id="vlogBtn">
         <svg viewBox="0 0 24 24">
             <polygon points="23 7 16 12 23 17 23 7"/>
             <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
@@ -381,8 +381,9 @@
 
     <div class="douyin-hint">⬆️ 滑动切换 · 长按 2x 倍速</div>
     <div class="douyin-container" id="douyin-container">
+        <!-- 修复1：给每个slide增加id="videoX" -->
         <!-- 0 video1 -->
-        <div class="douyin-slide" data-index="0">
+        <div class="douyin-slide" data-index="0" id="video1">
             <div class="glass-card">
                 <video class="douyin-video" loop playsinline webkit-playsinline preload="auto" muted autoplay>
                     <source src="static/videos/video1.mp4" type="video/mp4">
@@ -396,7 +397,7 @@
             <div class="douyin-info"><h3>@一叶知秋 · 3D动画</h3><p>科幻城市 · C4D</p></div>
         </div>
         <!-- 1 video2 -->
-        <div class="douyin-slide" data-index="1">
+        <div class="douyin-slide" data-index="1" id="video2">
             <div class="glass-card">
                 <video class="douyin-video" loop playsinline webkit-playsinline preload="auto" muted autoplay>
                     <source src="static/videos/video2.mp4" type="video/mp4">
@@ -410,7 +411,7 @@
             <div class="douyin-info"><h3>@一叶知秋 · 创意短片</h3><p>色彩节奏 · 剪辑</p></div>
         </div>
         <!-- 2 video3 -->
-        <div class="douyin-slide" data-index="2">
+        <div class="douyin-slide" data-index="2" id="video3">
             <div class="glass-card">
                 <video class="douyin-video" loop playsinline webkit-playsinline preload="auto" muted autoplay>
                     <source src="static/videos/video3.mp4" type="video/mp4">
@@ -424,7 +425,7 @@
             <div class="douyin-info"><h3>@一叶知秋 · 广告拍摄</h3><p>品牌宣传 · 制作</p></div>
         </div>
         <!-- 3 video4 -->
-        <div class="douyin-slide" data-index="3">
+        <div class="douyin-slide" data-index="3" id="video4">
             <div class="glass-card">
                 <video class="douyin-video" loop playsinline webkit-playsinline preload="auto" muted autoplay>
                     <source src="static/videos/video4.mp4" type="video/mp4">
@@ -438,7 +439,7 @@
             <div class="douyin-info"><h3>@一叶知秋 · 产品渲染</h3><p>数码产品 · OC渲染</p></div>
         </div>
         <!-- 4 video5 -->
-        <div class="douyin-slide" data-index="4">
+        <div class="douyin-slide" data-index="4" id="video5">
             <div class="glass-card">
                 <video class="douyin-video" loop playsinline webkit-playsinline preload="auto" muted autoplay>
                     <source src="static/videos/video5.mp4" type="video/mp4">
@@ -452,7 +453,7 @@
             <div class="douyin-info"><h3>@一叶知秋 · 国风动画</h3><p>古风场景 · 动态分镜</p></div>
         </div>
         <!-- 5 video6 -->
-        <div class="douyin-slide" data-index="5">
+        <div class="douyin-slide" data-index="5" id="video6">
             <div class="glass-card">
                 <video class="douyin-video" loop playsinline webkit-playsinline preload="auto" muted autoplay>
                     <source src="static/videos/video6.mp4" type="video/mp4">
@@ -466,7 +467,7 @@
             <div class="douyin-info"><h3>@一叶知秋 · 动态海报</h3><p>视觉动效 · 平面延展</p></div>
         </div>
         <!-- 6 video7 -->
-        <div class="douyin-slide" data-index="6">
+        <div class="douyin-slide" data-index="6" id="video7">
             <div class="glass-card">
                 <video class="douyin-video" loop playsinline webkit-playsinline preload="auto" muted autoplay>
                     <source src="static/videos/video7.mp4" type="video/mp4">
@@ -480,7 +481,7 @@
             <div class="douyin-info"><h3>@一叶知秋 · 场景漫游</h3><p>三维室内 · 镜头运镜</p></div>
         </div>
         <!-- 7 video8 -->
-        <div class="douyin-slide" data-index="7">
+        <div class="douyin-slide" data-index="7" id="video8">
             <div class="glass-card">
                 <video class="douyin-video" loop playsinline webkit-playsinline preload="auto" muted autoplay>
                     <source src="static/videos/video8.mp4" type="video/mp4">
@@ -818,17 +819,20 @@
             slides.forEach(s => { if (s._progressCleanup) s._progressCleanup(); });
         });
 
-        // ===================== 锚点识别JS（核心跳转功能） =====================
-        (function(){
-            const hash = window.location.hash;
-            if(!hash) return;
-            const numStr = hash.replace("#video","");
-            const targetIndex = Number(numStr) - 1;
-            if(!isNaN(targetIndex) && targetIndex >= 0 && targetIndex < slideCount){
-                currentIndex = targetIndex;
-                updateSlide(false);
-            }
-        })();
+        // ===================== 修复2：重写延迟加载锚点JS =====================
+        document.addEventListener('DOMContentLoaded', function(){
+            setTimeout(()=>{
+                const hash = window.location.hash;
+                if(!hash) return;
+                const numStr = hash.replace("#video","");
+                const targetNum = Number(numStr);
+                const targetIndex = targetNum - 1;
+                if(!isNaN(targetIndex) && targetIndex >=0 && targetIndex < slideCount){
+                    currentIndex = targetIndex;
+                    updateSlide(false);
+                }
+            }, 100);
+        });
     })();
 </script>
 </body>
