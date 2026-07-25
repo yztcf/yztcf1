@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+  <title>项目作品集 · 星河</title>
+  <style>
+    /* ===== 全局变量：深蓝底色 (#2B7FD8) + 细腻质感 ===== */
+    :root {
+      --bg-primary: #2B7FD8;
+      --bg-card: rgba(255, 255, 255, 0.07);
+      --bg-card-hover: rgba(255, 255, 255, 0.14);
+      --text-primary: #f0f7ff;
+      --text-secondary: rgba(255, 255, 255, 0.7);
+      --border-light: rgba(255, 255, 255, 0.15);
+      --border-hover: rgba(255, 215, 100, 0.5);
+      --shadow-card: 0 12px 36px rgba(0, 0, 0, 0.20);
+      --shadow-hover: 0 20px 48px rgba(0, 0, 0, 0.30);
+      --btn-bg: #f4d758;
+      --btn-text: #1a2a4a;
+      --btn-outline: rgba(255, 255, 255, 0.25);
+      --radius-card: 20px;
+      --radius-btn: 40px;
+      --transition: 0.25s cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    /* 夜间模式微调 (保留深蓝底色，仅调整卡片亮度) */
+    .dark-mode {
+      --bg-card: rgba(0, 0, 0, 0.25);
+      --bg-card-hover: rgba(0, 0, 0, 0.35);
+      --text-primary: #f3f6fc;
+      --text-secondary: rgba(255, 255, 255, 0.6);
+      --border-light: rgba(255, 255, 255, 0.08);
+      --shadow-card: 0 12px 36px rgba(0, 0, 0, 0.45);
+      --shadow-hover: 0 20px 48px rgba(0, 0, 0, 0.55);
+    }
+
+    /* 重置 & 基础 */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      background-image:
+        radial-gradient(circle at 20% 30%, rgba(255, 215, 100, 0.06) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(255, 215, 100, 0.05) 0%, transparent 50%);
+      color: var(--text-primary);
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      min-height: 100vh;
+      padding: 0 20px;
+      transition: background-color 0.3s, color 0.3s;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* 容器 —— 最大宽度舒适阅读 */
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 20px 0 60px;
+    }
+
+    /* ===== 顶部导航 ===== */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 4px 12px;
+      border-bottom: 1px solid var(--border-light);
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .logo {
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      color: #fff;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    /* ===== Vlog 按钮 ===== */
+    .vlog-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: var(--btn-bg);
+      color: var(--btn-text);
+      padding: 8px 20px;
+      border-radius: var(--radius-btn);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(244, 215, 88, 0.25);
+      border: none;
+      cursor: pointer;
+    }
+
+    .vlog-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 20px rgba(244, 215, 88, 0.35);
+      background: #f8df6e;
+    }
+
+    .vlog-btn:active {
+      transform: scale(0.95);
+    }
+
+    .vlog-btn svg {
+      width: 18px;
+      height: 18px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* ===== 页面标题 ===== */
+    .page-title {
+      margin-bottom: 28px;
+      padding: 0 4px;
+    }
+    .page-title h1 {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #f6e8b0, #f9d976);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .page-title p {
+      font-size: clamp(0.95rem, 1.3vw, 1.15rem);
+      color: var(--text-secondary);
+      max-width: 700px;
+      line-height: 1.7;
+      -webkit-text-fill-color: var(--text-secondary);
+    }
+
+    /* ===== 项目网格 ===== */
+    .project-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 28px;
+      margin-top: 12px;
+    }
+
+    /* ===== 项目卡片 ===== */
+    .project-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-card);
+      padding: 20px;
+      transition: transform 0.25s ease, box-shadow 0.3s ease, background 0.3s, border-color 0.3s;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
+      will-change: transform;
+    }
+    .project-card:hover {
+      transform: translateY(-6px);
+      background: var(--bg-card-hover);
+      border-color: var(--border-hover);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .card-img {
+      width: 100%;
+      height: 180px;
+      border-radius: 14px;
+      object-fit: cover;
+      margin-bottom: 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      transition: transform 0.3s ease;
+    }
+    .project-card:hover .card-img {
+      transform: scale(1.01);
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+    }
+    .card-desc {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 20px;
+      flex: 1;
+    }
+
+    /* ===== 卡片按钮 ===== */
+    .card-buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 4px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      flex: 1;
+      min-width: 100px;
+      text-align: center;
+      padding: 12px 12px;
+      border-radius: var(--radius-btn);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      letter-spacing: 0.3px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border: 1px solid transparent;
+    }
+
+    .btn-site {
+      background: var(--btn-bg);
+      color: var(--btn-text);
+      box-shadow: 0 4px 12px rgba(244, 215, 88, 0.25);
+    }
+    .btn-site:hover {
+      transform: scale(1.02);
+      box-shadow: 0 6px 20px rgba(244, 215, 88, 0.35);
+      background: #f8df6e;
+    }
+
+    .btn-github {
+      background: transparent;
+      color: var(--text-primary);
+      border: 1px solid var(--btn-outline);
+      backdrop-filter: blur(4px);
+    }
+    .btn-github:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.5);
+      transform: scale(1.02);
+    }
+
+    /* ===== 响应式：手机优先 ===== */
+    @media (max-width: 640px) {
+      body { padding: 0 12px; }
+      .container { padding: 12px 0 40px; }
+      header {
+        padding: 16px 0 10px;
+        margin-bottom: 20px;
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+      .logo { font-size: 17px; }
+      .nav-right { gap: 12px; }
+      .vlog-btn {
+        font-size: 12px;
+        padding: 6px 14px;
+      }
+      .vlog-btn svg {
+        width: 15px;
+        height: 15px;
+      }
+      .project-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      .project-card {
+        padding: 16px;
+        border-radius: 16px;
+      }
+      .card-img {
+        height: 150px;
+        border-radius: 12px;
+      }
+      .card-title { font-size: 1.1rem; }
+      .card-desc { font-size: 0.9rem; }
+      .btn {
+        font-size: 0.8rem;
+        padding: 10px 8px;
+        min-width: 80px;
+      }
+      .card-buttons { gap: 8px; }
+    }
+
+    /* 中等屏幕 (平板) */
+    @media (min-width: 641px) and (max-width: 1024px) {
+      .project-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+      }
+      .container { padding: 20px 24px 60px; }
+      header { padding: 20px 0 12px; }
+    }
+
+    /* 大屏优化 */
+    @media (min-width: 1025px) {
+      .project-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 32px;
+      }
+      .container { padding: 28px 32px 80px; }
+      .project-card { padding: 24px; }
+    }
+
+    /* ===== 小点缀：星星装饰 (纯CSS) ===== */
+    .star-deco {
+      position: fixed;
+      bottom: 24px;
+      right: 28px;
+      color: rgba(255, 215, 100, 0.20);
+      font-size: 14px;
+      letter-spacing: 2px;
+      pointer-events: none;
+      z-index: 0;
+      font-weight: 300;
+    }
+    @media (max-width: 640px) {
+      .star-deco { display: none; }
+    }
+
+    /* ===== 滚动条美化 (可选) ===== */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--btn-bg);
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- 顶部导航 -->
+    <header>
+      <div class="logo">Zhiting</div>
+      <div class="nav-right">
+        <a href="https://yztcf.de5.net/vlog.html" target="_blank" class="vlog-btn">
+          <svg viewBox="0 0 24 24">
+            <polygon points="23 7 16 12 23 17 23 7"/>
+            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+          </svg>
+          Vlog / 详情
+        </a>
+      </div>
+    </header>
+
+    <!-- 主内容 -->
+    <main>
+      <div class="page-title">
+        <h1>我们的项目</h1>
+        <p>在这里你可以展示你最好的作品。每个项目应包含简要介绍、所用技术以及任何显著成就。这有助于潜在客户或雇主了解您的能力。</p>
+      </div>
+
+      <!-- 项目卡片网格 -->
+      <div class="project-grid" id="projects">
+        <!-- 项目 1 -->
+        <div class="project-card">
+          <img class="card-img" src="https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=600&h=400&fit=crop&crop=center" alt="项目封面" loading="lazy">
+          <h3 class="card-title">第一计划</h3>
+          <p class="card-desc">简要介绍一下你的第一个项目。请解释项目实现功能、使用技术栈。</p>
+          <div class="card-buttons">
+            <a href="https://yztcf.de5.net/vlog.html" target="_blank" class="btn btn-site">在线网站</a>
+            <a href="https://yztcf.de5.net/vlog.html" target="_blank" class="btn btn-github">源码仓库</a>
+          </div>
+        </div>
+
+        <!-- 项目 2 -->
+        <div class="project-card">
+          <img class="card-img" src="https://images.unsplash.com/photo-1593305084199-2982ba860a06?w=600&h=400&fit=crop&crop=center" alt="项目封面" loading="lazy">
+          <h3 class="card-title">项目二</h3>
+          <p class="card-desc">请在这里描述你的第二个项目。突出关键功能、技术亮点与落地成果。</p>
+          <div class="card-buttons">
+            <a href="https://yztcf.de5.net/vlog.html" target="_blank" class="btn btn-site">在线网站</a>
+            <a href="https://yztcf.de5.net/vlog.html" target="_blank" class="btn btn-github">源码仓库</a>
+          </div>
+        </div>
+
+        <!-- 项目 3 -->
+        <div class="project-card">
+          <img class="card-img" src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop&crop=center" alt="项目封面" loading="lazy">
+          <h3 class="card-title">第三计划</h3>
+          <p class="card-desc">分享你第三个项目的细节。它解决了哪些业务痛点，具备哪些核心优势。</p>
+          <div class="card-buttons">
+            <a href="https://yztcf.de5.net/vlog.html" target="_blank" class="btn btn-site">在线网站</a>
+            <a href="https://yztcf.de5.net/vlog.html" target="_blank" class="btn btn-github">源码仓库</a>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- 底部装饰 -->
+    <div class="star-deco">✦ ✦ ✦</div>
+  </div>
+
+  <script>
+    (function() {
+      // 平滑锚点滚动
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+          const href = this.getAttribute('href');
+          if (href === '#') return;
+          e.preventDefault();
+          const target = document.querySelector(href);
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
