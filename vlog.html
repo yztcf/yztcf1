@@ -8,7 +8,6 @@
         * {margin: 0;padding: 0;box-sizing: border-box;}
         html,body {height: 100%;overflow: hidden;background:#000;}
 
-        /* 弹窗全屏容器，垂直单页布局，解决多屏错乱 */
         #douyin-modal {
             position: fixed;
             inset: 0;
@@ -19,7 +18,6 @@
             flex-direction:column;
         }
 
-        /* 滑动容器固定高度100vh，一次只显示一屏 */
         .douyin-container {
             width: 100%;
             height: 100vh;
@@ -37,20 +35,74 @@
             justify-content: center;
         }
 
-        /* 自适应视频：手机铺满，电脑居中限制最大高度 */
         .douyin-video {
             width: 100%;
             max-height: 85vh;
             object-fit: contain;
         }
+
+        /* 电脑端保持原样 */
         @media (min-width:1024px){
             .douyin-video{
                 width:auto;
                 max-width:80vw;
             }
+            /* 电脑端提示文字仍在底部 */
+            .douyin-hint {
+                bottom: 30px !important;
+                top: auto !important;
+            }
         }
 
-        /* 底部进度条 */
+        /* 仅手机端调整：提示文字移到顶部，信息区位置不变 */
+        @media (max-width:1023px){
+            .douyin-slide{
+                padding: 0 12px;
+            }
+            .douyin-video{
+                width: 100%;
+                max-height: 72vh;
+                border-radius: 12px;
+            }
+            /* 关键：手机端提示文字移到顶部空白处 */
+            .douyin-hint{
+                top: 70px;
+                bottom: auto;
+                left: 50%;
+                transform: translateX(-50%);
+                font-size: 11px;
+                color: #aaa;
+                text-align:center;
+                width: 90%;
+            }
+            .progress-wrap{
+                bottom: 78px;
+                width: 92%;
+                height: 5px;
+            }
+            .douyin-nav{
+                right: 12px;
+                bottom: 24px;
+                top: auto;
+                transform: none;
+                flex-direction: row;
+                gap: 18px;
+            }
+            .douyin-dots{
+                display: flex;
+                gap: 10px;
+            }
+            .douyin-dots span{
+                width: 6px;
+                height: 6px;
+                margin: 0;
+            }
+            .douyin-close{
+                top: 12px;
+                right: 12px;
+            }
+        }
+
         .progress-wrap {
             position: absolute;
             bottom: 90px;
@@ -69,7 +121,7 @@
             width: 0%;
         }
 
-        /* 左下角文字信息 */
+        /* 作品信息区 位置全程不变，手机电脑都在左下角底部 */
         .douyin-info {
             position: absolute;
             left: 20px;
@@ -85,7 +137,6 @@
             color: #ddd;
         }
 
-        /* 关闭按钮 */
         .douyin-close {
             position: absolute;
             top: 20px;
@@ -105,13 +156,7 @@
             width: 22px;
             height: 22px;
         }
-        .full-icon{
-            fill:#fff;
-            width:24px;
-            height:24px;
-        }
 
-        /* 右侧上下切换按钮 + 圆点指示器 */
         .douyin-nav {
             position: absolute;
             right: 15px;
@@ -139,20 +184,7 @@
             background: #fff;
         }
 
-        /* 全屏横屏按钮样式 */
-        .fullscreen-btn{
-            position:absolute;
-            bottom:120px;
-            right:20px;
-            background:rgba(255,255,255,0.15);
-            border:none;
-            border-radius:6px;
-            padding:8px;
-            cursor:pointer;
-            z-index:10;
-        }
-
-        /* 底部操作提示 */
+        /* 默认电脑端：底部 */
         .douyin-hint {
             color: #aaa;
             position: absolute;
@@ -161,8 +193,8 @@
             transform: translateX(-50%);
             font-size: 13px;
             text-align:center;
+            z-index:5;
         }
-        /* 2倍速弹窗提示 */
         .speed-tip {
             position: absolute;
             top: 50%;
@@ -184,10 +216,11 @@
             <path d="M64 32C64 14.3 49.7 0 32 0S0 14.3 0 32V64 384 480c0 17.7 14.3 32 32 32s32-14.3 32-32V352l64.3-160.8c5.2-12.9 19.1-19.2 31.1-13.6l112 48c11.7 5 18.2 18.1 14.3 30.3L256 384v96c0 17.7 14.3 32 32 32s32-14.3 32-32V384 64 32c0-17.7-14.3-32-32-32s-32 14.3-32 32v224L133.7 195.2c-5.2-12.9-19.1-19.2-31.1-13.6L32 230.4V32z"/>
         </svg>
     </button>
+    <!-- 操作提示文字，手机端自动跑到页面顶部空白 -->
+    <div class="douyin-hint">上下滑动切换 · 长按2倍速 · 点击进度条跳转</div>
     <div class="douyin-container" id="douyin-container">
-        <!-- 视频1 -->
         <div class="douyin-slide" data-index="0">
-            <video class="douyin-video" loop playsinline preload="auto" muted>
+            <video class="douyin-video" loop playsinline preload="auto" muted autoplay>
                 <source src="static/videos/video1.mp4" type="video/mp4">
                 浏览器不支持MP4视频
             </video>
@@ -199,16 +232,9 @@
                 <h3>@一叶知秋 · 3D动画作品</h3>
                 <p>科幻城市建模动画 #3D #动画 #C4D</p>
             </div>
-            <!-- 全屏按钮 -->
-            <button class="fullscreen-btn">
-                <svg class="full-icon" viewBox="0 0 448 512">
-                    <path d="M32 32C14.3 32 0 46.3 0 64V192c0 17.7 14.3 32 32 32s32-14.3 32-32V96h96c17.7 0 32-14.3 32-32s-14.3-32-32-32H32zM64 320c-17.7 0-32 14.3-32 32v128c0 17.7 14.3 32 32 32h128c17.7 0 32-14.3 32-32s-14.3-32-32-32H96V352c0-17.7-14.3-32-32-32zM320 32c-17.7 0-32 14.3-32 32s14.3 32 32 32h96v96c0 17.7 14.3 32 32 32s32-14.3 32-32V64c0-17.7-14.3-32-32-32H320zM384 320c-17.7 0-32 14.3-32 32v96h-96c-17.7 0-32 14.3-32 32s14.3 32 32 32h128c17.7 0 32-14.3 32-32V352c0-17.7-14.3-32-32-32H384z"/>
-                </svg>
-            </button>
         </div>
-        <!-- 视频2 -->
         <div class="douyin-slide" data-index="1">
-            <video class="douyin-video" loop playsinline preload="auto" muted>
+            <video class="douyin-video" loop playsinline preload="auto" muted autoplay>
                 <source src="static/videos/video2.mp4" type="video/mp4">
                 浏览器不支持MP4视频
             </video>
@@ -220,15 +246,9 @@
                 <h3>@一叶知秋 · 创意短片</h3>
                 <p>色彩与节奏的碰撞 #创意 #剪辑 #短片</p>
             </div>
-            <button class="fullscreen-btn">
-                <svg class="full-icon" viewBox="0 0 448 512">
-                    <path d="M32 32C14.3 32 0 46.3 0 64V192c0 17.7 14.3 32 32 32s32-14.3 32-32V96h96c17.7 0 32-14.3 32-32s-14.3-32-32-32H32zM64 320c-17.7 0-32 14.3-32 32v128c0 17.7 14.3 32 32 32h128c17.7 0 32-14.3 32-32s-14.3-32-32-32H96V352c0-17.7-14.3-32-32-32zM320 32c-17.7 0-32 14.3-32 32s14.3 32 32 32h96v96c0 17.7 14.3 32 32 32s32-14.3 32-32V64c0-17.7-14.3-32-32-32H320zM384 320c-17.7 0-32 14.3-32 32v96h-96c-17.7 0-32 14.3-32 32s14.3 32 32 32h128c17.7 0 32-14.3 32-32V352c0-17.7-14.3-32-32-32H384z"/>
-                </svg>
-            </button>
         </div>
-        <!-- 视频3 -->
         <div class="douyin-slide" data-index="2">
-            <video class="douyin-video" loop playsinline preload="auto" muted>
+            <video class="douyin-video" loop playsinline preload="auto" muted autoplay>
                 <source src="static/videos/video3.mp4" type="video/mp4">
                 浏览器不支持MP4视频
             </video>
@@ -240,11 +260,6 @@
                 <h3>@一叶知秋 · 广告拍摄</h3>
                 <p>品牌宣传片段 #广告 #拍摄 #制作</p>
             </div>
-            <button class="fullscreen-btn">
-                <svg class="full-icon" viewBox="0 0 448 512">
-                    <path d="M32 32C14.3 32 0 46.3 0 64V192c0 17.7 14.3 32 32 32s32-14.3 32-32V96h96c17.7 0 32-14.3 32-32s-14.3-32-32-32H32zM64 320c-17.7 0-32 14.3-32 32v128c0 17.7 14.3 32 32 32h128c17.7 0 32-14.3 32-32s-14.3-32-32-32H96V352c0-17.7-14.3-32-32-32zM320 32c-17.7 0-32 14.3-32 32s14.3 32 32 32h96v96c0 17.7 14.3 32 32 32s32-14.3 32-32V64c0-17.7-14.3-32-32-32H320zM384 320c-17.7 0-32 14.3-32 32v96h-96c-17.7 0-32 14.3-32 32s14.3 32 32 32h128c17.7 0 32-14.3 32-32V352c0-17.7-14.3-32-32-32H384z"/>
-                </svg>
-            </button>
         </div>
     </div>
     <div class="douyin-nav">
@@ -260,7 +275,6 @@
             </svg>
         </button>
     </div>
-    <div class="douyin-hint">鼠标滚轮/手指上下滑动切换视频 · 长按视频2倍速 · 拖动进度条跳转 · 右下角按钮全屏横屏</div>
 </div>
 
 <script>
@@ -274,7 +288,6 @@ const dotWrap = document.getElementById('dot-wrap');
 let longPressTimer = null;
 const LONG_PRESS_TIME = 150;
 
-// 生成圆点指示器
 function createDots() {
     dotWrap.innerHTML = '';
     for(let i=0; i<slideCount; i++) {
@@ -286,7 +299,6 @@ function createDots() {
 }
 createDots();
 
-// 更新页面、视频播放、进度条（修复play/pause中断报错）
 function updateSlide() {
     container.style.transform = `translateY(-${currentIndex * 100}vh)`;
     document.querySelectorAll('.douyin-dots span').forEach(dot => {
@@ -296,12 +308,10 @@ function updateSlide() {
         const video = slide.querySelector('video');
         slide.querySelector('.progress-bar').style.width = '0%';
         if(idx === currentIndex) {
-            // 进度条实时更新
             video.ontimeupdate = () => {
                 const percent = (video.currentTime / video.duration) * 100;
                 slide.querySelector('.progress-bar').style.width = percent + '%';
             }
-            // 进度条点击跳转
             const progressWrap = slide.querySelector('.progress-wrap');
             progressWrap.onclick = (e) => {
                 const rect = progressWrap.getBoundingClientRect();
@@ -310,7 +320,6 @@ function updateSlide() {
                 const jumpTime = (clickX / totalWidth) * video.duration;
                 video.currentTime = jumpTime;
             }
-            // 修复play异步中断报错
             const playPromise = video.play();
             if (playPromise !== undefined) playPromise.catch(()=>{});
         } else {
@@ -319,7 +328,6 @@ function updateSlide() {
     })
 }
 
-// 切上一条
 function slideUp() {
     if(currentIndex > 0 && !scrollLock) {
         scrollLock = true;
@@ -328,7 +336,6 @@ function slideUp() {
         setTimeout(()=>scrollLock=false,400);
     }
 }
-// 切下一条
 function slideDown() {
     if(currentIndex < slideCount - 1 && !scrollLock) {
         scrollLock = true;
@@ -338,7 +345,6 @@ function slideDown() {
     }
 }
 
-// 电脑端鼠标滚轮优化：一次滚轮只切换1条，禁止连续滚动跳多屏
 let wheelLock = false;
 container.addEventListener('wheel', (e)=>{
     e.preventDefault();
@@ -348,7 +354,6 @@ container.addEventListener('wheel', (e)=>{
     setTimeout(()=>wheelLock=false,500);
 })
 
-// 手机触屏滑动 + 长按2倍速
 container.addEventListener('touchstart', e => {
     touchStartY = e.touches[0].clientY;
     const slide = slides[currentIndex];
@@ -365,7 +370,6 @@ container.addEventListener('touchmove', e => {
 })
 container.addEventListener('touchend', e => {
     clearTimeout(longPressTimer);
-    // 恢复1倍速
     const slide = slides[currentIndex];
     const video = slide.querySelector('video');
     const speedTip = slide.querySelector('.speed-tip');
@@ -378,11 +382,9 @@ container.addEventListener('touchend', e => {
     if(diff > 60) slideUp();
 })
 
-// 上下按钮点击
 document.getElementById('btn-up').addEventListener('click', slideUp);
 document.getElementById('btn-down').addEventListener('click', slideDown);
 
-// 点击视频暂停/播放
 slides.forEach(slide => {
     const video = slide.querySelector('video');
     video.addEventListener('click', () => {
@@ -390,34 +392,9 @@ slides.forEach(slide => {
     })
 })
 
-// 关闭弹窗
 document.getElementById('douyin-close').addEventListener('click', () => {
     document.getElementById('douyin-modal').style.display = 'none';
     slides.forEach(s => s.querySelector('video').pause());
-})
-
-// 全屏横屏逻辑
-const fullBtns = document.querySelectorAll('.fullscreen-btn');
-const modalWrap = document.getElementById('douyin-modal');
-fullBtns.forEach(btn=>{
-    btn.addEventListener('click',async ()=>{
-        try{
-            // 手机自动锁定横屏
-            if(screen.orientation && screen.orientation.lock){
-                await screen.orientation.lock('landscape');
-            }
-            // 浏览器全屏
-            if(modalWrap.requestFullscreen){
-                await modalWrap.requestFullscreen();
-            }else if(modalWrap.webkitRequestFullscreen){
-                await modalWrap.webkitRequestFullscreen();
-            }else if(modalWrap.msRequestFullscreen){
-                await modalWrap.msRequestFullscreen();
-            }
-        }catch(err){
-            console.log('全屏/横屏限制',err);
-        }
-    })
 })
 
 window.onload = updateSlide;
