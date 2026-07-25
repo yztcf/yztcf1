@@ -6,22 +6,26 @@
     <title>动画作品滑动播放</title>
     <style>
         * {margin: 0;padding: 0;box-sizing: border-box;}
-        html,body {height: 100%;overflow: hidden;}
+        html,body {height: 100%;overflow: hidden;background:#000;}
 
+        /* 弹窗全屏容器，垂直单页布局，解决多屏错乱 */
         #douyin-modal {
-            display: flex !important;
             position: fixed;
             inset: 0;
             background: #000;
             z-index: 9999;
             overflow: hidden;
+            display:flex;
+            flex-direction:column;
         }
 
+        /* 滑动容器固定高度100vh，一次只显示一屏 */
         .douyin-container {
             width: 100%;
-            height: 100%;
+            height: 100vh;
             transition: transform 0.4s ease-out;
             touch-action: none;
+            will-change: transform;
         }
 
         .douyin-slide {
@@ -33,12 +37,20 @@
             justify-content: center;
         }
 
+        /* 自适应视频：手机铺满，电脑居中限制最大高度 */
         .douyin-video {
             width: 100%;
             max-height: 85vh;
             object-fit: contain;
         }
+        @media (min-width:1024px){
+            .douyin-video{
+                width:auto;
+                max-width:80vw;
+            }
+        }
 
+        /* 底部进度条 */
         .progress-wrap {
             position: absolute;
             bottom: 90px;
@@ -57,6 +69,7 @@
             width: 0%;
         }
 
+        /* 左下角文字信息 */
         .douyin-info {
             position: absolute;
             left: 20px;
@@ -72,6 +85,7 @@
             color: #ddd;
         }
 
+        /* 关闭按钮 */
         .douyin-close {
             position: absolute;
             top: 20px;
@@ -92,6 +106,7 @@
             height: 22px;
         }
 
+        /* 右侧上下切换按钮 + 圆点指示器 */
         .douyin-nav {
             position: absolute;
             right: 15px;
@@ -119,6 +134,7 @@
             background: #fff;
         }
 
+        /* 底部操作提示 */
         .douyin-hint {
             color: #aaa;
             position: absolute;
@@ -126,7 +142,9 @@
             left: 50%;
             transform: translateX(-50%);
             font-size: 13px;
+            text-align:center;
         }
+        /* 2倍速弹窗提示 */
         .speed-tip {
             position: absolute;
             top: 50%;
@@ -149,8 +167,9 @@
         </svg>
     </button>
     <div class="douyin-container" id="douyin-container">
+        <!-- 视频1 -->
         <div class="douyin-slide" data-index="0">
-            <video class="douyin-video" loop playsinline preload="auto" muted autoplay>
+            <video class="douyin-video" loop playsinline preload="auto" muted>
                 <source src="static/videos/video1.mp4" type="video/mp4">
                 浏览器不支持MP4视频
             </video>
@@ -163,8 +182,9 @@
                 <p>科幻城市建模动画 #3D #动画 #C4D</p>
             </div>
         </div>
+        <!-- 视频2 -->
         <div class="douyin-slide" data-index="1">
-            <video class="douyin-video" loop playsinline preload="auto" muted autoplay>
+            <video class="douyin-video" loop playsinline preload="auto" muted>
                 <source src="static/videos/video2.mp4" type="video/mp4">
                 浏览器不支持MP4视频
             </video>
@@ -177,8 +197,9 @@
                 <p>色彩与节奏的碰撞 #创意 #剪辑 #短片</p>
             </div>
         </div>
+        <!-- 视频3 -->
         <div class="douyin-slide" data-index="2">
-            <video class="douyin-video" loop playsinline preload="auto" muted autoplay>
+            <video class="douyin-video" loop playsinline preload="auto" muted>
                 <source src="static/videos/video3.mp4" type="video/mp4">
                 浏览器不支持MP4视频
             </video>
@@ -192,49 +213,6 @@
             </div>
         </div>
     </div>
-     <div class="douyin-slide" data-index="1">
-            <video class="douyin-video" loop playsinline preload="auto" muted autoplay>
-                <source src="static/videos/video4.mp4" type="video/mp4">
-                浏览器不支持MP4视频
-            </video>
-            <div class="speed-tip">2x 倍速</div>
-            <div class="progress-wrap">
-                <div class="progress-bar"></div>
-            </div>
-            <div class="douyin-info">
-                <h3>@一叶知秋 · 创意短片</h3>
-                <p>色彩与节奏的碰撞 #创意 #剪辑 #短片</p>
-            </div>
-        </div>
-     <div class="douyin-slide" data-index="1">
-            <video class="douyin-video" loop playsinline preload="auto" muted autoplay>
-                <source src="static/videos/video5.mp4" type="video/mp4">
-                浏览器不支持MP4视频
-            </video>
-            <div class="speed-tip">2x 倍速</div>
-            <div class="progress-wrap">
-                <div class="progress-bar"></div>
-            </div>
-            <div class="douyin-info">
-                <h3>@一叶知秋 · 创意短片</h3>
-                <p>色彩与节奏的碰撞 #创意 #剪辑 #短片</p>
-            </div>
-        </div>
-     <div class="douyin-slide" data-index="1">
-            <video class="douyin-video" loop playsinline preload="auto" muted autoplay>
-                <source src="static/videos/video6.mp4" type="video/mp4">
-                浏览器不支持MP4视频
-            </video>
-            <div class="speed-tip">2x 倍速</div>
-            <div class="progress-wrap">
-                <div class="progress-bar"></div>
-            </div>
-            <div class="douyin-info">
-                <h3>@一叶知秋 · 创意短片</h3>
-                <p>色彩与节奏的碰撞 #创意 #剪辑 #短片</p>
-            </div>
-        </div>
-    
     <div class="douyin-nav">
         <button class="douyin-nav-btn up" id="btn-up">
             <svg class="nav-icon" viewBox="0 0 320 512">
@@ -259,10 +237,10 @@ let currentIndex = 0;
 let touchStartY = 0;
 let scrollLock = false;
 const dotWrap = document.getElementById('dot-wrap');
-
 let longPressTimer = null;
 const LONG_PRESS_TIME = 150;
 
+// 生成圆点指示器
 function createDots() {
     dotWrap.innerHTML = '';
     for(let i=0; i<slideCount; i++) {
@@ -274,6 +252,7 @@ function createDots() {
 }
 createDots();
 
+// 更新页面、视频播放、进度条（修复play/pause中断报错）
 function updateSlide() {
     container.style.transform = `translateY(-${currentIndex * 100}vh)`;
     document.querySelectorAll('.douyin-dots span').forEach(dot => {
@@ -283,10 +262,12 @@ function updateSlide() {
         const video = slide.querySelector('video');
         slide.querySelector('.progress-bar').style.width = '0%';
         if(idx === currentIndex) {
+            // 进度条实时更新
             video.ontimeupdate = () => {
                 const percent = (video.currentTime / video.duration) * 100;
                 slide.querySelector('.progress-bar').style.width = percent + '%';
             }
+            // 进度条点击跳转
             const progressWrap = slide.querySelector('.progress-wrap');
             progressWrap.onclick = (e) => {
                 const rect = progressWrap.getBoundingClientRect();
@@ -295,16 +276,16 @@ function updateSlide() {
                 const jumpTime = (clickX / totalWidth) * video.duration;
                 video.currentTime = jumpTime;
             }
+            // 修复play异步中断报错
             const playPromise = video.play();
-            if (playPromise !== undefined) {
-                playPromise.catch(() => {});
-            }
+            if (playPromise !== undefined) playPromise.catch(()=>{});
         } else {
             video.pause();
         }
     })
 }
 
+// 切上一条
 function slideUp() {
     if(currentIndex > 0 && !scrollLock) {
         scrollLock = true;
@@ -313,6 +294,7 @@ function slideUp() {
         setTimeout(()=>scrollLock=false,400);
     }
 }
+// 切下一条
 function slideDown() {
     if(currentIndex < slideCount - 1 && !scrollLock) {
         scrollLock = true;
@@ -322,12 +304,17 @@ function slideDown() {
     }
 }
 
+// 电脑端鼠标滚轮优化：一次滚轮只切换1条，禁止连续滚动跳多屏
+let wheelLock = false;
 container.addEventListener('wheel', (e)=>{
     e.preventDefault();
-    if(scrollLock) return;
+    if(scrollLock || wheelLock) return;
+    wheelLock = true;
     e.deltaY > 0 ? slideDown() : slideUp();
+    setTimeout(()=>wheelLock=false,500);
 })
 
+// 手机触屏滑动 + 长按2倍速
 container.addEventListener('touchstart', e => {
     touchStartY = e.touches[0].clientY;
     const slide = slides[currentIndex];
@@ -344,6 +331,7 @@ container.addEventListener('touchmove', e => {
 })
 container.addEventListener('touchend', e => {
     clearTimeout(longPressTimer);
+    // 恢复1倍速
     const slide = slides[currentIndex];
     const video = slide.querySelector('video');
     const speedTip = slide.querySelector('.speed-tip');
@@ -356,9 +344,11 @@ container.addEventListener('touchend', e => {
     if(diff > 60) slideUp();
 })
 
+// 上下按钮点击
 document.getElementById('btn-up').addEventListener('click', slideUp);
 document.getElementById('btn-down').addEventListener('click', slideDown);
 
+// 点击视频暂停/播放
 slides.forEach(slide => {
     const video = slide.querySelector('video');
     video.addEventListener('click', () => {
@@ -366,6 +356,7 @@ slides.forEach(slide => {
     })
 })
 
+// 关闭弹窗
 document.getElementById('douyin-close').addEventListener('click', () => {
     document.getElementById('douyin-modal').style.display = 'none';
     slides.forEach(s => s.querySelector('video').pause());
