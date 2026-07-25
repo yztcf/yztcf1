@@ -22,7 +22,7 @@
             position: fixed;
             inset: 0;
             background: #0a0a0f;
-            z-index: 9999;
+            z-index 9999;
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -218,7 +218,7 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.2);
         }
 
-        /* ===== 右上角 Vlog 按钮 (完全采用你提供的样式) ===== */
+        /* ===== 右上角 Vlog 按钮 ===== */
         .vlog-btn {
             position: absolute;
             top: 16px;
@@ -243,12 +243,10 @@
             -webkit-tap-highlight-color: transparent;
             touch-action: manipulation;
             user-select: none;
-            position: absolute;
             overflow: hidden;
             letter-spacing: 0.3px;
         }
 
-        /* 悬停效果 (桌面) */
         @media (hover: hover) {
             .vlog-btn:hover {
                 transform: scale(1.05);
@@ -257,14 +255,12 @@
             }
         }
 
-        /* 点击效果 (放大) */
         .vlog-btn:active {
             transform: scale(1.12);
             transition-duration: 0.08s;
             box-shadow: 0 4px 12px rgba(244, 215, 88, 0.25);
         }
 
-        /* 点击涟漪 */
         .vlog-btn .ripple {
             position: absolute;
             border-radius: 50%;
@@ -291,7 +287,6 @@
             }
         }
 
-        /* SVG 图标 */
         .vlog-btn svg {
             width: 20px;
             height: 20px;
@@ -303,7 +298,6 @@
             flex-shrink: 0;
         }
 
-        /* 按钮文字 */
         .vlog-btn .btn-text {
             letter-spacing: 0.5px;
             white-space: nowrap;
@@ -423,9 +417,7 @@
 </head>
 <body>
 <div id="douyin-modal">
-    <!-- ===== 右上角 Vlog 按钮 (完全采用你提供的样式) ===== -->
-    <a href="https://yztcf.de5.net/vlog2.html" target="_blank" class="vlog-btn" id="vlogBtn">
-        <!-- 播放图标 -->
+    <a href="https://yztcf.de5.net/vlog.html" target="_blank" class="vlog-btn" id="vlogBtn">
         <svg viewBox="0 0 24 24">
             <polygon points="23 7 16 12 23 17 23 7"/>
             <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
@@ -435,7 +427,7 @@
 
     <div class="douyin-hint">⬆️ 滑动切换 · 长按 2x 倍速</div>
     <div class="douyin-container" id="douyin-container">
-        <!-- 第0个 video1 -->
+        <!-- 0 video1 -->
         <div class="douyin-slide" data-index="0">
             <div class="glass-card">
                 <video class="douyin-video" loop playsinline webkit-playsinline preload="auto" muted autoplay>
@@ -449,7 +441,7 @@
             <div class="progress-time-label" id="time-label-0">00:00 / 00:00</div>
             <div class="douyin-info"><h3>@一叶知秋 · 3D动画</h3><p>科幻城市 · C4D</p></div>
         </div>
-        <!-- 第1个 video2 -->
+        <!-- 1 video2 -->
         <div class="douyin-slide" data-index="1">
             <div class="glass-card">
                 <video class="douyin-video" loop playsinline webkit-playsinline preload="auto" muted autoplay>
@@ -463,7 +455,7 @@
             <div class="progress-time-label" id="time-label-1">00:00 / 00:00</div>
             <div class="douyin-info"><h3>@一叶知秋 · 创意短片</h3><p>色彩节奏 · 剪辑</p></div>
         </div>
-        <!-- 第2个 video3 -->
+        <!-- 2 video3 -->
         <div class="douyin-slide" data-index="2">
             <div class="glass-card">
                 <video class="douyin-video" loop playsinline webkit-playsinline preload="auto" muted autoplay>
@@ -477,7 +469,7 @@
             <div class="progress-time-label" id="time-label-2">00:00 / 00:00</div>
             <div class="douyin-info"><h3>@一叶知秋 · 广告拍摄</h3><p>品牌宣传 · 制作</p></div>
         </div>
-        <!-- 新增第3个 video4 -->
+        <!-- 3 video4 -->
         <div class="douyin-slide" data-index="3">
             <div class="glass-card">
                 <video class="douyin-video" loop playsinline webkit-playsinline preload="auto" muted autoplay>
@@ -491,7 +483,7 @@
             <div class="progress-time-label" id="time-label-3">00:00 / 00:00</div>
             <div class="douyin-info"><h3>@一叶知秋 · 产品渲染</h3><p>数码产品 · OC渲染</p></div>
         </div>
-        <!-- 新增第4个 video5 -->
+        <!-- 4 video5 -->
         <div class="douyin-slide" data-index="4">
             <div class="glass-card">
                 <video class="douyin-video" loop playsinline webkit-playsinline preload="auto" muted autoplay>
@@ -505,7 +497,7 @@
             <div class="progress-time-label" id="time-label-4">00:00 / 00:00</div>
             <div class="douyin-info"><h3>@一叶知秋 · 国风动画</h3><p>古风场景 · 动态分镜</p></div>
         </div>
-        <!-- 新增第5个 video6 -->
+        <!-- 5 video6 -->
         <div class="douyin-slide" data-index="5">
             <div class="glass-card">
                 <video class="douyin-video" loop playsinline webkit-playsinline preload="auto" muted autoplay>
@@ -519,7 +511,7 @@
             <div class="progress-time-label" id="time-label-5">00:00 / 00:00</div>
             <div class="douyin-info"><h3>@一叶知秋 · 动态海报</h3><p>视觉动效 · 平面延展</p></div>
         </div>
-        <!-- 新增第6个 video7 -->
+        <!-- 6 video7 -->
         <div class="douyin-slide" data-index="6">
             <div class="glass-card">
                 <video class="douyin-video" loop playsinline webkit-playsinline preload="auto" muted autoplay>
@@ -533,7 +525,7 @@
             <div class="progress-time-label" id="time-label-6">00:00 / 00:00</div>
             <div class="douyin-info"><h3>@一叶知秋 · 场景漫游</h3><p>三维室内 · 镜头运镜</p></div>
         </div>
-        <!-- 新增第7个 video8 -->
+        <!-- 7 video8 -->
         <div class="douyin-slide" data-index="7">
             <div class="glass-card">
                 <video class="douyin-video" loop playsinline webkit-playsinline preload="auto" muted autoplay>
@@ -567,358 +559,4 @@
         let currentIndex = 0;
         let touchStartY = 0;
         let touchMoveY = 0;
-        let scrollLock = false;
-        const dotWrap = document.getElementById('dot-wrap');
-        let longPressTimer = null;
-        const LONG_PRESS_MS = 170;
-        let isLongPress = false;
-        let isTouching = false;
-
-        // ============================================
-        // Vlog 按钮点击涟漪效果 (完全采用你提供的脚本)
-        // ============================================
-        (function() {
-            const btn = document.getElementById('vlogBtn');
-            if (!btn) return;
-
-            function createRipple(e) {
-                const rect = btn.getBoundingClientRect();
-                const oldRipple = btn.querySelector('.ripple');
-                if (oldRipple) oldRipple.remove();
-
-                const ripple = document.createElement('span');
-                ripple.className = 'ripple';
-
-                let clientX, clientY;
-                if (e.type === 'touchstart') {
-                    const touch = e.touches[0];
-                    clientX = touch.clientX;
-                    clientY = touch.clientY;
-                } else {
-                    clientX = e.clientX;
-                    clientY = e.clientY;
-                }
-
-                const x = clientX - rect.left;
-                const y = clientY - rect.top;
-
-                ripple.style.left = x + 'px';
-                ripple.style.top = y + 'px';
-
-                btn.appendChild(ripple);
-
-                setTimeout(() => {
-                    if (ripple.parentNode) ripple.remove();
-                }, 500);
-            }
-
-            btn.addEventListener('touchstart', function(e) {
-                createRipple(e);
-            }, { passive: true });
-
-            btn.addEventListener('mousedown', function(e) {
-                createRipple(e);
-            });
-
-            btn.addEventListener('selectstart', function(e) {
-                e.preventDefault();
-            });
-        })();
-
-        // ---- 进度条拖动 ----
-        let isDragging = false;
-        let dragVideo = null;
-        let dragProgressWrap = null;
-        let dragProgressBar = null;
-        let dragTimeLabel = null;
-        let dragDuration = 1;
-
-        function formatTime(seconds) {
-            if (!seconds || isNaN(seconds) || !isFinite(seconds)) return '00:00';
-            const m = Math.floor(seconds / 60);
-            const s = Math.floor(seconds % 60);
-            return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-        }
-
-        function updateTimeLabel(video, label) {
-            if (!video || !label) return;
-            const current = formatTime(video.currentTime || 0);
-            const total = formatTime(video.duration || 0);
-            label.textContent = `${current} / ${total}`;
-        }
-
-        function updateProgressByClientX(clientX, wrap, video) {
-            const rect = wrap.getBoundingClientRect();
-            let ratio = (clientX - rect.left) / rect.width;
-            ratio = Math.min(Math.max(ratio, 0), 1);
-            const bar = wrap.querySelector('.progress-bar');
-            if (bar) bar.style.width = (ratio * 100) + '%';
-            return ratio;
-        }
-
-        function initProgressForSlide(slide) {
-            const wrap = slide.querySelector('.progress-wrap');
-            const bar = slide.querySelector('.progress-bar');
-            const label = slide.querySelector('.progress-time-label');
-            const video = slide.querySelector('video');
-
-            if (!wrap || !bar || !video) return;
-
-            const newWrap = wrap.cloneNode(true);
-            wrap.parentNode.replaceChild(newWrap, wrap);
-            const newBar = newWrap.querySelector('.progress-bar');
-
-            const onStart = (e) => {
-                if (slide.dataset.index != currentIndex) return;
-                const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
-                isDragging = true;
-                dragVideo = video;
-                dragProgressWrap = newWrap;
-                dragProgressBar = newBar;
-                dragTimeLabel = label;
-                dragDuration = video.duration || 1;
-                newWrap.classList.add('dragging');
-
-                const rect = newWrap.getBoundingClientRect();
-                let ratio = (clientX - rect.left) / rect.width;
-                ratio = Math.min(Math.max(ratio, 0), 1);
-                newBar.style.width = (ratio * 100) + '%';
-                if (label) {
-                    const time = ratio * dragDuration;
-                    label.textContent = `${formatTime(time)} / ${formatTime(dragDuration)}`;
-                }
-                video.pause();
-                e.preventDefault();
-            };
-
-            const onMove = (e) => {
-                if (!isDragging || dragVideo !== video) return;
-                const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
-                const ratio = updateProgressByClientX(clientX, newWrap, video);
-                if (label) {
-                    const time = ratio * dragDuration;
-                    label.textContent = `${formatTime(time)} / ${formatTime(dragDuration)}`;
-                }
-                e.preventDefault();
-            };
-
-            const onEnd = (e) => {
-                if (!isDragging || dragVideo !== video) return;
-                isDragging = false;
-                newWrap.classList.remove('dragging');
-
-                const rect = newWrap.getBoundingClientRect();
-                const clientX = e.type === 'touchend' ? (e.changedTouches ? e.changedTouches[0].clientX : 0) : e.clientX;
-                let ratio = (clientX - rect.left) / rect.width;
-                ratio = Math.min(Math.max(ratio, 0), 1);
-                if (video.duration) {
-                    video.currentTime = ratio * video.duration;
-                }
-                if (label) {
-                    updateTimeLabel(video, label);
-                }
-                video.play().catch(() => {});
-                dragVideo = null;
-                dragProgressWrap = null;
-                dragProgressBar = null;
-                dragTimeLabel = null;
-                e.preventDefault();
-            };
-
-            newWrap.addEventListener('touchstart', onStart, { passive: false });
-            newWrap.addEventListener('touchmove', onMove, { passive: false });
-            newWrap.addEventListener('touchend', onEnd, { passive: false });
-            newWrap.addEventListener('touchcancel', onEnd, { passive: false });
-
-            newWrap.addEventListener('mousedown', onStart);
-            document.addEventListener('mousemove', onMove);
-            document.addEventListener('mouseup', onEnd);
-
-            slide._progressCleanup = () => {
-                document.removeEventListener('mousemove', onMove);
-                document.removeEventListener('mouseup', onEnd);
-            };
-        }
-
-        slides.forEach(s => initProgressForSlide(s));
-
-        function createDots() {
-            dotWrap.innerHTML = '';
-            for (let i = 0; i < slideCount; i++) {
-                const span = document.createElement('span');
-                span.dataset.index = i;
-                if (i === currentIndex) span.classList.add('active');
-                dotWrap.appendChild(span);
-            }
-        }
-        createDots();
-
-        function updateSlide(animate = true) {
-            container.style.transition = animate ? 'transform 0.4s cubic-bezier(0.22, 0.68, 0.35, 1)' : 'none';
-            container.style.transform = `translateY(-${currentIndex * 100}vh)`;
-
-            document.querySelectorAll('.douyin-dots span').forEach(dot => {
-                const idx = Number(dot.dataset.index);
-                dot.classList.toggle('active', idx === currentIndex);
-            });
-
-            slides.forEach((slide, idx) => {
-                const video = slide.querySelector('video');
-                const bar = slide.querySelector('.progress-bar');
-                const label = slide.querySelector('.progress-time-label');
-
-                if (idx === currentIndex) {
-                    if (!isDragging) {
-                        const playPromise = video.play();
-                        if (playPromise !== undefined) playPromise.catch(() => {});
-                        video.ontimeupdate = () => {
-                            if (video.duration && !isDragging) {
-                                const percent = (video.currentTime / video.duration) * 100;
-                                if (bar) bar.style.width = Math.min(percent, 100) + '%';
-                                if (label) updateTimeLabel(video, label);
-                            }
-                        };
-                        if (label) updateTimeLabel(video, label);
-                    }
-                } else {
-                    video.pause();
-                    video.ontimeupdate = null;
-                }
-            });
-
-            if (!animate) {
-                requestAnimationFrame(() => {
-                    container.style.transition = 'transform 0.4s cubic-bezier(0.22, 0.68, 0.35, 1)';
-                });
-            }
-        }
-
-        function slideUp() {
-            if (currentIndex > 0 && !scrollLock && !isDragging) {
-                scrollLock = true;
-                currentIndex--;
-                updateSlide(true);
-                setTimeout(() => { scrollLock = false; }, 420);
-            }
-        }
-        function slideDown() {
-            if (currentIndex < slideCount - 1 && !scrollLock && !isDragging) {
-                scrollLock = true;
-                currentIndex++;
-                updateSlide(true);
-                setTimeout(() => { scrollLock = false; }, 420);
-            }
-        }
-
-        let wheelLock = false;
-        container.addEventListener('wheel', (e) => {
-            e.preventDefault();
-            if (scrollLock || wheelLock || isDragging) return;
-            wheelLock = true;
-            e.deltaY > 0 ? slideDown() : slideUp();
-            setTimeout(() => { wheelLock = false; }, 450);
-        }, { passive: false });
-
-        container.addEventListener('touchstart', (e) => {
-            if (isDragging) return;
-            const touch = e.touches[0];
-            if (!touch) return;
-            touchStartY = touch.clientY;
-            touchMoveY = touchStartY;
-            isTouching = true;
-            isLongPress = false;
-            clearTimeout(longPressTimer);
-
-            const slide = slides[currentIndex];
-            const video = slide.querySelector('video');
-            const speedTip = slide.querySelector('.speed-tip');
-
-            longPressTimer = setTimeout(() => {
-                if (isTouching && Math.abs(touchMoveY - touchStartY) < 12) {
-                    isLongPress = true;
-                    video.playbackRate = 2.0;
-                    speedTip.style.display = 'block';
-                    if (navigator.vibrate) navigator.vibrate(10);
-                }
-            }, LONG_PRESS_MS);
-        }, { passive: true });
-
-        container.addEventListener('touchmove', (e) => {
-            if (isDragging) return;
-            const touch = e.touches[0];
-            if (!touch || !isTouching) return;
-            touchMoveY = touch.clientY;
-            const delta = touchMoveY - touchStartY;
-
-            if (Math.abs(delta) > 10) {
-                clearTimeout(longPressTimer);
-                const slide = slides[currentIndex];
-                const video = slide.querySelector('video');
-                if (video.playbackRate !== 1) {
-                    video.playbackRate = 1;
-                    slide.querySelector('.speed-tip').style.display = 'none';
-                }
-                isLongPress = false;
-            }
-            e.preventDefault();
-        }, { passive: false });
-
-        container.addEventListener('touchend', (e) => {
-            if (isDragging) return;
-            clearTimeout(longPressTimer);
-            isTouching = false;
-            const slide = slides[currentIndex];
-            const video = slide.querySelector('video');
-            const speedTip = slide.querySelector('.speed-tip');
-
-            if (isLongPress || video.playbackRate !== 1) {
-                video.playbackRate = 1;
-                speedTip.style.display = 'none';
-                isLongPress = false;
-            }
-
-            const delta = touchMoveY - touchStartY;
-            if (Math.abs(delta) > 40 && !isLongPress && !scrollLock) {
-                if (delta < 0) slideDown();
-                else slideUp();
-            }
-            touchStartY = 0;
-            touchMoveY = 0;
-        }, { passive: true });
-
-        container.addEventListener('touchcancel', () => {
-            clearTimeout(longPressTimer);
-            isTouching = false;
-            const slide = slides[currentIndex];
-            const video = slide.querySelector('video');
-            video.playbackRate = 1;
-            slide.querySelector('.speed-tip').style.display = 'none';
-            isLongPress = false;
-        }, { passive: true });
-
-        document.getElementById('btn-up').addEventListener('click', (e) => { e.stopPropagation(); slideUp(); });
-        document.getElementById('btn-down').addEventListener('click', (e) => { e.stopPropagation(); slideDown(); });
-
-        slides.forEach(slide => {
-            const video = slide.querySelector('video');
-            video.addEventListener('click', (e) => {
-                e.stopPropagation();
-                if (isDragging) return;
-                video.paused ? video.play().catch(()=>{}) : video.pause();
-            });
-        });
-
-        updateSlide(false);
-        setTimeout(() => {
-            container.style.transition = 'transform 0.4s cubic-bezier(0.22, 0.68, 0.35, 1)';
-        }, 30);
-
-        document.addEventListener('dblclick', (e) => e.preventDefault());
-
-        window.addEventListener('beforeunload', () => {
-            slides.forEach(s => { if (s._progressCleanup) s._progressCleanup(); });
-        });
-    })();
-</script>
-</body>
-</html>
+        let scrollLock =
