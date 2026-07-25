@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>动画作品滑动播放</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         * {margin: 0;padding: 0;box-sizing: border-box;}
         html,body {height: 100%;overflow: hidden;}
@@ -40,7 +39,6 @@
             object-fit: contain;
         }
 
-        /* 底部进度条容器 */
         .progress-wrap {
             position: absolute;
             bottom: 90px;
@@ -78,12 +76,20 @@
             position: absolute;
             top: 20px;
             right: 20px;
-            color: #fff;
-            font-size: 26px;
             background: transparent;
             border: none;
             z-index: 10;
             cursor: pointer;
+        }
+        .icon-svg {
+            fill: #fff;
+            width: 26px;
+            height: 26px;
+        }
+        .nav-icon {
+            fill: #fff;
+            width: 22px;
+            height: 22px;
         }
 
         .douyin-nav {
@@ -99,8 +105,6 @@
         .douyin-nav-btn {
             background: transparent;
             border: none;
-            color: #fff;
-            font-size: 22px;
             cursor: pointer;
         }
         .douyin-dots span {
@@ -123,7 +127,6 @@
             transform: translateX(-50%);
             font-size: 13px;
         }
-        /* 倍速提示文字 */
         .speed-tip {
             position: absolute;
             top: 50%;
@@ -140,17 +143,18 @@
 </head>
 <body>
 <div class="douyin-modal" id="douyin-modal">
-    <button class="douyin-close" id="douyin-close"><i class="fas fa-times"></i></button>
+    <button class="douyin-close" id="douyin-close">
+        <svg class="icon-svg" viewBox="0 0 448 512">
+            <path d="M64 32C64 14.3 49.7 0 32 0S0 14.3 0 32V64 384 480c0 17.7 14.3 32 32 32s32-14.3 32-32V352l64.3-160.8c5.2-12.9 19.1-19.2 31.1-13.6l112 48c11.7 5 18.2 18.1 14.3 30.3L256 384v96c0 17.7 14.3 32 32 32s32-14.3 32-32V384 64 32c0-17.7-14.3-32-32-32s-32 14.3-32 32v224L133.7 195.2c-5.2-12.9-19.1-19.2-31.1-13.6L32 230.4V32z"/>
+        </svg>
+    </button>
     <div class="douyin-container" id="douyin-container">
-        <!-- 第1条动画视频 -->
         <div class="douyin-slide" data-index="0">
             <video class="douyin-video" loop playsinline preload="auto" muted autoplay>
                 <source src="static/videos/video1.mp4" type="video/mp4">
                 浏览器不支持MP4视频
             </video>
-            <!-- 倍速提示 -->
             <div class="speed-tip">2x 倍速</div>
-            <!-- 进度条 -->
             <div class="progress-wrap">
                 <div class="progress-bar"></div>
             </div>
@@ -159,7 +163,6 @@
                 <p>科幻城市建模动画 #3D #动画 #C4D</p>
             </div>
         </div>
-        <!-- 第2条动画视频 -->
         <div class="douyin-slide" data-index="1">
             <video class="douyin-video" loop playsinline preload="auto" muted autoplay>
                 <source src="static/videos/video2.mp4" type="video/mp4">
@@ -174,7 +177,6 @@
                 <p>色彩与节奏的碰撞 #创意 #剪辑 #短片</p>
             </div>
         </div>
-        <!-- 第3条动画视频 -->
         <div class="douyin-slide" data-index="2">
             <video class="douyin-video" loop playsinline preload="auto" muted autoplay>
                 <source src="static/videos/video3.mp4" type="video/mp4">
@@ -191,9 +193,17 @@
         </div>
     </div>
     <div class="douyin-nav">
-        <button class="douyin-nav-btn up" id="btn-up"><i class="fas fa-chevron-up"></i></button>
+        <button class="douyin-nav-btn up" id="btn-up">
+            <svg class="nav-icon" viewBox="0 0 320 512">
+                <path d="M182.6 137.4c-12.5-12.5-32.8-12.5-45.3 0l-128 128c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L160 205.3l105.4 105.4c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3l-128-128z"/>
+            </svg>
+        </button>
         <div class="douyin-dots" id="dot-wrap"></div>
-        <button class="douyin-nav-btn down" id="btn-down"><i class="fas fa-chevron-down"></i></button>
+        <button class="douyin-nav-btn down" id="btn-down">
+            <svg class="nav-icon" viewBox="0 0 320 512">
+                <path d="M137.4 374.6c12.5 12.5 32.8 12.5 45.3 0l128-128c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L160 306.7 54.6 201.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l128 128z"/>
+            </svg>
+        </button>
     </div>
     <div class="douyin-hint">鼠标滚轮/手指上下滑动切换视频 · 长按视频2倍速 · 拖动进度条跳转</div>
 </div>
@@ -207,11 +217,9 @@ let touchStartY = 0;
 let scrollLock = false;
 const dotWrap = document.getElementById('dot-wrap');
 
-// 长按倍速变量
 let longPressTimer = null;
-const LONG_PRESS_TIME = 150; // 长按150ms触发2倍速
+const LONG_PRESS_TIME = 150;
 
-// 生成圆点指示器
 function createDots() {
     dotWrap.innerHTML = '';
     for(let i=0; i<slideCount; i++) {
@@ -223,7 +231,6 @@ function createDots() {
 }
 createDots();
 
-// 更新滑动位置、播放、进度条
 function updateSlide() {
     container.style.transform = `translateY(-${currentIndex * 100}vh)`;
     document.querySelectorAll('.douyin-dots span').forEach(dot => {
@@ -231,16 +238,12 @@ function updateSlide() {
     })
     slides.forEach((slide, idx) => {
         const video = slide.querySelector('video');
-        // 重置进度条
         slide.querySelector('.progress-bar').style.width = '0%';
         if(idx === currentIndex) {
-            video.play();
-            // 实时更新进度条
             video.ontimeupdate = () => {
                 const percent = (video.currentTime / video.duration) * 100;
                 slide.querySelector('.progress-bar').style.width = percent + '%';
             }
-            // 进度条点击跳转
             const progressWrap = slide.querySelector('.progress-wrap');
             progressWrap.onclick = (e) => {
                 const rect = progressWrap.getBoundingClientRect();
@@ -249,13 +252,16 @@ function updateSlide() {
                 const jumpTime = (clickX / totalWidth) * video.duration;
                 video.currentTime = jumpTime;
             }
+            const playPromise = video.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(() => {});
+            }
         } else {
             video.pause();
         }
     })
 }
 
-// 切换上一条
 function slideUp() {
     if(currentIndex > 0 && !scrollLock) {
         scrollLock = true;
@@ -264,7 +270,6 @@ function slideUp() {
         setTimeout(()=>scrollLock=false,400);
     }
 }
-// 切换下一条
 function slideDown() {
     if(currentIndex < slideCount - 1 && !scrollLock) {
         scrollLock = true;
@@ -274,20 +279,17 @@ function slideDown() {
     }
 }
 
-// PC鼠标滚轮滑动
 container.addEventListener('wheel', (e)=>{
     e.preventDefault();
     if(scrollLock) return;
     e.deltaY > 0 ? slideDown() : slideUp();
 })
 
-// 手机触屏滑动 + 长按2倍速
 container.addEventListener('touchstart', e => {
     touchStartY = e.touches[0].clientY;
     const slide = slides[currentIndex];
     const video = slide.querySelector('video');
     const speedTip = slide.querySelector('.speed-tip');
-    // 开启长按计时器
     longPressTimer = setTimeout(() => {
         video.playbackRate = 2;
         speedTip.style.display = 'block';
@@ -299,7 +301,6 @@ container.addEventListener('touchmove', e => {
 })
 container.addEventListener('touchend', e => {
     clearTimeout(longPressTimer);
-    // 恢复1倍速，隐藏提示
     const slide = slides[currentIndex];
     const video = slide.querySelector('video');
     const speedTip = slide.querySelector('.speed-tip');
@@ -312,11 +313,9 @@ container.addEventListener('touchend', e => {
     if(diff > 60) slideUp();
 })
 
-// 上下箭头按钮点击
 document.getElementById('btn-up').addEventListener('click', slideUp);
 document.getElementById('btn-down').addEventListener('click', slideDown);
 
-// 点击视频暂停播放
 slides.forEach(slide => {
     const video = slide.querySelector('video');
     video.addEventListener('click', () => {
@@ -324,7 +323,6 @@ slides.forEach(slide => {
     })
 })
 
-// 关闭按钮
 document.getElementById('douyin-close').addEventListener('click', () => {
     document.getElementById('douyin-modal').style.display = 'none';
     slides.forEach(s => s.querySelector('video').pause());
