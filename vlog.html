@@ -3,14 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Zhiting.vlog</title>
-    <!-- 在线引入字体图标，无需本地文件 -->
+    <title>动画作品滑动播放</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         * {margin: 0;padding: 0;box-sizing: border-box;}
         html,body {height: 100%;overflow: hidden;}
 
-        /* 全屏弹窗容器 */
         #douyin-modal {
             display: flex !important;
             position: fixed;
@@ -20,7 +18,6 @@
             overflow: hidden;
         }
 
-        /* 滑动容器核心 */
         .douyin-container {
             width: 100%;
             height: 100%;
@@ -28,7 +25,6 @@
             touch-action: none;
         }
 
-        /* 单屏视频区块 */
         .douyin-slide {
             width: 100%;
             height: 100vh;
@@ -44,7 +40,25 @@
             object-fit: contain;
         }
 
-        /* 原版左下角文字信息 布局完全不变 */
+        /* 底部进度条容器 */
+        .progress-wrap {
+            position: absolute;
+            bottom: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 85%;
+            height: 6px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .progress-bar {
+            height: 100%;
+            background: #fff;
+            border-radius: 3px;
+            width: 0%;
+        }
+
         .douyin-info {
             position: absolute;
             left: 20px;
@@ -60,7 +74,6 @@
             color: #ddd;
         }
 
-        /* 关闭按钮 右上角 */
         .douyin-close {
             position: absolute;
             top: 20px;
@@ -73,7 +86,6 @@
             cursor: pointer;
         }
 
-        /* 右侧上下箭头+圆点指示器 */
         .douyin-nav {
             position: absolute;
             right: 15px;
@@ -103,7 +115,6 @@
             background: #fff;
         }
 
-        /* 底部提示文字 */
         .douyin-hint {
             color: #aaa;
             position: absolute;
@@ -111,6 +122,19 @@
             left: 50%;
             transform: translateX(-50%);
             font-size: 13px;
+        }
+        /* 倍速提示文字 */
+        .speed-tip {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%,-50%);
+            color: #fff;
+            font-size: 24px;
+            background: rgba(0,0,0,0.4);
+            padding: 8px 16px;
+            border-radius: 8px;
+            display: none;
         }
     </style>
 </head>
@@ -124,6 +148,12 @@
                 <source src="static/videos/video1.mp4" type="video/mp4">
                 浏览器不支持MP4视频
             </video>
+            <!-- 倍速提示 -->
+            <div class="speed-tip">2x 倍速</div>
+            <!-- 进度条 -->
+            <div class="progress-wrap">
+                <div class="progress-bar"></div>
+            </div>
             <div class="douyin-info">
                 <h3>@一叶知秋 · 3D动画作品</h3>
                 <p>科幻城市建模动画 #3D #动画 #C4D</p>
@@ -135,6 +165,10 @@
                 <source src="static/videos/video2.mp4" type="video/mp4">
                 浏览器不支持MP4视频
             </video>
+            <div class="speed-tip">2x 倍速</div>
+            <div class="progress-wrap">
+                <div class="progress-bar"></div>
+            </div>
             <div class="douyin-info">
                 <h3>@一叶知秋 · 创意短片</h3>
                 <p>色彩与节奏的碰撞 #创意 #剪辑 #短片</p>
@@ -146,23 +180,25 @@
                 <source src="static/videos/video3.mp4" type="video/mp4">
                 浏览器不支持MP4视频
             </video>
+            <div class="speed-tip">2x 倍速</div>
+            <div class="progress-wrap">
+                <div class="progress-bar"></div>
+            </div>
             <div class="douyin-info">
                 <h3>@一叶知秋 · 广告拍摄</h3>
                 <p>品牌宣传片段 #广告 #拍摄 #制作</p>
             </div>
         </div>
     </div>
-    <!-- 右侧导航控件 -->
     <div class="douyin-nav">
         <button class="douyin-nav-btn up" id="btn-up"><i class="fas fa-chevron-up"></i></button>
         <div class="douyin-dots" id="dot-wrap"></div>
         <button class="douyin-nav-btn down" id="btn-down"><i class="fas fa-chevron-down"></i></button>
     </div>
-    <div class="douyin-hint">鼠标滚轮/手指上下滑动切换视频 · 点击视频暂停/播放</div>
+    <div class="douyin-hint">鼠标滚轮/手指上下滑动切换视频 · 长按视频2倍速 · 拖动进度条跳转</div>
 </div>
 
 <script>
-// 全部JS内嵌，无需外部js文件
 const container = document.getElementById('douyin-container');
 const slides = document.querySelectorAll('.douyin-slide');
 const slideCount = slides.length;
@@ -170,6 +206,10 @@ let currentIndex = 0;
 let touchStartY = 0;
 let scrollLock = false;
 const dotWrap = document.getElementById('dot-wrap');
+
+// 长按倍速变量
+let longPressTimer = null;
+const LONG_PRESS_TIME = 150; // 长按150ms触发2倍速
 
 // 生成圆点指示器
 function createDots() {
@@ -183,7 +223,7 @@ function createDots() {
 }
 createDots();
 
-// 更新滑动位置与视频播放状态
+// 更新滑动位置、播放、进度条
 function updateSlide() {
     container.style.transform = `translateY(-${currentIndex * 100}vh)`;
     document.querySelectorAll('.douyin-dots span').forEach(dot => {
@@ -191,7 +231,27 @@ function updateSlide() {
     })
     slides.forEach((slide, idx) => {
         const video = slide.querySelector('video');
-        idx === currentIndex ? video.play() : video.pause();
+        // 重置进度条
+        slide.querySelector('.progress-bar').style.width = '0%';
+        if(idx === currentIndex) {
+            video.play();
+            // 实时更新进度条
+            video.ontimeupdate = () => {
+                const percent = (video.currentTime / video.duration) * 100;
+                slide.querySelector('.progress-bar').style.width = percent + '%';
+            }
+            // 进度条点击跳转
+            const progressWrap = slide.querySelector('.progress-wrap');
+            progressWrap.onclick = (e) => {
+                const rect = progressWrap.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const totalWidth = rect.width;
+                const jumpTime = (clickX / totalWidth) * video.duration;
+                video.currentTime = jumpTime;
+            }
+        } else {
+            video.pause();
+        }
     })
 }
 
@@ -221,14 +281,31 @@ container.addEventListener('wheel', (e)=>{
     e.deltaY > 0 ? slideDown() : slideUp();
 })
 
-// 手机触屏滑动
+// 手机触屏滑动 + 长按2倍速
 container.addEventListener('touchstart', e => {
     touchStartY = e.touches[0].clientY;
+    const slide = slides[currentIndex];
+    const video = slide.querySelector('video');
+    const speedTip = slide.querySelector('.speed-tip');
+    // 开启长按计时器
+    longPressTimer = setTimeout(() => {
+        video.playbackRate = 2;
+        speedTip.style.display = 'block';
+    }, LONG_PRESS_TIME);
 })
 container.addEventListener('touchmove', e => {
     e.preventDefault();
+    clearTimeout(longPressTimer);
 })
 container.addEventListener('touchend', e => {
+    clearTimeout(longPressTimer);
+    // 恢复1倍速，隐藏提示
+    const slide = slides[currentIndex];
+    const video = slide.querySelector('video');
+    const speedTip = slide.querySelector('.speed-tip');
+    video.playbackRate = 1;
+    speedTip.style.display = 'none';
+
     const touchEndY = e.changedTouches[0].clientY;
     const diff = touchEndY - touchStartY;
     if(diff < -60) slideDown();
