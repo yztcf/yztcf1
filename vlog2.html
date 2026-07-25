@@ -24,7 +24,7 @@
       --transition: 0.25s cubic-bezier(0.2, 0, 0, 1);
     }
 
-    /* 夜间模式微调 (保留深蓝底色，仅调整卡片亮度) */
+    /* 夜间模式微调 */
     .dark-mode {
       --bg-card: rgba(0, 0, 0, 0.25);
       --bg-card-hover: rgba(0, 0, 0, 0.35);
@@ -35,7 +35,6 @@
       --shadow-hover: 0 20px 48px rgba(0, 0, 0, 0.55);
     }
 
-    /* 重置 & 基础 */
     * {
       margin: 0;
       padding: 0;
@@ -55,14 +54,12 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* 容器 —— 最大宽度舒适阅读 */
     .container {
       max-width: 1280px;
       margin: 0 auto;
       padding: 20px 0 60px;
     }
 
-    /* ===== 顶部导航 ===== */
     header {
       display: flex;
       justify-content: space-between;
@@ -87,7 +84,6 @@
       gap: 20px;
     }
 
-    /* ===== Vlog 按钮 ===== */
     .vlog-btn {
       display: inline-flex;
       align-items: center;
@@ -126,7 +122,6 @@
       stroke-linejoin: round;
     }
 
-    /* ===== 页面标题 ===== */
     .page-title {
       margin-bottom: 28px;
       padding: 0 4px;
@@ -149,7 +144,6 @@
       -webkit-text-fill-color: var(--text-secondary);
     }
 
-    /* ===== 项目网格 ===== */
     .project-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -157,7 +151,6 @@
       margin-top: 12px;
     }
 
-    /* ===== 项目卡片 ===== */
     .project-card {
       background: var(--bg-card);
       backdrop-filter: blur(6px);
@@ -178,6 +171,10 @@
       box-shadow: var(--shadow-hover);
     }
 
+    .card-img-link {
+      display: block;
+      width: 100%;
+    }
     .card-img {
       width: 100%;
       height: 180px;
@@ -207,7 +204,6 @@
       flex: 1;
     }
 
-    /* ===== 卡片按钮 ===== */
     .card-buttons {
       display: flex;
       gap: 12px;
@@ -255,7 +251,6 @@
       transform: scale(1.02);
     }
 
-    /* ===== 响应式：手机优先 ===== */
     @media (max-width: 640px) {
       body { padding: 0 12px; }
       .container { padding: 12px 0 40px; }
@@ -297,7 +292,6 @@
       .card-buttons { gap: 8px; }
     }
 
-    /* 中等屏幕 (平板) */
     @media (min-width: 641px) and (max-width: 1024px) {
       .project-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -307,7 +301,6 @@
       header { padding: 20px 0 12px; }
     }
 
-    /* 大屏优化 */
     @media (min-width: 1025px) {
       .project-grid {
         grid-template-columns: repeat(3, 1fr);
@@ -317,7 +310,6 @@
       .project-card { padding: 24px; }
     }
 
-    /* ===== 小点缀：星星装饰 (纯CSS) ===== */
     .star-deco {
       position: fixed;
       bottom: 24px;
@@ -333,7 +325,6 @@
       .star-deco { display: none; }
     }
 
-    /* ===== 滚动条美化 (可选) ===== */
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
@@ -350,7 +341,6 @@
 </head>
 <body>
   <div class="container">
-    <!-- 顶部导航 -->
     <header>
       <div class="logo">Zhiting</div>
       <div class="nav-right">
@@ -364,18 +354,18 @@
       </div>
     </header>
 
-    <!-- 主内容 -->
     <main>
       <div class="page-title">
         <h1>我们的项目</h1>
         <p>在这里你可以展示你最好的作品。每个项目应包含简要介绍、所用技术以及任何显著成就。这有助于潜在客户或雇主了解您的能力。</p>
       </div>
 
-      <!-- 项目卡片网格 -->
       <div class="project-grid" id="projects">
-        <!-- 项目 1 -->
+        <!-- 项目1 跳转 vlog2.html#video1 -->
         <div class="project-card">
-          <img class="card-img" src="https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=600&h=400&fit=crop&crop=center" alt="项目封面" loading="lazy">
+          <a href="https://yztcf.de5.net/vlog2.html#video1" target="_blank" class="card-img-link">
+            <img class="card-img" src="https://github.com/yezhiting1/yztcf/upload/main/static/gif/gif1.gif" alt="项目封面动图" loading="lazy">
+          </a>
           <h3 class="card-title">第一计划</h3>
           <p class="card-desc">简要介绍一下你的第一个项目。请解释项目实现功能、使用技术栈。</p>
           <div class="card-buttons">
@@ -384,9 +374,11 @@
           </div>
         </div>
 
-        <!-- 项目 2 -->
+        <!-- 项目2 -->
         <div class="project-card">
-          <img class="card-img" src="https://images.unsplash.com/photo-1593305084199-2982ba860a06?w=600&h=400&fit=crop&crop=center" alt="项目封面" loading="lazy">
+          <a href="https://yztcf.de5.net/vlog2.html#video2" target="_blank" class="card-img-link">
+            <img class="card-img" src="https://github.com/yezhiting1/yztcf/upload/main/static/gif/gif2.gif" alt="项目封面动图" loading="lazy">
+          </a>
           <h3 class="card-title">项目二</h3>
           <p class="card-desc">请在这里描述你的第二个项目。突出关键功能、技术亮点与落地成果。</p>
           <div class="card-buttons">
@@ -395,9 +387,11 @@
           </div>
         </div>
 
-        <!-- 项目 3 -->
+        <!-- 项目3 -->
         <div class="project-card">
-          <img class="card-img" src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop&crop=center" alt="项目封面" loading="lazy">
+          <a href="https://yztcf.de5.net/vlog2.html#video3" target="_blank" class="card-img-link">
+            <img class="card-img" src="https://github.com/yezhiting1/yztcf/upload/main/static/gif/gif3.gif" alt="项目封面动图" loading="lazy">
+          </a>
           <h3 class="card-title">第三计划</h3>
           <p class="card-desc">分享你第三个项目的细节。它解决了哪些业务痛点，具备哪些核心优势。</p>
           <div class="card-buttons">
@@ -405,61 +399,66 @@
             <a href="https://yztcf.de5.net/vlog.html" target="_blank" class="btn btn-github">源码仓库</a>
           </div>
         </div>
-      </div>
 
-         <!-- 项目 4 -->
+        <!-- 项目4 -->
         <div class="project-card">
-          <img class="card-img" src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop&crop=center" alt="项目封面" loading="lazy">
+          <a href="https://yztcf.de5.net/vlog2.html#video4" target="_blank" class="card-img-link">
+            <img class="card-img" src="https://github.com/yezhiting1/yztcf/upload/main/static/gif/gif4.gif" alt="项目封面动图" loading="lazy">
+          </a>
           <h3 class="card-title">第四计划</h3>
-          <p class="card-desc">分享你第三个项目的细节。它解决了哪些业务痛点，具备哪些核心优势。</p>
+          <p class="card-desc">分享你第四个项目的细节。它解决了哪些业务痛点，具备哪些核心优势。</p>
           <div class="card-buttons">
             <a href="https://yztcf.de5.net/vlog.html" target="_blank" class="btn btn-site">在线网站</a>
             <a href="https://yztcf.de5.net/vlog.html" target="_blank" class="btn btn-github">源码仓库</a>
           </div>
         </div>
-      </div>
-  
-     <!-- 项目 5 -->
-        <div class="project-card">
-          <img class="card-img" src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop&crop=center" alt="项目封面" loading="lazy">
-          <h3 class="card-title">第三计划</h3>
-          <p class="card-desc">分享你第三个项目的细节。它解决了哪些业务痛点，具备哪些核心优势。</p>
-          <div class="card-buttons">
-            <a href="https://yztcf.de5.net/vlog.html" target="_blank" class="btn btn-site">在线网站</a>
-            <a href="https://yztcf.de5.net/vlog.html" target="_blank" class="btn btn-github">源码仓库</a>
-          </div>
-        </div>
-      </div>
 
-     <!-- 项目6 -->
+        <!-- 项目5 -->
         <div class="project-card">
-          <img class="card-img" src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop&crop=center" alt="项目封面" loading="lazy">
-          <h3 class="card-title">第三计划</h3>
-          <p class="card-desc">分享你第三个项目的细节。它解决了哪些业务痛点，具备哪些核心优势。</p>
+          <a href="https://yztcf.de5.net/vlog2.html#video5" target="_blank" class="card-img-link">
+            <img class="card-img" src="https://github.com/yezhiting1/yztcf/upload/main/static/gif/gif5.gif" alt="项目封面动图" loading="lazy">
+          </a>
+          <h3 class="card-title">第五计划</h3>
+          <p class="card-desc">分享你第五个项目的细节。它解决了哪些业务痛点，具备哪些核心优势。</p>
           <div class="card-buttons">
             <a href="https://yztcf.de5.net/vlog.html" target="_blank" class="btn btn-site">在线网站</a>
             <a href="https://yztcf.de5.net/vlog.html" target="_blank" class="btn btn-github">源码仓库</a>
           </div>
         </div>
-      </div>
 
-     <!-- 项目 7 -->
+        <!-- 项目6 -->
         <div class="project-card">
-          <img class="card-img" src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop&crop=center" alt="项目封面" loading="lazy">
-          <h3 class="card-title">第三计划</h3>
-          <p class="card-desc">分享你第三个项目的细节。它解决了哪些业务痛点，具备哪些核心优势。</p>
+          <a href="https://yztcf.de5.net/vlog2.html#video6" target="_blank" class="card-img-link">
+            <img class="card-img" src="https://github.com/yezhiting1/yztcf/upload/main/static/gif/gif6.gif" alt="项目封面动图" loading="lazy">
+          </a>
+          <h3 class="card-title">第六计划</h3>
+          <p class="card-desc">分享你第六个项目的细节。它解决了哪些业务痛点，具备哪些核心优势。</p>
           <div class="card-buttons">
             <a href="https://yztcf.de5.net/vlog.html" target="_blank" class="btn btn-site">在线网站</a>
             <a href="https://yztcf.de5.net/vlog.html" target="_blank" class="btn btn-github">源码仓库</a>
           </div>
         </div>
-      </div>
 
-     <!-- 项目 8 -->
+        <!-- 项目7 -->
         <div class="project-card">
-          <img class="card-img" src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop&crop=center" alt="项目封面" loading="lazy">
-          <h3 class="card-title">第三计划</h3>
-          <p class="card-desc">分享你第三个项目的细节。它解决了哪些业务痛点，具备哪些核心优势。</p>
+          <a href="https://yztcf.de5.net/vlog2.html#video7" target="_blank" class="card-img-link">
+            <img class="card-img" src="https://github.com/yezhiting1/yztcf/upload/main/static/gif/gif7.gif" alt="项目封面动图" loading="lazy">
+          </a>
+          <h3 class="card-title">第七计划</h3>
+          <p class="card-desc">分享你第七个项目的细节。它解决了哪些业务痛点，具备哪些核心优势。</p>
+          <div class="card-buttons">
+            <a href="https://yztcf.de5.net/vlog.html" target="_blank" class="btn btn-site">在线网站</a>
+            <a href="https://yztcf.de5.net/vlog.html" target="_blank" class="btn btn-github">源码仓库</a>
+          </div>
+        </div>
+
+        <!-- 项目8 -->
+        <div class="project-card">
+          <a href="https://yztcf.de5.net/vlog2.html#video8" target="_blank" class="card-img-link">
+            <img class="card-img" src="https://github.com/yezhiting1/yztcf/upload/main/static/gif/gif8.gif" alt="项目封面动图" loading="lazy">
+          </a>
+          <h3 class="card-title">第八计划</h3>
+          <p class="card-desc">分享你第八个项目的细节。它解决了哪些业务痛点，具备哪些核心优势。</p>
           <div class="card-buttons">
             <a href="https://yztcf.de5.net/vlog.html" target="_blank" class="btn btn-site">在线网站</a>
             <a href="https://yztcf.de5.net/vlog.html" target="_blank" class="btn btn-github">源码仓库</a>
@@ -468,13 +467,11 @@
       </div>
     </main>
 
-    <!-- 底部装饰 -->
     <div class="star-deco">✦ ✦ ✦</div>
   </div>
 
   <script>
     (function() {
-      // 平滑锚点滚动
       document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function(e) {
           const href = this.getAttribute('href');
