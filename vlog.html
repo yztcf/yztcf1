@@ -105,6 +105,11 @@
             width: 22px;
             height: 22px;
         }
+        .full-icon{
+            fill:#fff;
+            width:24px;
+            height:24px;
+        }
 
         /* 右侧上下切换按钮 + 圆点指示器 */
         .douyin-nav {
@@ -132,6 +137,19 @@
         }
         .douyin-dots span.active {
             background: #fff;
+        }
+
+        /* 全屏横屏按钮样式 */
+        .fullscreen-btn{
+            position:absolute;
+            bottom:120px;
+            right:20px;
+            background:rgba(255,255,255,0.15);
+            border:none;
+            border-radius:6px;
+            padding:8px;
+            cursor:pointer;
+            z-index:10;
         }
 
         /* 底部操作提示 */
@@ -181,6 +199,12 @@
                 <h3>@一叶知秋 · 3D动画作品</h3>
                 <p>科幻城市建模动画 #3D #动画 #C4D</p>
             </div>
+            <!-- 全屏按钮 -->
+            <button class="fullscreen-btn">
+                <svg class="full-icon" viewBox="0 0 448 512">
+                    <path d="M32 32C14.3 32 0 46.3 0 64V192c0 17.7 14.3 32 32 32s32-14.3 32-32V96h96c17.7 0 32-14.3 32-32s-14.3-32-32-32H32zM64 320c-17.7 0-32 14.3-32 32v128c0 17.7 14.3 32 32 32h128c17.7 0 32-14.3 32-32s-14.3-32-32-32H96V352c0-17.7-14.3-32-32-32zM320 32c-17.7 0-32 14.3-32 32s14.3 32 32 32h96v96c0 17.7 14.3 32 32 32s32-14.3 32-32V64c0-17.7-14.3-32-32-32H320zM384 320c-17.7 0-32 14.3-32 32v96h-96c-17.7 0-32 14.3-32 32s14.3 32 32 32h128c17.7 0 32-14.3 32-32V352c0-17.7-14.3-32-32-32H384z"/>
+                </svg>
+            </button>
         </div>
         <!-- 视频2 -->
         <div class="douyin-slide" data-index="1">
@@ -196,6 +220,11 @@
                 <h3>@一叶知秋 · 创意短片</h3>
                 <p>色彩与节奏的碰撞 #创意 #剪辑 #短片</p>
             </div>
+            <button class="fullscreen-btn">
+                <svg class="full-icon" viewBox="0 0 448 512">
+                    <path d="M32 32C14.3 32 0 46.3 0 64V192c0 17.7 14.3 32 32 32s32-14.3 32-32V96h96c17.7 0 32-14.3 32-32s-14.3-32-32-32H32zM64 320c-17.7 0-32 14.3-32 32v128c0 17.7 14.3 32 32 32h128c17.7 0 32-14.3 32-32s-14.3-32-32-32H96V352c0-17.7-14.3-32-32-32zM320 32c-17.7 0-32 14.3-32 32s14.3 32 32 32h96v96c0 17.7 14.3 32 32 32s32-14.3 32-32V64c0-17.7-14.3-32-32-32H320zM384 320c-17.7 0-32 14.3-32 32v96h-96c-17.7 0-32 14.3-32 32s14.3 32 32 32h128c17.7 0 32-14.3 32-32V352c0-17.7-14.3-32-32-32H384z"/>
+                </svg>
+            </button>
         </div>
         <!-- 视频3 -->
         <div class="douyin-slide" data-index="2">
@@ -211,6 +240,11 @@
                 <h3>@一叶知秋 · 广告拍摄</h3>
                 <p>品牌宣传片段 #广告 #拍摄 #制作</p>
             </div>
+            <button class="fullscreen-btn">
+                <svg class="full-icon" viewBox="0 0 448 512">
+                    <path d="M32 32C14.3 32 0 46.3 0 64V192c0 17.7 14.3 32 32 32s32-14.3 32-32V96h96c17.7 0 32-14.3 32-32s-14.3-32-32-32H32zM64 320c-17.7 0-32 14.3-32 32v128c0 17.7 14.3 32 32 32h128c17.7 0 32-14.3 32-32s-14.3-32-32-32H96V352c0-17.7-14.3-32-32-32zM320 32c-17.7 0-32 14.3-32 32s14.3 32 32 32h96v96c0 17.7 14.3 32 32 32s32-14.3 32-32V64c0-17.7-14.3-32-32-32H320zM384 320c-17.7 0-32 14.3-32 32v96h-96c-17.7 0-32 14.3-32 32s14.3 32 32 32h128c17.7 0 32-14.3 32-32V352c0-17.7-14.3-32-32-32H384z"/>
+                </svg>
+            </button>
         </div>
     </div>
     <div class="douyin-nav">
@@ -226,7 +260,7 @@
             </svg>
         </button>
     </div>
-    <div class="douyin-hint">鼠标滚轮/手指上下滑动切换视频 · 长按视频2倍速 · 拖动进度条跳转</div>
+    <div class="douyin-hint">鼠标滚轮/手指上下滑动切换视频 · 长按视频2倍速 · 拖动进度条跳转 · 右下角按钮全屏横屏</div>
 </div>
 
 <script>
@@ -360,6 +394,30 @@ slides.forEach(slide => {
 document.getElementById('douyin-close').addEventListener('click', () => {
     document.getElementById('douyin-modal').style.display = 'none';
     slides.forEach(s => s.querySelector('video').pause());
+})
+
+// 全屏横屏逻辑
+const fullBtns = document.querySelectorAll('.fullscreen-btn');
+const modalWrap = document.getElementById('douyin-modal');
+fullBtns.forEach(btn=>{
+    btn.addEventListener('click',async ()=>{
+        try{
+            // 手机自动锁定横屏
+            if(screen.orientation && screen.orientation.lock){
+                await screen.orientation.lock('landscape');
+            }
+            // 浏览器全屏
+            if(modalWrap.requestFullscreen){
+                await modalWrap.requestFullscreen();
+            }else if(modalWrap.webkitRequestFullscreen){
+                await modalWrap.webkitRequestFullscreen();
+            }else if(modalWrap.msRequestFullscreen){
+                await modalWrap.msRequestFullscreen();
+            }
+        }catch(err){
+            console.log('全屏/横屏限制',err);
+        }
+    })
 })
 
 window.onload = updateSlide;
