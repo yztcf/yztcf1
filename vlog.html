@@ -29,7 +29,6 @@
             touch-action: none;
         }
 
-        /* 滑动容器 — 顺滑过渡 */
         .douyin-container {
             width: 100%;
             height: 100vh;
@@ -50,7 +49,6 @@
             padding: 0 12px;
         }
 
-        /* 视频卡片 — 毛玻璃底衬 + 圆润 */
         .glass-card {
             position: relative;
             width: 100%;
@@ -83,7 +81,6 @@
             box-shadow: inset 0 2px 20px rgba(0,0,0,0.3);
         }
 
-        /* 毛玻璃信息栏 — 悬浮在左下 */
         .douyin-info {
             position: absolute;
             left: 24px;
@@ -114,33 +111,93 @@
             letter-spacing: 0.2px;
         }
 
-        /* 毛玻璃进度条 */
+        /* ===== 进度条 ===== */
         .progress-wrap {
             position: absolute;
             bottom: 88px;
             left: 50%;
             transform: translateX(-50%);
             width: 88%;
-            height: 5px;
-            background: rgba(255, 255, 255, 0.15);
+            height: 6px;
+            background: rgba(255, 255, 255, 0.12);
             backdrop-filter: blur(4px);
             -webkit-backdrop-filter: blur(4px);
             border-radius: 20px;
             cursor: pointer;
             z-index: 15;
             touch-action: none;
-            box-shadow: inset 0 1px 4px rgba(0,0,0,0.2);
+            box-shadow: inset 0 1px 6px rgba(0,0,0,0.3);
+            transition: height 0.2s ease, background 0.2s ease;
+            padding: 8px 0;
+            margin-top: -8px;
+            background-clip: padding-box;
+        }
+        .progress-wrap::before {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 24px;
+            background: transparent;
+            pointer-events: none;
         }
         .progress-bar {
             height: 100%;
-            background: linear-gradient(90deg, #ffffff, #c0d0ff);
+            background: linear-gradient(90deg, #ffffff, #b0c8ff);
             border-radius: 20px;
             width: 0%;
-            transition: width 0.05s linear;
-            box-shadow: 0 0 16px rgba(180, 200, 255, 0.3);
+            transition: width 0.08s ease-out;
+            box-shadow: 0 0 20px rgba(150, 180, 255, 0.4);
+            position: relative;
+        }
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            right: -5px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 14px;
+            height: 14px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5), 0 2px 8px rgba(0,0,0,0.3);
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+        .progress-wrap.dragging .progress-bar::after {
+            opacity: 1;
+        }
+        .progress-wrap.dragging {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
         }
 
-        /* 顶部提示 — 毛玻璃 */
+        .progress-time-label {
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 12px;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+            background: rgba(10, 10, 15, 0.2);
+            backdrop-filter: blur(12px) saturate(1.4);
+            -webkit-backdrop-filter: blur(12px) saturate(1.4);
+            padding: 3px 16px;
+            border-radius: 30px;
+            border: 0.5px solid rgba(255, 255, 255, 0.04);
+            pointer-events: none;
+            z-index: 16;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+            font-variant-numeric: tabular-nums;
+        }
+        .progress-wrap.dragging ~ .progress-time-label {
+            opacity: 1;
+            color: #fff;
+            background: rgba(10, 10, 15, 0.4);
+        }
+
         .douyin-hint {
             position: absolute;
             top: 56px;
@@ -161,34 +218,97 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.2);
         }
 
-        /* 关闭按钮 — 毛玻璃圆 */
-        .douyin-close {
+        /* ===== 右上角 Vlog 按钮 (完全采用你提供的样式) ===== */
+        .vlog-btn {
             position: absolute;
             top: 16px;
             right: 16px;
             z-index: 30;
-            background: rgba(20, 20, 30, 0.3);
-            backdrop-filter: blur(18px) saturate(1.6);
-            -webkit-backdrop-filter: blur(18px) saturate(1.6);
-            border-radius: 50%;
-            padding: 10px;
-            border: 0.5px solid rgba(255, 255, 255, 0.06);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: #F4D758;
+            color: #1a2a4a;
+            padding: 10px 20px;
+            border-radius: 60px;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 600;
+            border: none;
             cursor: pointer;
-            transition: background 0.2s, transform 0.15s;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-        }
-        .douyin-close:active {
-            background: rgba(255, 255, 255, 0.1);
-            transform: scale(0.92);
-        }
-        .icon-svg {
-            fill: rgba(255, 255, 255, 0.8);
-            width: 22px;
-            height: 22px;
-            display: block;
+            box-shadow: 0 4px 16px rgba(244, 215, 88, 0.30);
+            transition: transform 0.25s cubic-bezier(0.2, 0, 0, 1),
+                        box-shadow 0.3s cubic-bezier(0.2, 0, 0, 1);
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            user-select: none;
+            position: absolute;
+            overflow: hidden;
+            letter-spacing: 0.3px;
         }
 
-        /* 底部导航 — 毛玻璃横向 */
+        /* 悬停效果 (桌面) */
+        @media (hover: hover) {
+            .vlog-btn:hover {
+                transform: scale(1.05);
+                box-shadow: 0 8px 28px rgba(244, 215, 88, 0.45);
+                background: #f8df6e;
+            }
+        }
+
+        /* 点击效果 (放大) */
+        .vlog-btn:active {
+            transform: scale(1.12);
+            transition-duration: 0.08s;
+            box-shadow: 0 4px 12px rgba(244, 215, 88, 0.25);
+        }
+
+        /* 点击涟漪 */
+        .vlog-btn .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.35);
+            transform: scale(0);
+            animation: rippleAnim 0.5s cubic-bezier(0.2, 0, 0, 1) forwards;
+            pointer-events: none;
+            width: 100px;
+            height: 100px;
+            margin-left: -50px;
+            margin-top: -50px;
+            top: 50%;
+            left: 50%;
+        }
+
+        @keyframes rippleAnim {
+            0% {
+                transform: scale(0);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(3);
+                opacity: 0;
+            }
+        }
+
+        /* SVG 图标 */
+        .vlog-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            flex-shrink: 0;
+        }
+
+        /* 按钮文字 */
+        .vlog-btn .btn-text {
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
         .douyin-nav {
             position: absolute;
             right: 18px;
@@ -252,7 +372,6 @@
             box-shadow: 0 0 18px rgba(180, 200, 255, 0.5);
         }
 
-        /* 倍速提示 — 毛玻璃浮层 */
         .speed-tip {
             position: absolute;
             top: 50%;
@@ -274,7 +393,6 @@
             text-shadow: 0 2px 20px rgba(0,0,0,0.4);
         }
 
-        /* 电脑端微调 */
         @media (min-width: 1024px) {
             .douyin-slide { padding: 0 40px; }
             .glass-card { max-height: 85vh; }
@@ -283,62 +401,77 @@
             .douyin-nav { right: 30px; bottom: 40px; }
             .douyin-info { bottom: 130px; }
             .progress-wrap { bottom: 100px; }
+            .progress-time-label { bottom: 112px; }
+            .vlog-btn { top: 24px; right: 24px; padding: 12px 24px; font-size: 16px; }
+            .vlog-btn svg { width: 22px; height: 22px; }
         }
 
-        /* 小屏手机适配 */
         @media (max-width: 480px) {
             .douyin-info { left: 16px; bottom: 100px; padding: 8px 14px; }
             .douyin-info h3 { font-size: 15px; }
             .douyin-info p { font-size: 11px; }
             .douyin-hint { font-size: 10px; padding: 4px 14px; top: 48px; }
             .progress-wrap { bottom: 78px; width: 92%; }
+            .progress-time-label { bottom: 90px; font-size: 11px; padding: 2px 12px; }
             .douyin-nav { padding: 4px 12px 4px 8px; gap: 10px; bottom: 24px; right: 12px; }
             .douyin-dots span { width: 6px; height: 6px; gap: 10px; }
             .nav-icon { width: 18px; height: 18px; }
+            .vlog-btn { top: 12px; right: 12px; padding: 8px 14px; font-size: 12px; gap: 6px; }
+            .vlog-btn svg { width: 16px; height: 16px; }
         }
     </style>
 </head>
 <body>
 <div id="douyin-modal">
-    <button class="douyin-close" id="douyin-close" aria-label="关闭">
-        <svg class="icon-svg" viewBox="0 0 448 512">
-            <path d="M64 32C64 14.3 49.7 0 32 0S0 14.3 0 32V64 384 480c0 17.7 14.3 32 32 32s32-14.3 32-32V352l64.3-160.8c5.2-12.9 19.1-19.2 31.1-13.6l112 48c11.7 5 18.2 18.1 14.3 30.3L256 384v96c0 17.7 14.3 32 32 32s32-14.3 32-32V384 64 32c0-17.7-14.3-32-32-32s-32 14.3-32 32v224L133.7 195.2c-5.2-12.9-19.1-19.2-31.1-13.6L32 230.4V32z"/>
+    <!-- ===== 右上角 Vlog 按钮 (完全采用你提供的样式) ===== -->
+    <a href="https://yztcf.de5.net/vlog2.html" target="_blank" class="vlog-btn" id="vlogBtn">
+        <!-- 播放图标 -->
+        <svg viewBox="0 0 24 24">
+            <polygon points="23 7 16 12 23 17 23 7"/>
+            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
         </svg>
-    </button>
+        <span class="btn-text">Vlog / 详情</span>
+    </a>
+
     <div class="douyin-hint">⬆️ 滑动切换 · 长按 2x 倍速</div>
     <div class="douyin-container" id="douyin-container">
-        <!-- 三个作品 slide -->
         <div class="douyin-slide" data-index="0">
             <div class="glass-card">
                 <video class="douyin-video" loop playsinline webkit-playsinline preload="auto" muted autoplay>
                     <source src="static/videos/video1.mp4" type="video/mp4">
-                    浏览器不支持MP4视频
                 </video>
             </div>
             <div class="speed-tip">2x 倍速</div>
-            <div class="progress-wrap"><div class="progress-bar"></div></div>
+            <div class="progress-wrap" id="progress-wrap-0">
+                <div class="progress-bar" id="progress-bar-0"></div>
+            </div>
+            <div class="progress-time-label" id="time-label-0">00:00 / 00:00</div>
             <div class="douyin-info"><h3>@一叶知秋 · 3D动画</h3><p>科幻城市 · C4D</p></div>
         </div>
         <div class="douyin-slide" data-index="1">
             <div class="glass-card">
                 <video class="douyin-video" loop playsinline webkit-playsinline preload="auto" muted autoplay>
                     <source src="static/videos/video2.mp4" type="video/mp4">
-                    浏览器不支持MP4视频
                 </video>
             </div>
             <div class="speed-tip">2x 倍速</div>
-            <div class="progress-wrap"><div class="progress-bar"></div></div>
+            <div class="progress-wrap" id="progress-wrap-1">
+                <div class="progress-bar" id="progress-bar-1"></div>
+            </div>
+            <div class="progress-time-label" id="time-label-1">00:00 / 00:00</div>
             <div class="douyin-info"><h3>@一叶知秋 · 创意短片</h3><p>色彩节奏 · 剪辑</p></div>
         </div>
         <div class="douyin-slide" data-index="2">
             <div class="glass-card">
                 <video class="douyin-video" loop playsinline webkit-playsinline preload="auto" muted autoplay>
                     <source src="static/videos/video3.mp4" type="video/mp4">
-                    浏览器不支持MP4视频
                 </video>
             </div>
             <div class="speed-tip">2x 倍速</div>
-            <div class="progress-wrap"><div class="progress-bar"></div></div>
+            <div class="progress-wrap" id="progress-wrap-2">
+                <div class="progress-bar" id="progress-bar-2"></div>
+            </div>
+            <div class="progress-time-label" id="time-label-2">00:00 / 00:00</div>
             <div class="douyin-info"><h3>@一叶知秋 · 广告拍摄</h3><p>品牌宣传 · 制作</p></div>
         </div>
     </div>
@@ -368,6 +501,174 @@
         let isLongPress = false;
         let isTouching = false;
 
+        // ============================================
+        // Vlog 按钮点击涟漪效果 (完全采用你提供的脚本)
+        // ============================================
+        (function() {
+            const btn = document.getElementById('vlogBtn');
+            if (!btn) return;
+
+            function createRipple(e) {
+                const rect = btn.getBoundingClientRect();
+                const oldRipple = btn.querySelector('.ripple');
+                if (oldRipple) oldRipple.remove();
+
+                const ripple = document.createElement('span');
+                ripple.className = 'ripple';
+
+                let clientX, clientY;
+                if (e.type === 'touchstart') {
+                    const touch = e.touches[0];
+                    clientX = touch.clientX;
+                    clientY = touch.clientY;
+                } else {
+                    clientX = e.clientX;
+                    clientY = e.clientY;
+                }
+
+                const x = clientX - rect.left;
+                const y = clientY - rect.top;
+
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+
+                btn.appendChild(ripple);
+
+                setTimeout(() => {
+                    if (ripple.parentNode) ripple.remove();
+                }, 500);
+            }
+
+            btn.addEventListener('touchstart', function(e) {
+                createRipple(e);
+            }, { passive: true });
+
+            btn.addEventListener('mousedown', function(e) {
+                createRipple(e);
+            });
+
+            btn.addEventListener('selectstart', function(e) {
+                e.preventDefault();
+            });
+        })();
+
+        // ---- 进度条拖动 ----
+        let isDragging = false;
+        let dragVideo = null;
+        let dragProgressWrap = null;
+        let dragProgressBar = null;
+        let dragTimeLabel = null;
+        let dragDuration = 1;
+
+        function formatTime(seconds) {
+            if (!seconds || isNaN(seconds) || !isFinite(seconds)) return '00:00';
+            const m = Math.floor(seconds / 60);
+            const s = Math.floor(seconds % 60);
+            return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+
+        function updateTimeLabel(video, label) {
+            if (!video || !label) return;
+            const current = formatTime(video.currentTime || 0);
+            const total = formatTime(video.duration || 0);
+            label.textContent = `${current} / ${total}`;
+        }
+
+        function updateProgressByClientX(clientX, wrap, video) {
+            const rect = wrap.getBoundingClientRect();
+            let ratio = (clientX - rect.left) / rect.width;
+            ratio = Math.min(Math.max(ratio, 0), 1);
+            const bar = wrap.querySelector('.progress-bar');
+            if (bar) bar.style.width = (ratio * 100) + '%';
+            return ratio;
+        }
+
+        function initProgressForSlide(slide) {
+            const wrap = slide.querySelector('.progress-wrap');
+            const bar = slide.querySelector('.progress-bar');
+            const label = slide.querySelector('.progress-time-label');
+            const video = slide.querySelector('video');
+
+            if (!wrap || !bar || !video) return;
+
+            const newWrap = wrap.cloneNode(true);
+            wrap.parentNode.replaceChild(newWrap, wrap);
+            const newBar = newWrap.querySelector('.progress-bar');
+
+            const onStart = (e) => {
+                if (slide.dataset.index != currentIndex) return;
+                const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+                isDragging = true;
+                dragVideo = video;
+                dragProgressWrap = newWrap;
+                dragProgressBar = newBar;
+                dragTimeLabel = label;
+                dragDuration = video.duration || 1;
+                newWrap.classList.add('dragging');
+
+                const rect = newWrap.getBoundingClientRect();
+                let ratio = (clientX - rect.left) / rect.width;
+                ratio = Math.min(Math.max(ratio, 0), 1);
+                newBar.style.width = (ratio * 100) + '%';
+                if (label) {
+                    const time = ratio * dragDuration;
+                    label.textContent = `${formatTime(time)} / ${formatTime(dragDuration)}`;
+                }
+                video.pause();
+                e.preventDefault();
+            };
+
+            const onMove = (e) => {
+                if (!isDragging || dragVideo !== video) return;
+                const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+                const ratio = updateProgressByClientX(clientX, newWrap, video);
+                if (label) {
+                    const time = ratio * dragDuration;
+                    label.textContent = `${formatTime(time)} / ${formatTime(dragDuration)}`;
+                }
+                e.preventDefault();
+            };
+
+            const onEnd = (e) => {
+                if (!isDragging || dragVideo !== video) return;
+                isDragging = false;
+                newWrap.classList.remove('dragging');
+
+                const rect = newWrap.getBoundingClientRect();
+                const clientX = e.type === 'touchend' ? (e.changedTouches ? e.changedTouches[0].clientX : 0) : e.clientX;
+                let ratio = (clientX - rect.left) / rect.width;
+                ratio = Math.min(Math.max(ratio, 0), 1);
+                if (video.duration) {
+                    video.currentTime = ratio * video.duration;
+                }
+                if (label) {
+                    updateTimeLabel(video, label);
+                }
+                video.play().catch(() => {});
+                dragVideo = null;
+                dragProgressWrap = null;
+                dragProgressBar = null;
+                dragTimeLabel = null;
+                e.preventDefault();
+            };
+
+            newWrap.addEventListener('touchstart', onStart, { passive: false });
+            newWrap.addEventListener('touchmove', onMove, { passive: false });
+            newWrap.addEventListener('touchend', onEnd, { passive: false });
+            newWrap.addEventListener('touchcancel', onEnd, { passive: false });
+
+            newWrap.addEventListener('mousedown', onStart);
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onEnd);
+
+            slide._progressCleanup = () => {
+                document.removeEventListener('mousemove', onMove);
+                document.removeEventListener('mouseup', onEnd);
+            };
+        }
+
+        slides.forEach(s => initProgressForSlide(s));
+
         function createDots() {
             dotWrap.innerHTML = '';
             for (let i = 0; i < slideCount; i++) {
@@ -390,27 +691,25 @@
 
             slides.forEach((slide, idx) => {
                 const video = slide.querySelector('video');
-                const progressBar = slide.querySelector('.progress-bar');
-                const progressWrap = slide.querySelector('.progress-wrap');
+                const bar = slide.querySelector('.progress-bar');
+                const label = slide.querySelector('.progress-time-label');
 
                 if (idx === currentIndex) {
-                    const playPromise = video.play();
-                    if (playPromise !== undefined) playPromise.catch(() => {});
-                    video.ontimeupdate = () => {
-                        if (video.duration) {
-                            const percent = (video.currentTime / video.duration) * 100;
-                            progressBar.style.width = Math.min(percent, 100) + '%';
-                        }
-                    };
-                    progressWrap.onclick = (e) => {
-                        const rect = progressWrap.getBoundingClientRect();
-                        const ratio = Math.min(Math.max((e.clientX - rect.left) / rect.width, 0), 1);
-                        if (video.duration) video.currentTime = ratio * video.duration;
-                    };
+                    if (!isDragging) {
+                        const playPromise = video.play();
+                        if (playPromise !== undefined) playPromise.catch(() => {});
+                        video.ontimeupdate = () => {
+                            if (video.duration && !isDragging) {
+                                const percent = (video.currentTime / video.duration) * 100;
+                                if (bar) bar.style.width = Math.min(percent, 100) + '%';
+                                if (label) updateTimeLabel(video, label);
+                            }
+                        };
+                        if (label) updateTimeLabel(video, label);
+                    }
                 } else {
                     video.pause();
                     video.ontimeupdate = null;
-                    progressWrap.onclick = null;
                 }
             });
 
@@ -422,7 +721,7 @@
         }
 
         function slideUp() {
-            if (currentIndex > 0 && !scrollLock) {
+            if (currentIndex > 0 && !scrollLock && !isDragging) {
                 scrollLock = true;
                 currentIndex--;
                 updateSlide(true);
@@ -430,7 +729,7 @@
             }
         }
         function slideDown() {
-            if (currentIndex < slideCount - 1 && !scrollLock) {
+            if (currentIndex < slideCount - 1 && !scrollLock && !isDragging) {
                 scrollLock = true;
                 currentIndex++;
                 updateSlide(true);
@@ -438,18 +737,17 @@
             }
         }
 
-        // 鼠标滚轮
         let wheelLock = false;
         container.addEventListener('wheel', (e) => {
             e.preventDefault();
-            if (scrollLock || wheelLock) return;
+            if (scrollLock || wheelLock || isDragging) return;
             wheelLock = true;
             e.deltaY > 0 ? slideDown() : slideUp();
             setTimeout(() => { wheelLock = false; }, 450);
         }, { passive: false });
 
-        // ---- 触摸核心 ----
         container.addEventListener('touchstart', (e) => {
+            if (isDragging) return;
             const touch = e.touches[0];
             if (!touch) return;
             touchStartY = touch.clientY;
@@ -473,6 +771,7 @@
         }, { passive: true });
 
         container.addEventListener('touchmove', (e) => {
+            if (isDragging) return;
             const touch = e.touches[0];
             if (!touch || !isTouching) return;
             touchMoveY = touch.clientY;
@@ -492,6 +791,7 @@
         }, { passive: false });
 
         container.addEventListener('touchend', (e) => {
+            if (isDragging) return;
             clearTimeout(longPressTimer);
             isTouching = false;
             const slide = slides[currentIndex];
@@ -523,32 +823,28 @@
             isLongPress = false;
         }, { passive: true });
 
-        // 按钮
         document.getElementById('btn-up').addEventListener('click', (e) => { e.stopPropagation(); slideUp(); });
         document.getElementById('btn-down').addEventListener('click', (e) => { e.stopPropagation(); slideDown(); });
 
-        // 点击视频暂停/播放
         slides.forEach(slide => {
             const video = slide.querySelector('video');
             video.addEventListener('click', (e) => {
                 e.stopPropagation();
+                if (isDragging) return;
                 video.paused ? video.play().catch(()=>{}) : video.pause();
             });
         });
 
-        // 关闭
-        document.getElementById('douyin-close').addEventListener('click', () => {
-            document.getElementById('douyin-modal').style.display = 'none';
-            slides.forEach(s => { const v = s.querySelector('video'); if (v) v.pause(); });
-        });
-
-        // 初始化
         updateSlide(false);
         setTimeout(() => {
             container.style.transition = 'transform 0.4s cubic-bezier(0.22, 0.68, 0.35, 1)';
         }, 30);
 
         document.addEventListener('dblclick', (e) => e.preventDefault());
+
+        window.addEventListener('beforeunload', () => {
+            slides.forEach(s => { if (s._progressCleanup) s._progressCleanup(); });
+        });
     })();
 </script>
 </body>
