@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>动画作品滑动播放</title>
+    <!-- 在线引入字体图标，无需本地文件 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {margin: 0;padding: 0;box-sizing: border-box;}
+        html,body {height: 100%;overflow: hidden;}
+
+        /* 全屏弹窗容器 */
+        #douyin-modal {
+            display: flex !important;
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 9999;
+            overflow: hidden;
+        }
+
+        /* 滑动容器核心 */
+        .douyin-container {
+            width: 100%;
+            height: 100%;
+            transition: transform 0.4s ease-out;
+            touch-action: none;
+        }
+
+        /* 单屏视频区块 */
+        .douyin-slide {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .douyin-video {
+            width: 100%;
+            max-height: 85vh;
+            object-fit: contain;
+        }
+
+        /* 原版左下角文字信息 布局完全不变 */
+        .douyin-info {
+            position: absolute;
+            left: 20px;
+            bottom: 120px;
+            color: #fff;
+        }
+        .douyin-info h3 {
+            font-size: 18px;
+            margin-bottom: 6px;
+        }
+        .douyin-info p {
+            font-size: 14px;
+            color: #ddd;
+        }
+
+        /* 关闭按钮 右上角 */
+        .douyin-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #fff;
+            font-size: 26px;
+            background: transparent;
+            border: none;
+            z-index: 10;
+            cursor: pointer;
+        }
+
+        /* 右侧上下箭头+圆点指示器 */
+        .douyin-nav {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+        .douyin-nav-btn {
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 22px;
+            cursor: pointer;
+        }
+        .douyin-dots span {
+            display: block;
+            width: 8px;
+            height: 8px;
+            margin: 6px 0;
+            border-radius: 50%;
+            background: #666;
+        }
+        .douyin-dots span.active {
+            background: #fff;
+        }
+
+        /* 底部提示文字 */
+        .douyin-hint {
+            color: #aaa;
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+<div class="douyin-modal" id="douyin-modal">
+    <button class="douyin-close" id="douyin-close"><i class="fas fa-times"></i></button>
+    <div class="douyin-container" id="douyin-container">
+        <!-- 第1条动画视频 -->
+        <div class="douyin-slide" data-index="0">
+            <video class="douyin-video" loop playsinline preload="auto" muted autoplay>
+                <source src="videos/video1.mp4" type="video/mp4">
+                浏览器不支持MP4视频
+            </video>
+            <div class="douyin-info">
+                <h3>@一叶知秋 · 3D动画作品</h3>
+                <p>科幻城市建模动画 #3D #动画 #C4D</p>
+            </div>
+        </div>
+        <!-- 第2条动画视频 -->
+        <div class="douyin-slide" data-index="1">
+            <video class="douyin-video" loop playsinline preload="auto" muted autoplay>
+                <source src="videos/video2.mp4" type="video/mp4">
+                浏览器不支持MP4视频
+            </video>
+            <div class="douyin-info">
+                <h3>@一叶知秋 · 创意短片</h3>
+                <p>色彩与节奏的碰撞 #创意 #剪辑 #短片</p>
+            </div>
+        </div>
+        <!-- 第3条动画视频 -->
+        <div class="douyin-slide" data-index="2">
+            <video class="douyin-video" loop playsinline preload="auto" muted autoplay>
+                <source src="videos/video3.mp4" type="video/mp4">
+                浏览器不支持MP4视频
+            </video>
+            <div class="douyin-info">
+                <h3>@一叶知秋 · 广告拍摄</h3>
+                <p>品牌宣传片段 #广告 #拍摄 #制作</p>
+            </div>
+        </div>
+    </div>
+    <!-- 右侧导航控件 -->
+    <div class="douyin-nav">
+        <button class="douyin-nav-btn up" id="btn-up"><i class="fas fa-chevron-up"></i></button>
+        <div class="douyin-dots" id="dot-wrap"></div>
+        <button class="douyin-nav-btn down" id="btn-down"><i class="fas fa-chevron-down"></i></button>
+    </div>
+    <div class="douyin-hint">鼠标滚轮/手指上下滑动切换视频 · 点击视频暂停/播放</div>
+</div>
+
+<script>
+// 全部JS内嵌，无需外部js文件
+const container = document.getElementById('douyin-container');
+const slides = document.querySelectorAll('.douyin-slide');
+const slideCount = slides.length;
+let currentIndex = 0;
+let touchStartY = 0;
+let scrollLock = false;
+const dotWrap = document.getElementById('dot-wrap');
+
+// 生成圆点指示器
+function createDots() {
+    dotWrap.innerHTML = '';
+    for(let i=0; i<slideCount; i++) {
+        const span = document.createElement('span');
+        span.dataset.index = i;
+        if(i === currentIndex) span.classList.add('active');
+        dotWrap.appendChild(span);
+    }
+}
+createDots();
+
+// 更新滑动位置与视频播放状态
+function updateSlide() {
+    container.style.transform = `translateY(-${currentIndex * 100}vh)`;
+    document.querySelectorAll('.douyin-dots span').forEach(dot => {
+        dot.classList.toggle('active', Number(dot.dataset.index) === currentIndex);
+    })
+    slides.forEach((slide, idx) => {
+        const video = slide.querySelector('video');
+        idx === currentIndex ? video.play() : video.pause();
+    })
+}
+
+// 切换上一条
+function slideUp() {
+    if(currentIndex > 0 && !scrollLock) {
+        scrollLock = true;
+        currentIndex--;
+        updateSlide();
+        setTimeout(()=>scrollLock=false,400);
+    }
+}
+// 切换下一条
+function slideDown() {
+    if(currentIndex < slideCount - 1 && !scrollLock) {
+        scrollLock = true;
+        currentIndex++;
+        updateSlide();
+        setTimeout(()=>scrollLock=false,400);
+    }
+}
+
+// PC鼠标滚轮滑动
+container.addEventListener('wheel', (e)=>{
+    e.preventDefault();
+    if(scrollLock) return;
+    e.deltaY > 0 ? slideDown() : slideUp();
+})
+
+// 手机触屏滑动
+container.addEventListener('touchstart', e => {
+    touchStartY = e.touches[0].clientY;
+})
+container.addEventListener('touchmove', e => {
+    e.preventDefault();
+})
+container.addEventListener('touchend', e => {
+    const touchEndY = e.changedTouches[0].clientY;
+    const diff = touchEndY - touchStartY;
+    if(diff < -60) slideDown();
+    if(diff > 60) slideUp();
+})
+
+// 上下箭头按钮点击
+document.getElementById('btn-up').addEventListener('click', slideUp);
+document.getElementById('btn-down').addEventListener('click', slideDown);
+
+// 点击视频暂停播放
+slides.forEach(slide => {
+    const video = slide.querySelector('video');
+    video.addEventListener('click', () => {
+        video.paused ? video.play() : video.pause();
+    })
+})
+
+// 关闭按钮
+document.getElementById('douyin-close').addEventListener('click', () => {
+    document.getElementById('douyin-modal').style.display = 'none';
+    slides.forEach(s => s.querySelector('video').pause());
+})
+
+window.onload = updateSlide;
+</script>
+</body>
+</html>
