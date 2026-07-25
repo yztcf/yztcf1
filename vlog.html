@@ -2,28 +2,40 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>动画作品滑动播放</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>动画作品 · 毛玻璃滑动</title>
     <style>
-        * {margin: 0;padding: 0;box-sizing: border-box;}
-        html,body {height: 100%;overflow: hidden;background:#000;}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            background: #0a0a0f;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
 
         #douyin-modal {
             position: fixed;
             inset: 0;
-            background: #000;
+            background: #0a0a0f;
             z-index: 9999;
             overflow: hidden;
-            display:flex;
-            flex-direction:column;
+            display: flex;
+            flex-direction: column;
+            touch-action: none;
         }
 
+        /* 滑动容器 — 顺滑过渡 */
         .douyin-container {
             width: 100%;
             height: 100vh;
-            transition: transform 0.4s ease-out;
-            touch-action: none;
+            transition: transform 0.4s cubic-bezier(0.22, 0.68, 0.35, 1);
             will-change: transform;
+            touch-action: none;
         }
 
         .douyin-slide {
@@ -33,371 +45,511 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            background: #0a0a0f;
+            touch-action: none;
+            padding: 0 12px;
+        }
+
+        /* 视频卡片 — 毛玻璃底衬 + 圆润 */
+        .glass-card {
+            position: relative;
+            width: 100%;
+            max-height: 80vh;
+            border-radius: 28px;
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(12px) saturate(1.2);
+            -webkit-backdrop-filter: blur(12px) saturate(1.2);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            border: 0.5px solid rgba(255, 255, 255, 0.06);
+            overflow: hidden;
+            padding: 6px;
+            transition: transform 0.25s ease, box-shadow 0.3s ease;
+        }
+        .glass-card:active {
+            transform: scale(0.98);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8);
         }
 
         .douyin-video {
             width: 100%;
-            max-height: 85vh;
+            height: auto;
+            max-height: 80vh;
             object-fit: contain;
+            border-radius: 22px;
+            display: block;
+            background: #000;
+            will-change: transform;
+            pointer-events: auto;
+            box-shadow: inset 0 2px 20px rgba(0,0,0,0.3);
         }
 
-        /* 电脑端保持原样 */
-        @media (min-width:1024px){
-            .douyin-video{
-                width:auto;
-                max-width:80vw;
-            }
-            /* 电脑端提示文字仍在底部 */
-            .douyin-hint {
-                bottom: 30px !important;
-                top: auto !important;
-            }
+        /* 毛玻璃信息栏 — 悬浮在左下 */
+        .douyin-info {
+            position: absolute;
+            left: 24px;
+            bottom: 110px;
+            z-index: 15;
+            pointer-events: none;
+            background: rgba(10, 10, 15, 0.3);
+            backdrop-filter: blur(16px) saturate(1.4);
+            -webkit-backdrop-filter: blur(16px) saturate(1.4);
+            padding: 10px 18px 12px 18px;
+            border-radius: 24px;
+            border: 0.5px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            max-width: 80%;
+        }
+        .douyin-info h3 {
+            font-size: 17px;
+            font-weight: 600;
+            color: #fff;
+            letter-spacing: 0.3px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            margin-bottom: 2px;
+        }
+        .douyin-info p {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 300;
+            letter-spacing: 0.2px;
         }
 
-        /* 仅手机端调整：提示文字移到顶部，信息区位置不变 */
-        @media (max-width:1023px){
-            .douyin-slide{
-                padding: 0 12px;
-            }
-            .douyin-video{
-                width: 100%;
-                max-height: 72vh;
-                border-radius: 12px;
-            }
-            /* 关键：手机端提示文字移到顶部空白处 */
-            .douyin-hint{
-                top: 70px;
-                bottom: auto;
-                left: 50%;
-                transform: translateX(-50%);
-                font-size: 11px;
-                color: #aaa;
-                text-align:center;
-                width: 90%;
-            }
-            .progress-wrap{
-                bottom: 78px;
-                width: 92%;
-                height: 5px;
-            }
-            .douyin-nav{
-                right: 12px;
-                bottom: 24px;
-                top: auto;
-                transform: none;
-                flex-direction: row;
-                gap: 18px;
-            }
-            .douyin-dots{
-                display: flex;
-                gap: 10px;
-            }
-            .douyin-dots span{
-                width: 6px;
-                height: 6px;
-                margin: 0;
-            }
-            .douyin-close{
-                top: 12px;
-                right: 12px;
-            }
-        }
-
+        /* 毛玻璃进度条 */
         .progress-wrap {
             position: absolute;
-            bottom: 90px;
+            bottom: 88px;
             left: 50%;
             transform: translateX(-50%);
-            width: 85%;
-            height: 6px;
-            background: rgba(255,255,255,0.3);
-            border-radius: 3px;
+            width: 88%;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            border-radius: 20px;
             cursor: pointer;
+            z-index: 15;
+            touch-action: none;
+            box-shadow: inset 0 1px 4px rgba(0,0,0,0.2);
         }
         .progress-bar {
             height: 100%;
-            background: #fff;
-            border-radius: 3px;
+            background: linear-gradient(90deg, #ffffff, #c0d0ff);
+            border-radius: 20px;
             width: 0%;
+            transition: width 0.05s linear;
+            box-shadow: 0 0 16px rgba(180, 200, 255, 0.3);
         }
 
-        /* 作品信息区 位置全程不变，手机电脑都在左下角底部 */
-        .douyin-info {
+        /* 顶部提示 — 毛玻璃 */
+        .douyin-hint {
             position: absolute;
-            left: 20px;
-            bottom: 120px;
-            color: #fff;
-        }
-        .douyin-info h3 {
-            font-size: 18px;
-            margin-bottom: 6px;
-        }
-        .douyin-info p {
-            font-size: 14px;
-            color: #ddd;
+            top: 56px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.5);
+            background: rgba(10, 10, 15, 0.25);
+            backdrop-filter: blur(18px) saturate(1.6);
+            -webkit-backdrop-filter: blur(18px) saturate(1.6);
+            padding: 6px 20px;
+            border-radius: 40px;
+            border: 0.5px solid rgba(255, 255, 255, 0.06);
+            letter-spacing: 0.5px;
+            font-weight: 300;
+            white-space: nowrap;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
         }
 
+        /* 关闭按钮 — 毛玻璃圆 */
         .douyin-close {
             position: absolute;
-            top: 20px;
-            right: 20px;
-            background: transparent;
-            border: none;
-            z-index: 10;
+            top: 16px;
+            right: 16px;
+            z-index: 30;
+            background: rgba(20, 20, 30, 0.3);
+            backdrop-filter: blur(18px) saturate(1.6);
+            -webkit-backdrop-filter: blur(18px) saturate(1.6);
+            border-radius: 50%;
+            padding: 10px;
+            border: 0.5px solid rgba(255, 255, 255, 0.06);
             cursor: pointer;
+            transition: background 0.2s, transform 0.15s;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .douyin-close:active {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(0.92);
         }
         .icon-svg {
-            fill: #fff;
-            width: 26px;
-            height: 26px;
-        }
-        .nav-icon {
-            fill: #fff;
+            fill: rgba(255, 255, 255, 0.8);
             width: 22px;
             height: 22px;
+            display: block;
         }
 
+        /* 底部导航 — 毛玻璃横向 */
         .douyin-nav {
             position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
+            right: 18px;
+            bottom: 30px;
+            top: auto;
+            transform: none;
             display: flex;
-            flex-direction: column;
-            gap: 20px;
+            flex-direction: row;
+            gap: 14px;
             align-items: center;
+            z-index: 30;
+            background: rgba(10, 10, 15, 0.25);
+            backdrop-filter: blur(22px) saturate(1.8);
+            -webkit-backdrop-filter: blur(22px) saturate(1.8);
+            padding: 6px 18px 6px 14px;
+            border-radius: 40px;
+            border: 0.5px solid rgba(255, 255, 255, 0.06);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
         .douyin-nav-btn {
             background: transparent;
             border: none;
             cursor: pointer;
+            padding: 10px 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
+            min-height: 40px;
+            border-radius: 30px;
+            transition: background 0.15s;
+            touch-action: none;
+        }
+        .douyin-nav-btn:active {
+            background: rgba(255, 255, 255, 0.06);
+        }
+        .nav-icon {
+            fill: rgba(255, 255, 255, 0.7);
+            width: 20px;
+            height: 20px;
+            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3));
+        }
+
+        .douyin-dots {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            padding: 0 4px;
         }
         .douyin-dots span {
-            display: block;
-            width: 8px;
-            height: 8px;
-            margin: 6px 0;
+            width: 7px;
+            height: 7px;
             border-radius: 50%;
-            background: #666;
+            background: rgba(255, 255, 255, 0.2);
+            transition: background 0.3s, transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 0 6px rgba(0,0,0,0.2);
         }
         .douyin-dots span.active {
             background: #fff;
+            transform: scale(1.35);
+            box-shadow: 0 0 18px rgba(180, 200, 255, 0.5);
         }
 
-        /* 默认电脑端：底部 */
-        .douyin-hint {
-            color: #aaa;
-            position: absolute;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 13px;
-            text-align:center;
-            z-index:5;
-        }
+        /* 倍速提示 — 毛玻璃浮层 */
         .speed-tip {
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%,-50%);
+            transform: translate(-50%, -50%);
             color: #fff;
-            font-size: 24px;
-            background: rgba(0,0,0,0.4);
-            padding: 8px 16px;
-            border-radius: 8px;
+            font-size: 26px;
+            font-weight: 500;
+            background: rgba(10, 10, 15, 0.3);
+            backdrop-filter: blur(30px) saturate(1.8);
+            -webkit-backdrop-filter: blur(30px) saturate(1.8);
+            padding: 12px 32px;
+            border-radius: 60px;
             display: none;
+            z-index: 40;
+            letter-spacing: 2px;
+            border: 0.5px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5);
+            text-shadow: 0 2px 20px rgba(0,0,0,0.4);
+        }
+
+        /* 电脑端微调 */
+        @media (min-width: 1024px) {
+            .douyin-slide { padding: 0 40px; }
+            .glass-card { max-height: 85vh; }
+            .douyin-video { max-height: 85vh; }
+            .douyin-hint { bottom: 30px; top: auto; }
+            .douyin-nav { right: 30px; bottom: 40px; }
+            .douyin-info { bottom: 130px; }
+            .progress-wrap { bottom: 100px; }
+        }
+
+        /* 小屏手机适配 */
+        @media (max-width: 480px) {
+            .douyin-info { left: 16px; bottom: 100px; padding: 8px 14px; }
+            .douyin-info h3 { font-size: 15px; }
+            .douyin-info p { font-size: 11px; }
+            .douyin-hint { font-size: 10px; padding: 4px 14px; top: 48px; }
+            .progress-wrap { bottom: 78px; width: 92%; }
+            .douyin-nav { padding: 4px 12px 4px 8px; gap: 10px; bottom: 24px; right: 12px; }
+            .douyin-dots span { width: 6px; height: 6px; gap: 10px; }
+            .nav-icon { width: 18px; height: 18px; }
         }
     </style>
 </head>
 <body>
-<div class="douyin-modal" id="douyin-modal">
-    <button class="douyin-close" id="douyin-close">
+<div id="douyin-modal">
+    <button class="douyin-close" id="douyin-close" aria-label="关闭">
         <svg class="icon-svg" viewBox="0 0 448 512">
             <path d="M64 32C64 14.3 49.7 0 32 0S0 14.3 0 32V64 384 480c0 17.7 14.3 32 32 32s32-14.3 32-32V352l64.3-160.8c5.2-12.9 19.1-19.2 31.1-13.6l112 48c11.7 5 18.2 18.1 14.3 30.3L256 384v96c0 17.7 14.3 32 32 32s32-14.3 32-32V384 64 32c0-17.7-14.3-32-32-32s-32 14.3-32 32v224L133.7 195.2c-5.2-12.9-19.1-19.2-31.1-13.6L32 230.4V32z"/>
         </svg>
     </button>
-    <!-- 操作提示文字，手机端自动跑到页面顶部空白 -->
-    <div class="douyin-hint">上下滑动切换 · 长按2倍速 · 点击进度条跳转</div>
+    <div class="douyin-hint">⬆️ 滑动切换 · 长按 2x 倍速</div>
     <div class="douyin-container" id="douyin-container">
+        <!-- 三个作品 slide -->
         <div class="douyin-slide" data-index="0">
-            <video class="douyin-video" loop playsinline preload="auto" muted autoplay>
-                <source src="static/videos/video1.mp4" type="video/mp4">
-                浏览器不支持MP4视频
-            </video>
+            <div class="glass-card">
+                <video class="douyin-video" loop playsinline webkit-playsinline preload="auto" muted autoplay>
+                    <source src="static/videos/video1.mp4" type="video/mp4">
+                    浏览器不支持MP4视频
+                </video>
+            </div>
             <div class="speed-tip">2x 倍速</div>
-            <div class="progress-wrap">
-                <div class="progress-bar"></div>
-            </div>
-            <div class="douyin-info">
-                <h3>@一叶知秋 · 3D动画作品</h3>
-                <p>科幻城市建模动画 #3D #动画 #C4D</p>
-            </div>
+            <div class="progress-wrap"><div class="progress-bar"></div></div>
+            <div class="douyin-info"><h3>@一叶知秋 · 3D动画</h3><p>科幻城市 · C4D</p></div>
         </div>
         <div class="douyin-slide" data-index="1">
-            <video class="douyin-video" loop playsinline preload="auto" muted autoplay>
-                <source src="static/videos/video2.mp4" type="video/mp4">
-                浏览器不支持MP4视频
-            </video>
+            <div class="glass-card">
+                <video class="douyin-video" loop playsinline webkit-playsinline preload="auto" muted autoplay>
+                    <source src="static/videos/video2.mp4" type="video/mp4">
+                    浏览器不支持MP4视频
+                </video>
+            </div>
             <div class="speed-tip">2x 倍速</div>
-            <div class="progress-wrap">
-                <div class="progress-bar"></div>
-            </div>
-            <div class="douyin-info">
-                <h3>@一叶知秋 · 创意短片</h3>
-                <p>色彩与节奏的碰撞 #创意 #剪辑 #短片</p>
-            </div>
+            <div class="progress-wrap"><div class="progress-bar"></div></div>
+            <div class="douyin-info"><h3>@一叶知秋 · 创意短片</h3><p>色彩节奏 · 剪辑</p></div>
         </div>
         <div class="douyin-slide" data-index="2">
-            <video class="douyin-video" loop playsinline preload="auto" muted autoplay>
-                <source src="static/videos/video3.mp4" type="video/mp4">
-                浏览器不支持MP4视频
-            </video>
+            <div class="glass-card">
+                <video class="douyin-video" loop playsinline webkit-playsinline preload="auto" muted autoplay>
+                    <source src="static/videos/video3.mp4" type="video/mp4">
+                    浏览器不支持MP4视频
+                </video>
+            </div>
             <div class="speed-tip">2x 倍速</div>
-            <div class="progress-wrap">
-                <div class="progress-bar"></div>
-            </div>
-            <div class="douyin-info">
-                <h3>@一叶知秋 · 广告拍摄</h3>
-                <p>品牌宣传片段 #广告 #拍摄 #制作</p>
-            </div>
+            <div class="progress-wrap"><div class="progress-bar"></div></div>
+            <div class="douyin-info"><h3>@一叶知秋 · 广告拍摄</h3><p>品牌宣传 · 制作</p></div>
         </div>
     </div>
     <div class="douyin-nav">
-        <button class="douyin-nav-btn up" id="btn-up">
-            <svg class="nav-icon" viewBox="0 0 320 512">
-                <path d="M182.6 137.4c-12.5-12.5-32.8-12.5-45.3 0l-128 128c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L160 205.3l105.4 105.4c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3l-128-128z"/>
-            </svg>
+        <button class="douyin-nav-btn up" id="btn-up" aria-label="上一个">
+            <svg class="nav-icon" viewBox="0 0 320 512"><path d="M182.6 137.4c-12.5-12.5-32.8-12.5-45.3 0l-128 128c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L160 205.3l105.4 105.4c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3l-128-128z"/></svg>
         </button>
         <div class="douyin-dots" id="dot-wrap"></div>
-        <button class="douyin-nav-btn down" id="btn-down">
-            <svg class="nav-icon" viewBox="0 0 320 512">
-                <path d="M137.4 374.6c12.5 12.5 32.8 12.5 45.3 0l128-128c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L160 306.7 54.6 201.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l128 128z"/>
-            </svg>
+        <button class="douyin-nav-btn down" id="btn-down" aria-label="下一个">
+            <svg class="nav-icon" viewBox="0 0 320 512"><path d="M137.4 374.6c12.5 12.5 32.8 12.5 45.3 0l128-128c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L160 306.7 54.6 201.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l128 128z"/></svg>
         </button>
     </div>
 </div>
 
 <script>
-const container = document.getElementById('douyin-container');
-const slides = document.querySelectorAll('.douyin-slide');
-const slideCount = slides.length;
-let currentIndex = 0;
-let touchStartY = 0;
-let scrollLock = false;
-const dotWrap = document.getElementById('dot-wrap');
-let longPressTimer = null;
-const LONG_PRESS_TIME = 150;
+    (function() {
+        const container = document.getElementById('douyin-container');
+        const slides = document.querySelectorAll('.douyin-slide');
+        const slideCount = slides.length;
+        let currentIndex = 0;
+        let touchStartY = 0;
+        let touchMoveY = 0;
+        let scrollLock = false;
+        const dotWrap = document.getElementById('dot-wrap');
+        let longPressTimer = null;
+        const LONG_PRESS_MS = 170;
+        let isLongPress = false;
+        let isTouching = false;
 
-function createDots() {
-    dotWrap.innerHTML = '';
-    for(let i=0; i<slideCount; i++) {
-        const span = document.createElement('span');
-        span.dataset.index = i;
-        if(i === currentIndex) span.classList.add('active');
-        dotWrap.appendChild(span);
-    }
-}
-createDots();
-
-function updateSlide() {
-    container.style.transform = `translateY(-${currentIndex * 100}vh)`;
-    document.querySelectorAll('.douyin-dots span').forEach(dot => {
-        dot.classList.toggle('active', Number(dot.dataset.index) === currentIndex);
-    })
-    slides.forEach((slide, idx) => {
-        const video = slide.querySelector('video');
-        slide.querySelector('.progress-bar').style.width = '0%';
-        if(idx === currentIndex) {
-            video.ontimeupdate = () => {
-                const percent = (video.currentTime / video.duration) * 100;
-                slide.querySelector('.progress-bar').style.width = percent + '%';
+        function createDots() {
+            dotWrap.innerHTML = '';
+            for (let i = 0; i < slideCount; i++) {
+                const span = document.createElement('span');
+                span.dataset.index = i;
+                if (i === currentIndex) span.classList.add('active');
+                dotWrap.appendChild(span);
             }
-            const progressWrap = slide.querySelector('.progress-wrap');
-            progressWrap.onclick = (e) => {
-                const rect = progressWrap.getBoundingClientRect();
-                const clickX = e.clientX - rect.left;
-                const totalWidth = rect.width;
-                const jumpTime = (clickX / totalWidth) * video.duration;
-                video.currentTime = jumpTime;
-            }
-            const playPromise = video.play();
-            if (playPromise !== undefined) playPromise.catch(()=>{});
-        } else {
-            video.pause();
         }
-    })
-}
+        createDots();
 
-function slideUp() {
-    if(currentIndex > 0 && !scrollLock) {
-        scrollLock = true;
-        currentIndex--;
-        updateSlide();
-        setTimeout(()=>scrollLock=false,400);
-    }
-}
-function slideDown() {
-    if(currentIndex < slideCount - 1 && !scrollLock) {
-        scrollLock = true;
-        currentIndex++;
-        updateSlide();
-        setTimeout(()=>scrollLock=false,400);
-    }
-}
+        function updateSlide(animate = true) {
+            container.style.transition = animate ? 'transform 0.4s cubic-bezier(0.22, 0.68, 0.35, 1)' : 'none';
+            container.style.transform = `translateY(-${currentIndex * 100}vh)`;
 
-let wheelLock = false;
-container.addEventListener('wheel', (e)=>{
-    e.preventDefault();
-    if(scrollLock || wheelLock) return;
-    wheelLock = true;
-    e.deltaY > 0 ? slideDown() : slideUp();
-    setTimeout(()=>wheelLock=false,500);
-})
+            document.querySelectorAll('.douyin-dots span').forEach(dot => {
+                const idx = Number(dot.dataset.index);
+                dot.classList.toggle('active', idx === currentIndex);
+            });
 
-container.addEventListener('touchstart', e => {
-    touchStartY = e.touches[0].clientY;
-    const slide = slides[currentIndex];
-    const video = slide.querySelector('video');
-    const speedTip = slide.querySelector('.speed-tip');
-    longPressTimer = setTimeout(() => {
-        video.playbackRate = 2;
-        speedTip.style.display = 'block';
-    }, LONG_PRESS_TIME);
-})
-container.addEventListener('touchmove', e => {
-    e.preventDefault();
-    clearTimeout(longPressTimer);
-})
-container.addEventListener('touchend', e => {
-    clearTimeout(longPressTimer);
-    const slide = slides[currentIndex];
-    const video = slide.querySelector('video');
-    const speedTip = slide.querySelector('.speed-tip');
-    video.playbackRate = 1;
-    speedTip.style.display = 'none';
+            slides.forEach((slide, idx) => {
+                const video = slide.querySelector('video');
+                const progressBar = slide.querySelector('.progress-bar');
+                const progressWrap = slide.querySelector('.progress-wrap');
 
-    const touchEndY = e.changedTouches[0].clientY;
-    const diff = touchEndY - touchStartY;
-    if(diff < -60) slideDown();
-    if(diff > 60) slideUp();
-})
+                if (idx === currentIndex) {
+                    const playPromise = video.play();
+                    if (playPromise !== undefined) playPromise.catch(() => {});
+                    video.ontimeupdate = () => {
+                        if (video.duration) {
+                            const percent = (video.currentTime / video.duration) * 100;
+                            progressBar.style.width = Math.min(percent, 100) + '%';
+                        }
+                    };
+                    progressWrap.onclick = (e) => {
+                        const rect = progressWrap.getBoundingClientRect();
+                        const ratio = Math.min(Math.max((e.clientX - rect.left) / rect.width, 0), 1);
+                        if (video.duration) video.currentTime = ratio * video.duration;
+                    };
+                } else {
+                    video.pause();
+                    video.ontimeupdate = null;
+                    progressWrap.onclick = null;
+                }
+            });
 
-document.getElementById('btn-up').addEventListener('click', slideUp);
-document.getElementById('btn-down').addEventListener('click', slideDown);
+            if (!animate) {
+                requestAnimationFrame(() => {
+                    container.style.transition = 'transform 0.4s cubic-bezier(0.22, 0.68, 0.35, 1)';
+                });
+            }
+        }
 
-slides.forEach(slide => {
-    const video = slide.querySelector('video');
-    video.addEventListener('click', () => {
-        video.paused ? video.play() : video.pause();
-    })
-})
+        function slideUp() {
+            if (currentIndex > 0 && !scrollLock) {
+                scrollLock = true;
+                currentIndex--;
+                updateSlide(true);
+                setTimeout(() => { scrollLock = false; }, 420);
+            }
+        }
+        function slideDown() {
+            if (currentIndex < slideCount - 1 && !scrollLock) {
+                scrollLock = true;
+                currentIndex++;
+                updateSlide(true);
+                setTimeout(() => { scrollLock = false; }, 420);
+            }
+        }
 
-document.getElementById('douyin-close').addEventListener('click', () => {
-    document.getElementById('douyin-modal').style.display = 'none';
-    slides.forEach(s => s.querySelector('video').pause());
-})
+        // 鼠标滚轮
+        let wheelLock = false;
+        container.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            if (scrollLock || wheelLock) return;
+            wheelLock = true;
+            e.deltaY > 0 ? slideDown() : slideUp();
+            setTimeout(() => { wheelLock = false; }, 450);
+        }, { passive: false });
 
-window.onload = updateSlide;
+        // ---- 触摸核心 ----
+        container.addEventListener('touchstart', (e) => {
+            const touch = e.touches[0];
+            if (!touch) return;
+            touchStartY = touch.clientY;
+            touchMoveY = touchStartY;
+            isTouching = true;
+            isLongPress = false;
+            clearTimeout(longPressTimer);
+
+            const slide = slides[currentIndex];
+            const video = slide.querySelector('video');
+            const speedTip = slide.querySelector('.speed-tip');
+
+            longPressTimer = setTimeout(() => {
+                if (isTouching && Math.abs(touchMoveY - touchStartY) < 12) {
+                    isLongPress = true;
+                    video.playbackRate = 2.0;
+                    speedTip.style.display = 'block';
+                    if (navigator.vibrate) navigator.vibrate(10);
+                }
+            }, LONG_PRESS_MS);
+        }, { passive: true });
+
+        container.addEventListener('touchmove', (e) => {
+            const touch = e.touches[0];
+            if (!touch || !isTouching) return;
+            touchMoveY = touch.clientY;
+            const delta = touchMoveY - touchStartY;
+
+            if (Math.abs(delta) > 10) {
+                clearTimeout(longPressTimer);
+                const slide = slides[currentIndex];
+                const video = slide.querySelector('video');
+                if (video.playbackRate !== 1) {
+                    video.playbackRate = 1;
+                    slide.querySelector('.speed-tip').style.display = 'none';
+                }
+                isLongPress = false;
+            }
+            e.preventDefault();
+        }, { passive: false });
+
+        container.addEventListener('touchend', (e) => {
+            clearTimeout(longPressTimer);
+            isTouching = false;
+            const slide = slides[currentIndex];
+            const video = slide.querySelector('video');
+            const speedTip = slide.querySelector('.speed-tip');
+
+            if (isLongPress || video.playbackRate !== 1) {
+                video.playbackRate = 1;
+                speedTip.style.display = 'none';
+                isLongPress = false;
+            }
+
+            const delta = touchMoveY - touchStartY;
+            if (Math.abs(delta) > 40 && !isLongPress && !scrollLock) {
+                if (delta < 0) slideDown();
+                else slideUp();
+            }
+            touchStartY = 0;
+            touchMoveY = 0;
+        }, { passive: true });
+
+        container.addEventListener('touchcancel', () => {
+            clearTimeout(longPressTimer);
+            isTouching = false;
+            const slide = slides[currentIndex];
+            const video = slide.querySelector('video');
+            video.playbackRate = 1;
+            slide.querySelector('.speed-tip').style.display = 'none';
+            isLongPress = false;
+        }, { passive: true });
+
+        // 按钮
+        document.getElementById('btn-up').addEventListener('click', (e) => { e.stopPropagation(); slideUp(); });
+        document.getElementById('btn-down').addEventListener('click', (e) => { e.stopPropagation(); slideDown(); });
+
+        // 点击视频暂停/播放
+        slides.forEach(slide => {
+            const video = slide.querySelector('video');
+            video.addEventListener('click', (e) => {
+                e.stopPropagation();
+                video.paused ? video.play().catch(()=>{}) : video.pause();
+            });
+        });
+
+        // 关闭
+        document.getElementById('douyin-close').addEventListener('click', () => {
+            document.getElementById('douyin-modal').style.display = 'none';
+            slides.forEach(s => { const v = s.querySelector('video'); if (v) v.pause(); });
+        });
+
+        // 初始化
+        updateSlide(false);
+        setTimeout(() => {
+            container.style.transition = 'transform 0.4s cubic-bezier(0.22, 0.68, 0.35, 1)';
+        }, 30);
+
+        document.addEventListener('dblclick', (e) => e.preventDefault());
+    })();
 </script>
 </body>
 </html>
