@@ -218,12 +218,27 @@
       box-shadow: 0 4px 20px rgba(0,0,0,0.2);
     }
 
+    /* 顶部导航左右布局 新增nav-left修复左侧按钮失效 */
+    header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px;
+      z-index: 9999;
+      pointer-events: none;
+    }
+    .nav-left, .nav-right {
+      display: flex;
+      align-items: center;
+      pointer-events: auto;
+    }
+
     /* 顶部跳转按钮 */
     .vlog-btn {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      z-index: 30;
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -250,11 +265,8 @@
     .vlog-btn svg {
       width: 18px;
       height: 18px;
-      fill: none;
-      stroke: currentColor;
-      stroke-width: 2.5;
-      stroke-linecap: round;
-      stroke-linejoin: round;
+      fill: currentColor;
+      stroke: none;
     }
 
     .douyin-nav {
@@ -371,13 +383,6 @@
 </head>
 <body>
 <div id="douyin-modal">
-    <!-- <a href="https://yztcf.de5.net/vlog2.html" target="_blank" class="vlog-btn" id="vlogBtn">
-        <svg viewBox="0 0 24 24">
-            <polygon points="23 7 16 12 23 17 23 7"/>
-            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
-        </svg>
-        <span class="btn-text">Vlog / 详情</span>
-    </a> -->
   <header>
          <div class="nav-left">
            <a href="https://yztcf.de5.net" target="_blank" class="vlog-btn">
@@ -388,7 +393,7 @@
           🏠Zhiting
           </a> </div>
       <div class="nav-right">
-        <a href="https://yztcf.de5.net/vlog.html" target="_blank" class="vlog-btn">
+        <a href="https://yztcf.de5.net/vlog2.html" target="_blank" class="vlog-btn">
           <svg viewBox="0 0 24 24">
             <polygon points="23 7 16 12 23 17 23 7"/>
             <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
