@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title data-i18n-title="_title.contact">留言 · 叶志挺</title>
-  <meta name="description" data-i18n-content="_desc.contact" content="给叶志挺 (YEZHITING) 留言。无需登录，先审后发。">
+  <title>留言 · 叶志挺</title>
+  <meta name="description" content="给叶志挺 (YEZHITING) 留言。无需登录，先审后发。">
   <link rel="canonical" href="https://apodfg.com/contact/">
   <meta name="robots" content="index, follow">
   <meta property="og:type" content="website">
@@ -16,7 +16,6 @@
   <link rel="icon" href="../favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="static/css/style.css">
   
-  <!-- 引入 Supabase 客户端 -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
   <script>
@@ -56,76 +55,39 @@
     .form .status.ok { color: var(--fg); }
     .form .status.error { color: #d32f2f; }
 
-    /* 图片上传样式 */
-    .file-upload-wrapper {
+    /* 简化图片上传 */
+    .file-input-wrapper {
       display: flex;
       align-items: center;
       gap: 12px;
       flex-wrap: wrap;
     }
-    .file-upload-wrapper input[type="file"] {
-      display: none;
-    }
-    .file-upload-label {
-      display: inline-block;
-      padding: 8px 16px;
-      border: 1px dashed var(--border);
-      border-radius: 8px;
-      color: var(--fg-muted);
-      cursor: pointer;
-      transition: all .15s ease;
-      font-size: 13px;
-      background: var(--chip-bg);
-    }
-    .file-upload-label:hover {
-      border-color: var(--fg);
-      color: var(--fg);
-    }
-    .file-upload-label.has-file {
-      border-color: #2e7d32;
-      color: #2e7d32;
-    }
-    .file-preview {
-      display: none;
-      position: relative;
-      width: 60px;
-      height: 60px;
-      border-radius: 8px;
-      overflow: hidden;
+    .file-input-wrapper input[type="file"] {
+      padding: 8px 12px;
       border: 1px solid var(--border);
-      flex-shrink: 0;
-    }
-    .file-preview.show {
-      display: block;
-    }
-    .file-preview img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    .file-preview .remove-file {
-      position: absolute;
-      top: -6px;
-      right: -6px;
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background: #d32f2f;
-      color: #fff;
-      border: none;
+      border-radius: 8px;
+      background: var(--chip-bg);
+      color: var(--fg);
       cursor: pointer;
-      font-size: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      max-width: 200px;
     }
-    .file-name {
-      font-size: 12px;
-      color: var(--fg-muted);
-      max-width: 120px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+    .file-input-wrapper input[type="file"]::file-selector-button {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      background: var(--fg);
+      color: var(--bg);
+      cursor: pointer;
+      margin-right: 10px;
+    }
+    .file-preview-simple {
+      margin-top: 4px;
+    }
+    .file-preview-simple img {
+      max-width: 80px;
+      max-height: 80px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
     }
 
     .section-title { font-size: 18px; font-weight: 600; margin: 0 0 16px; }
@@ -175,7 +137,7 @@
     .msg .body { white-space: pre-wrap; word-break: break-word; color: var(--fg); }
     .msg .image-wrapper {
       margin-top: 8px;
-      max-width: 300px;
+      max-width: 250px;
       border-radius: 8px;
       overflow: hidden;
     }
@@ -220,20 +182,20 @@
       <div class="brand">
         <a href="index.html" class="brand-name">Zhiting</a>
       </div>
-      <nav class="site-nav" data-i18n-aria-label="aria.mainNav" aria-label="主导航">
-        <a href="index.html" data-i18n="nav.home">首页</a>
-        <a href="index1.html" target="_blank" rel="noopener noreferrer" data-i18n="nav.blog">博客</a>
-        <button id="lang-toggle" class="theme-toggle lang-toggle" type="button" data-i18n-aria-label="aria.toggleLang" aria-label="切换语言">
-          <span data-i18n="langLabel">EN</span>
+      <nav class="site-nav" aria-label="主导航">
+        <a href="index.html">首页</a>
+        <a href="index1.html" target="_blank" rel="noopener noreferrer">博客</a>
+        <button id="lang-toggle" class="theme-toggle lang-toggle" type="button" aria-label="切换语言">
+          <span>EN</span>
         </button>
-        <button id="theme-toggle" class="theme-toggle" type="button" data-i18n-aria-label="aria.toggleTheme" aria-label="切换主题">
-          <svg class="icon icon-sun" viewbox="0 0 24 24" aria-hidden="true">
+        <button id="theme-toggle" class="theme-toggle" type="button" aria-label="切换主题">
+          <svg class="icon icon-sun" viewbox="0 0 24 24" aria-hidden="true" width="20" height="20">
             <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"></circle>
             <g stroke="currentColor" stroke-width="2" stroke-linecap="round">
               <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"></path>
             </g>
           </svg>
-          <svg class="icon icon-moon" viewbox="0 0 24 24" aria-hidden="true">
+          <svg class="icon icon-moon" viewbox="0 0 24 24" aria-hidden="true" width="20" height="20">
             <path d="M20 14.5A8 8 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"></path>
           </svg>
         </button>
@@ -243,61 +205,54 @@
 
   <main class="container is-flow">
     <section class="hero">
-      <h1 class="hero-title">
-        <span class="sparkle" aria-hidden="true">✉️</span>
-        <span data-i18n="contact.heroTitle">留言</span>
-      </h1>
-      <p class="hero-desc" data-i18n="contact.heroDesc">想说点什么都可以，有些留言会展示。</p>
+      <h1 class="hero-title">✉️ 留言</h1>
+      <p class="hero-desc">想说点什么都可以，有些留言会展示。</p>
     </section>
 
-    <!-- ===== 表单（含图片上传） ===== -->
+    <!-- ===== 表单 ===== -->
     <form class="form" id="msg-form" autocomplete="off" novalidate>
       <div class="row">
-        <label for="nickname" data-i18n="form.nickname">昵称</label>
+        <label for="nickname">昵称</label>
         <input id="nickname" name="nickname" type="text" maxlength="32" required>
       </div>
       <div class="row">
-        <label for="body" data-i18n="form.body">内容</label>
+        <label for="body">内容</label>
         <textarea id="body" name="body" maxlength="500" required></textarea>
         <span class="hint" id="counter">0 / 500</span>
       </div>
       
-      <!-- ⭐ 图片上传 -->
+      <!-- ⭐ 简化图片上传 - 直接使用原生 input -->
       <div class="row">
-        <label>图片（可选）</label>
-        <div class="file-upload-wrapper">
-          <label class="file-upload-label" id="file-label">
-            📷 选择图片
-          </label>
+        <label for="file-input">图片（可选）</label>
+        <div class="file-input-wrapper">
           <input type="file" id="file-input" accept="image/*">
-          <div class="file-preview" id="file-preview">
-            <img id="preview-img" src="" alt="预览">
-            <button class="remove-file" id="remove-file" type="button">×</button>
-          </div>
-          <span class="file-name" id="file-name"></span>
+          <span style="font-size:12px;color:var(--fg-muted);">最大 2MB</span>
         </div>
-        <span style="font-size:12px;color:var(--fg-muted);">支持 JPG、PNG、GIF，最大 2MB</span>
+        <div class="file-preview-simple" id="file-preview-simple" style="display:none;">
+          <img id="preview-img-simple" src="" alt="预览">
+          <button type="button" id="remove-file-simple" style="margin-left:8px;padding:2px 8px;border:1px solid #d32f2f;border-radius:4px;background:transparent;color:#d32f2f;cursor:pointer;">移除</button>
+        </div>
       </div>
       
       <input class="hp" name="website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
       <div class="submit-row">
-        <button type="submit" id="submit-btn" data-i18n="form.submit">提交</button>
+        <button type="submit" id="submit-btn">提交留言</button>
         <span class="status" id="status" role="status" aria-live="polite"></span>
       </div>
     </form>
 
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
-      <h2 class="section-title" style="margin:0;" data-i18n="list.section">展示的留言</h2>
+      <h2 class="section-title" style="margin:0;">展示的留言</h2>
       <div class="filter-bar">
         <button class="active" data-filter="all">全部</button>
         <button data-filter="featured">⭐ 精选</button>
       </div>
     </div>
     <div class="msg-list" id="list">
-      <p class="empty" id="empty" data-i18n="list.loading">加载中…</p>
+      <p class="empty" id="empty">加载中…</p>
     </div>
     <div class="more" id="more" hidden>
-      <button type="button" id="more-btn" data-i18n="list.more">加载更多</button>
+      <button type="button" id="more-btn">加载更多</button>
     </div>
   </main>
 
@@ -328,13 +283,11 @@
       const moreBtn = document.getElementById('more-btn');
       const filterBtns = document.querySelectorAll('.filter-bar button');
       
-      // 文件上传相关
+      // 简化文件上传
       const fileInput = document.getElementById('file-input');
-      const fileLabel = document.getElementById('file-label');
-      const filePreview = document.getElementById('file-preview');
-      const previewImg = document.getElementById('preview-img');
-      const fileName = document.getElementById('file-name');
-      const removeFileBtn = document.getElementById('remove-file');
+      const previewSimple = document.getElementById('file-preview-simple');
+      const previewImgSimple = document.getElementById('preview-img-simple');
+      const removeFileSimple = document.getElementById('remove-file-simple');
       let selectedFile = null;
 
       let currentFilter = 'all';
@@ -343,7 +296,7 @@
       let hasMore = true;
 
       // ============================================================
-      // 文件上传处理
+      // 文件上传处理（简化版）
       // ============================================================
       fileInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
@@ -362,26 +315,21 @@
         }
         
         selectedFile = file;
-        fileLabel.textContent = '📷 已选择';
-        fileLabel.classList.add('has-file');
-        fileName.textContent = file.name;
         
+        // 预览
         const reader = new FileReader();
         reader.onload = (ev) => {
-          previewImg.src = ev.target.result;
-          filePreview.classList.add('show');
+          previewImgSimple.src = ev.target.result;
+          previewSimple.style.display = 'block';
         };
         reader.readAsDataURL(file);
       });
 
-      removeFileBtn.addEventListener('click', () => {
+      removeFileSimple.addEventListener('click', () => {
         selectedFile = null;
         fileInput.value = '';
-        fileLabel.textContent = '📷 选择图片';
-        fileLabel.classList.remove('has-file');
-        fileName.textContent = '';
-        filePreview.classList.remove('show');
-        previewImg.src = '';
+        previewSimple.style.display = 'none';
+        previewImgSimple.src = '';
       });
 
       // ============================================================
@@ -576,7 +524,7 @@
       }
 
       // ============================================================
-      // 提交留言（支持图片）
+      // 提交留言
       // ============================================================
       async function submitMessage(e) {
         e.preventDefault();
@@ -624,13 +572,11 @@
           form.reset();
           counter.textContent = '0 / 500';
           
+          // 重置文件
           selectedFile = null;
           fileInput.value = '';
-          fileLabel.textContent = '📷 选择图片';
-          fileLabel.classList.remove('has-file');
-          fileName.textContent = '';
-          filePreview.classList.remove('show');
-          previewImg.src = '';
+          previewSimple.style.display = 'none';
+          previewImgSimple.src = '';
           
           await loadMessages(false);
           
