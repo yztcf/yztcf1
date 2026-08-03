@@ -14,8 +14,6 @@
   <meta property="og:image" content="https://apodfg.com/favicon.svg">
   <meta name="twitter:card" content="summary">
   <link rel="icon" href="../favicon.svg" type="image/svg+xml">
-  
-  <!-- ⭐ 关键：保留你原来的样式文件 -->
   <link rel="stylesheet" href="static/css/style.css">
   
   <!-- 引入 Supabase 客户端 -->
@@ -27,18 +25,45 @@
       const dark = t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
       document.documentElement.dataset.theme = dark ? 'dark' : 'light';
       const l = localStorage.getItem('lang');
+      // Default to Chinese when no explicit choice is stored — also covers crawlers
+      // (Googlebot reports navigator.language=en-US), so they index the Chinese version.
       const lang = (l === 'en' || l === 'zh') ? l : 'zh';
       document.documentElement.dataset.lang = lang;
       document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
     })();
   </script>
-  
-  <!-- ⭐ 只添加功能所需的少量样式（不影响你原有设计） -->
   <style>
-    /* 精选筛选按钮 - 适配你的主题变量 */
+    .form { display: flex; flex-direction: column; gap: 12px; margin: 0 0 48px; }
+    .form .row { display: flex; flex-direction: column; gap: 6px; }
+    .form label { font-size: 13px; color: var(--fg-muted); }
+    .form input, .form textarea {
+      font: inherit; color: var(--fg); background: var(--chip-bg);
+      border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px;
+      outline: none; transition: border-color .15s ease;
+    }
+    .form input:focus, .form textarea:focus { border-color: var(--fg); }
+    .form textarea { min-height: 120px; resize: vertical; line-height: 1.6; }
+    .form .hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+    .form .submit-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .form button[type="submit"] {
+      padding: 9px 18px; border: 1px solid var(--fg); border-radius: 8px;
+      background: var(--fg); color: var(--bg); font-weight: 600;
+      transition: opacity .15s ease;
+    }
+    .form button[type="submit"]:hover { opacity: .85; }
+    .form button[type="submit"]:disabled { opacity: .5; cursor: progress; }
+    .form .hint { font-size: 13px; color: var(--fg-muted); }
+    .form .status { font-size: 14px; min-height: 1.5em; }
+    .form .status.ok { color: var(--fg); }
+    .form .status.error { color: #d32f2f; }
+
+    .section-title { font-size: 18px; font-weight: 600; margin: 0 0 16px; }
+    
+    /* 精选筛选按钮 */
     .filter-bar {
       display: flex;
       gap: 8px;
+      margin-bottom: 16px;
     }
     .filter-bar button {
       padding: 6px 16px;
@@ -60,13 +85,38 @@
       border-color: var(--fg);
     }
     
-    /* 精选留言高亮 - 适配你的主题 */
-    .msg.featured {
-      border-color: #f9a825 !important;
-      background: linear-gradient(to right, var(--chip-bg), rgba(249, 168, 37, 0.06)) !important;
+    .msg-list { display: flex; flex-direction: column; gap: 12px; }
+    .msg {
+      border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px;
+      background: var(--chip-bg);
     }
+    .msg.featured {
+      border-color: #f9a825;
+      background: linear-gradient(to right, var(--chip-bg), rgba(249, 168, 37, 0.06));
+    }
+    .msg .head {
+      display: flex; justify-content: space-between; align-items: baseline;
+      gap: 12px; margin-bottom: 6px;
+    }
+    .msg .nick { font-weight: 600; color: var(--fg); }
+    .msg .region { font-size: 12px; color: var(--fg-muted); margin-left: 8px; font-weight: 400; }
+    .msg .when { font-size: 12px; color: var(--fg-muted); font-variant-numeric: tabular-nums; }
+    .msg .body { white-space: pre-wrap; word-break: break-word; color: var(--fg); }
+    .msg .reply {
+      margin-top: 10px; padding: 10px 12px;
+      border-left: 2px solid var(--fg); background: var(--chip-bg);
+      border-radius: 0 8px 8px 0;
+    }
+    .msg .reply-label { font-size: 12px; color: var(--fg-muted); margin-bottom: 4px; }
+    .msg .reply-body  { white-space: pre-wrap; word-break: break-word; color: var(--fg); }
+    .empty { color: var(--fg-muted); text-align: center; padding: 32px 0; font-size: 14px; }
+    .more { text-align: center; margin-top: 18px; }
+    .more button {
+      padding: 8px 18px; border: 1px solid var(--border); border-radius: 8px;
+      color: var(--fg-muted); transition: color .15s, border-color .15s;
+    }
+    .more button:hover { color: var(--fg); border-color: var(--fg); }
     
-    /* 精选徽章 */
     .featured-badge {
       display: inline-block;
       font-size: 11px;
@@ -77,28 +127,9 @@
       margin-left: 6px;
       font-weight: 600;
     }
-    
-    /* 留言列表头部 flex 布局 */
-    .section-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-    
-    /* 表单状态 */
-    .form .status.error {
-      color: #d32f2f;
-    }
-    .form .status.ok {
-      color: #2e7d32;
-    }
   </style>
 </head>
 <body>
-  <!-- ===== 页面结构完全保持你原来的 ===== -->
   <header class="site-header">
     <div class="site-header-inner">
       <div class="brand">
@@ -134,7 +165,6 @@
       <p class="hero-desc" data-i18n="contact.heroDesc">想说点什么都可以，有些留言会展示。</p>
     </section>
 
-    <!-- ===== 表单 ===== -->
     <form class="form" id="msg-form" autocomplete="off" novalidate>
       <div class="row">
         <label for="nickname" data-i18n="form.nickname">昵称</label>
@@ -152,8 +182,7 @@
       </div>
     </form>
 
-    <!-- ===== 留言列表 ===== -->
-    <div class="section-header">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
       <h2 class="section-title" style="margin:0;" data-i18n="list.section">展示的留言</h2>
       <div class="filter-bar">
         <button class="active" data-filter="all">全部</button>
@@ -173,15 +202,10 @@
     <small style="display:block;font-style:normal;"><a href="https://beian.miit.gov.cn" target="_blank" rel="noopener noreferrer">闽ICP备2026017342号-1</a></small>
   </footer>
 
-  <!-- ⭐ 你原来的 script.js（保留） -->
   <script src="static/js/script.js" defer></script>
-  
-  <!-- ============================================================
-    Supabase 功能代码
-    ============================================================ -->
   <script>
     // ============================================================
-    // Supabase 配置
+    // Supabase 配置（使用您提供的信息）
     // ============================================================
     const supabaseUrl = "https://pmqkockdjvaoiuoxvigl.supabase.co"
     const supabaseKey = "sb_publishable_Q5w_4CffRHSvpNYsnhXsAw_X_-TZpKb"
@@ -196,6 +220,7 @@
       const submitBtn = document.getElementById('submit-btn');
       const statusEl = document.getElementById('status');
       const listEl = document.getElementById('list');
+      const emptyEl = document.getElementById('empty');
       const moreWrap = document.getElementById('more');
       const moreBtn = document.getElementById('more-btn');
       const filterBtns = document.querySelectorAll('.filter-bar button');
@@ -429,7 +454,6 @@
       // ============================================================
       loadMessages();
       console.log('✅ 留言板已接入 Supabase');
-      console.log('📌 表: messages, 字段: id, nickname, body, region, created_at, is_featured, reply_body, reply_at');
     });
   </script>
 </body>
