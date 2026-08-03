@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>任务管理系统</title>
+</head>
+<body>
+    <h2>在线任务清单</h2>
+    
+    <!-- 登录区域 -->
+    <div id="loginArea">
+        <h4>注册 / 登录</h4>
+        <input type="email" id="email" placeholder="输入邮箱"><br>
+        <input type="password" id="pwd" placeholder="输入密码"><br>
+        <button onclick="signUp()">注册账号</button>
+        <button onclick="signIn()">登录账号</button>
+        <button onclick="signOut()">退出登录</button>
+    </div>
+
+    <!-- 任务区域 -->
+    <div id="taskArea" style="display:none;">
+        <h4>我的待办任务</h4>
+        <input id="taskInput" placeholder="输入新任务">
+        <button onclick="addTask()">新增任务</button>
+        <div id="taskList"></div>
+        <!-- 添加调试信息 -->
+        <div id="debugInfo" style="margin-top:20px; padding:10px; background:#f0f0f0; font-size:12px; display:none;"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+    </script>
+    <script>
+        // ===== 1. 初始化 Supabase =====
+        const supabaseUrl = "https://pmqkockdjvaoiuoxvigl.supabase.co";
+        const supabaseKey = "sb_publishable_Q5w_4CffRHSvpNYsnhXsAw_X_-TZpKb";
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        console.log('Supabase 初始化成功');
+
+        // 调试函数
+        function showDebug(message) {
+            const debugEl = document.getElementById('debugInfo');
+            debugEl.style.display = 'block';
+            debugEl.innerHTML += `<div>${new Date().toLocaleTimeString()}: ${message}</div>`;
+            console.log(message);
+        }
+
+        // ===== 2. 认证功能 =====
+        async function signUp() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('pwd').value;
+            
+            if (!email || !password) {
+                alert('请填写邮箱和密码');
+                return;
+            }
+
+            showDebug(`尝试注册: ${email}`);
+            
+            const { data, error } = await supabase.auth.signUp({
+                email: email,
+                password: password
+            });
+
+            if (error) {
+                alert('注册失败: ' + error.message);
+                showDebug(`注册失败: ${error.message}`);
+            } else {
+                alert('注册成功！请登录');
+                showDebug(`注册成功: ${data.user?.email}`);
+                console.log('注册成功:', data);
+            }
+        }
+
+        async function signIn() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('pwd').value;
+            
+            if (!email || !password) {
+                alert('请填写邮箱和密码');
+                return;
+            }
+
+            showDebug(`尝试登录: ${email}`);
+
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email: email,
+                password: password
+            });
+
+            if (error) {
+                alert('登录失败: ' + error.message);
+                showDebug(`登录失败: ${error.message}`);
+            } else {
+                alert('登录成功！');
+                showDebug(`登录成功: ${data.user?.email}, user_id: ${data.user?.id}`);
+                console.log('登录成功:', data);
+                document.getElementById('taskArea').style.display = 'block';
+                await loadTasks();
+            }
+        }
+
+        async function signOut() {
+            const { error } = await supabase.auth.signOut();
+            if (error) {
+                alert('退出失败: ' + error.message);
+            } else {
+                alert('已退出');
+                document.getElementById('taskArea').style.display = 'none';
+                document.getElementById('taskList').innerHTML = '';
+                document.getElementById('debugInfo').style.display = 'none';
+                document.getElementById('debugInfo').innerHTML = '';
+            }
+        }
+
+        // ===== 3. 任务管理功能 =====
+        async function loadTasks() {
+            try {
+                showDebug('开始加载任务...');
+                
+                // 获取当前用户
+                const { data: { user }, error: userError } = await supabase.auth.getUser();
+                if (userError) {
+                    showDebug(`获取用户失败: ${userError.message}`);
+                    alert('请先登录');
+                    return;
+                }
+                
+                if (!user) {
+                    showDebug('未找到用户');
+                    alert('请先登录');
+                    return;
+                }
+
+                showDebug(`当前用户: ${user.email}, ID: ${user.id}`);
+
+                // 查询当前用户的任务
+                const { data, error } = await supabase
+                    .from('tasks')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .order('created_at', { ascending: false });
+
+                if (error) {
+                    showDebug(`查询任务失败: ${error.message}`);
+                    alert('加载任务失败: ' + error.message);
+                    return;
+                }
+
+                showDebug(`成功加载 ${data?.length || 0} 条任务`);
+
+                // 渲染任务列表
+                let html = '';
+                if (data && data.length > 0) {
+                    data.forEach(item => {
+                        html += `
+                            <div style="margin:5px 0; padding:8px; border:1px solid #ccc; background:#f9f9f9;">
+                                ${item.is_finished ? '✅' : '⬜'} 
+                                <span style="${item.is_finished ? 'text-decoration:line-through; color:#999;' : ''}">
+                                    ${item.content}
+                                </span>
+                                <span style="font-size:12px; color:#999; margin-left:10px;">
+                                    ${new Date(item.created_at).toLocaleString()}
+                                </span>
+                                <button onclick="toggleTask(${item.id}, ${!item.is_finished})" style="margin-left:10px;">切换</button>
+                                <button onclick="deleteTask(${item.id})" style="margin-left:5px;">删除</button>
+                            </div>
+                        `;
+                    });
+                } else {
+                    html = '<p style="color:#999;">📭 暂无任务，添加一个吧！</p>';
+                }
+                document.getElementById('taskList').innerHTML = html;
+                
+            } catch (err) {
+                showDebug(`加载任务异常: ${err.message}`);
+                console.error('加载任务出错:', err);
+                alert('加载任务出错，请查看控制台');
+            }
+        }
+
+        async function addTask() {
+            const content = document.getElementById('taskInput').value.trim();
+            
+            if (!content) {
+                alert('请输入任务内容');
+                return;
+            }
+
+            try {
+                showDebug(`尝试添加任务: ${content}`);
+                
+                // 获取当前用户
+                const { data: { user }, error: userError } = await supabase.auth.getUser();
+                if (userError) {
+                    showDebug(`获取用户失败: ${userError.message}`);
+                    alert('请先登录');
+                    return;
+                }
+                
+                if (!user) {
+                    showDebug('未找到用户');
+                    alert('请先登录');
+                    return;
+                }
+
+                showDebug(`当前用户ID: ${user.id}`);
+
+                // 插入任务
+                const { data, error } = await supabase
+                    .from('tasks')
+                    .insert([{
+                        content: content,
+                        user_id: user.id,
+                        is_finished: false
+                    }])
+                    .select();
+
+                if (error) {
+                    showDebug(`添加任务失败: ${error.message}`);
+                    alert('添加任务失败: ' + error.message);
+                    return;
+                }
+
+                showDebug(`任务添加成功: ${data?.[0]?.id || 'unknown'}`);
+                document.getElementById('taskInput').value = '';
+                await loadTasks();
+                
+            } catch (err) {
+                showDebug(`添加任务异常: ${err.message}`);
+                console.error('添加任务出错:', err);
+                alert('添加任务出错，请查看控制台');
+            }
+        }
+
+        async function toggleTask(id, newStatus) {
+            try {
+                showDebug(`切换任务 ${id} 为 ${newStatus ? '完成' : '未完成'}`);
+                
+                const { error } = await supabase
+                    .from('tasks')
+                    .update({ is_finished: newStatus })
+                    .eq('id', id);
+
+                if (error) {
+                    showDebug(`更新任务失败: ${error.message}`);
+                    alert('更新任务失败: ' + error.message);
+                    return;
+                }
+
+                showDebug(`任务更新成功`);
+                await loadTasks();
+                
+            } catch (err) {
+                showDebug(`更新任务异常: ${err.message}`);
+                console.error('更新任务出错:', err);
+                alert('更新任务出错，请查看控制台');
+            }
+        }
+
+        async function deleteTask(id) {
+            if (!confirm('确定要删除这个任务吗？')) {
+                return;
+            }
+
+            try {
+                showDebug(`删除任务 ${id}`);
+                
+                const { error } = await supabase
+                    .from('tasks')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) {
+                    showDebug(`删除任务失败: ${error.message}`);
+                    alert('删除任务失败: ' + error.message);
+                    return;
+                }
+
+                showDebug(`任务删除成功`);
+                await loadTasks();
+                
+            } catch (err) {
+                showDebug(`删除任务异常: ${err.message}`);
+                console.error('删除任务出错:', err);
+                alert('删除任务出错，请查看控制台');
+            }
+        }
+
+        // ===== 4. 页面加载时检查登录状态 =====
+        async function checkLoginStatus() {
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (user) {
+                    document.getElementById('taskArea').style.display = 'block';
+                    await loadTasks();
+                    console.log('已登录用户:', user.email);
+                    showDebug(`已登录用户: ${user.email}`);
+                } else {
+                    showDebug('未登录');
+                }
+            } catch (err) {
+                console.error('检查登录状态失败:', err);
+            }
+        }
+
+        // ===== 5. 手动刷新任务（方便调试） =====
+        function refreshTasks() {
+            loadTasks();
+        }
+
+        // 页面加载后执行
+        setTimeout(checkLoginStatus, 500);
+
+        // 暴露函数到全局
+        window.signUp = signUp;
+        window.signIn = signIn;
+        window.signOut = signOut;
+        window.addTask = addTask;
+        window.toggleTask = toggleTask;
+        window.deleteTask = deleteTask;
+        window.loadTasks = loadTasks;
+        window.refreshTasks = refreshTasks;
+        window.showDebug = showDebug;
+
+        console.log('✅ 应用已启动，请登录使用');
+        console.log('💡 如需调试，请在控制台执行: refreshTasks()');
+    </script>
+</body>
+</html>
