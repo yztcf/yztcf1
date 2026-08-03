@@ -55,39 +55,95 @@
     .form .status.ok { color: var(--fg); }
     .form .status.error { color: #d32f2f; }
 
-    /* 简化图片上传 */
-    .file-input-wrapper {
+    /* ===== 图片上传 - 手机电脑通用 ===== */
+    .upload-area {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
       flex-wrap: wrap;
     }
-    .file-input-wrapper input[type="file"] {
-      padding: 8px 12px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
+    .upload-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border: 2px dashed var(--border);
+      border-radius: 10px;
       background: var(--chip-bg);
+      color: var(--fg-muted);
+      cursor: pointer;
+      transition: all .2s ease;
+      font-size: 14px;
+      font-weight: 500;
+      min-height: 48px;
+      min-width: 120px;
+      justify-content: center;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .upload-btn:hover {
+      border-color: var(--fg);
       color: var(--fg);
-      cursor: pointer;
-      max-width: 200px;
     }
-    .file-input-wrapper input[type="file"]::file-selector-button {
-      padding: 6px 12px;
-      border: none;
-      border-radius: 6px;
-      background: var(--fg);
-      color: var(--bg);
-      cursor: pointer;
-      margin-right: 10px;
+    .upload-btn:active {
+      transform: scale(0.97);
     }
-    .file-preview-simple {
-      margin-top: 4px;
+    .upload-btn.has-file {
+      border-color: #2e7d32;
+      color: #2e7d32;
+      background: rgba(46, 125, 50, 0.05);
     }
-    .file-preview-simple img {
-      max-width: 80px;
-      max-height: 80px;
+    .upload-btn input[type="file"] {
+      display: none;
+    }
+    .upload-preview {
+      display: none;
+      position: relative;
+      width: 56px;
+      height: 56px;
       border-radius: 8px;
+      overflow: hidden;
       border: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .upload-preview.show {
+      display: block;
+    }
+    .upload-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .upload-preview .remove-btn {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #d32f2f;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .upload-name {
+      font-size: 13px;
+      color: var(--fg-muted);
+      max-width: 140px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .upload-hint {
+      font-size: 12px;
+      color: var(--fg-muted);
+      display: block;
+      margin-top: 4px;
     }
 
     .section-title { font-size: 18px; font-weight: 600; margin: 0 0 16px; }
@@ -174,6 +230,24 @@
       margin-left: 6px;
       font-weight: 600;
     }
+
+    /* 手机优化 */
+    @media (max-width: 600px) {
+      .upload-btn {
+        min-height: 52px;
+        padding: 12px 18px;
+        font-size: 15px;
+        width: 100%;
+        justify-content: center;
+      }
+      .upload-area {
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+      .upload-name {
+        max-width: 100px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -213,25 +287,29 @@
     <form class="form" id="msg-form" autocomplete="off" novalidate>
       <div class="row">
         <label for="nickname">昵称</label>
-        <input id="nickname" name="nickname" type="text" maxlength="32" required>
+        <input id="nickname" name="nickname" type="text" maxlength="32" required placeholder="你的昵称">
       </div>
       <div class="row">
         <label for="body">内容</label>
-        <textarea id="body" name="body" maxlength="500" required></textarea>
+        <textarea id="body" name="body" maxlength="500" required placeholder="想说什么？"></textarea>
         <span class="hint" id="counter">0 / 500</span>
       </div>
       
-      <!-- ⭐ 简化图片上传 - 直接使用原生 input -->
+      <!-- ===== 图片上传（手机电脑通用） ===== -->
       <div class="row">
-        <label for="file-input">图片（可选）</label>
-        <div class="file-input-wrapper">
-          <input type="file" id="file-input" accept="image/*">
-          <span style="font-size:12px;color:var(--fg-muted);">最大 2MB</span>
+        <label>图片（可选）</label>
+        <div class="upload-area">
+          <label class="upload-btn" id="uploadBtn">
+            📷 选择照片
+            <input type="file" id="fileInput" accept="image/*" capture="environment">
+          </label>
+          <div class="upload-preview" id="uploadPreview">
+            <img id="previewImg" src="" alt="预览">
+            <button class="remove-btn" id="removeBtn" type="button">×</button>
+          </div>
+          <span class="upload-name" id="fileName"></span>
         </div>
-        <div class="file-preview-simple" id="file-preview-simple" style="display:none;">
-          <img id="preview-img-simple" src="" alt="预览">
-          <button type="button" id="remove-file-simple" style="margin-left:8px;padding:2px 8px;border:1px solid #d32f2f;border-radius:4px;background:transparent;color:#d32f2f;cursor:pointer;">移除</button>
-        </div>
+        <span class="upload-hint">支持 JPG、PNG、GIF · 最大 2MB</span>
       </div>
       
       <input class="hp" name="website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
@@ -283,11 +361,13 @@
       const moreBtn = document.getElementById('more-btn');
       const filterBtns = document.querySelectorAll('.filter-bar button');
       
-      // 简化文件上传
-      const fileInput = document.getElementById('file-input');
-      const previewSimple = document.getElementById('file-preview-simple');
-      const previewImgSimple = document.getElementById('preview-img-simple');
-      const removeFileSimple = document.getElementById('remove-file-simple');
+      // ===== 图片上传元素 =====
+      const fileInput = document.getElementById('fileInput');
+      const uploadBtn = document.getElementById('uploadBtn');
+      const uploadPreview = document.getElementById('uploadPreview');
+      const previewImg = document.getElementById('previewImg');
+      const fileName = document.getElementById('fileName');
+      const removeBtn = document.getElementById('removeBtn');
       let selectedFile = null;
 
       let currentFilter = 'all';
@@ -296,7 +376,7 @@
       let hasMore = true;
 
       // ============================================================
-      // 文件上传处理（简化版）
+      // 文件上传处理
       // ============================================================
       fileInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
@@ -315,21 +395,74 @@
         }
         
         selectedFile = file;
+        uploadBtn.classList.add('has-file');
+        uploadBtn.innerHTML = '📷 已选择';
+        // 重新添加 input（保持功能）
+        const newInput = document.createElement('input');
+        newInput.type = 'file';
+        newInput.id = 'fileInput';
+        newInput.accept = 'image/*';
+        newInput.capture = 'environment';
+        newInput.style.display = 'none';
+        newInput.addEventListener('change', fileInput._listener || fileInput.onchange);
+        fileInput.replaceWith(newInput);
+        // 更新引用
+        // 但我们用更简单的方式：保留原有 input，只改显示
         
-        // 预览
+        fileName.textContent = file.name.length > 20 ? file.name.substring(0, 18) + '…' : file.name;
+        
         const reader = new FileReader();
         reader.onload = (ev) => {
-          previewImgSimple.src = ev.target.result;
-          previewSimple.style.display = 'block';
+          previewImg.src = ev.target.result;
+          uploadPreview.classList.add('show');
         };
         reader.readAsDataURL(file);
       });
 
-      removeFileSimple.addEventListener('click', () => {
+      // 重新绑定（因为上面可能会替换）
+      // 使用更稳定的方式：直接监听
+      const fileInputRef = document.getElementById('fileInput');
+      if (fileInputRef) {
+        fileInputRef.addEventListener('change', function(e) {
+          const file = e.target.files[0];
+          if (!file) return;
+          
+          if (file.size > 2 * 1024 * 1024) {
+            setStatus('图片不能超过 2MB', 'error');
+            this.value = '';
+            return;
+          }
+          
+          if (!file.type.startsWith('image/')) {
+            setStatus('请上传图片文件', 'error');
+            this.value = '';
+            return;
+          }
+          
+          selectedFile = file;
+          uploadBtn.classList.add('has-file');
+          uploadBtn.innerHTML = '📷 已选择';
+          
+          fileName.textContent = file.name.length > 20 ? file.name.substring(0, 18) + '…' : file.name;
+          
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            previewImg.src = ev.target.result;
+            uploadPreview.classList.add('show');
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      removeBtn.addEventListener('click', () => {
         selectedFile = null;
-        fileInput.value = '';
-        previewSimple.style.display = 'none';
-        previewImgSimple.src = '';
+        const input = document.getElementById('fileInput');
+        if (input) input.value = '';
+        uploadBtn.classList.remove('has-file');
+        uploadBtn.innerHTML = '📷 选择照片';
+        fileName.textContent = '';
+        uploadPreview.classList.remove('show');
+        previewImg.src = '';
       });
 
       // ============================================================
@@ -574,9 +707,13 @@
           
           // 重置文件
           selectedFile = null;
-          fileInput.value = '';
-          previewSimple.style.display = 'none';
-          previewImgSimple.src = '';
+          const input = document.getElementById('fileInput');
+          if (input) input.value = '';
+          uploadBtn.classList.remove('has-file');
+          uploadBtn.innerHTML = '📷 选择照片';
+          fileName.textContent = '';
+          uploadPreview.classList.remove('show');
+          previewImg.src = '';
           
           await loadMessages(false);
           
