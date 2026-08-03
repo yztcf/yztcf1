@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title data-i18n-title="_title.contact">留言 · Zhiting</title>
-  <meta name="description" data-i18n-content="_desc.contact" content="给 小叶 留言。无需登录，先审后发。">
+  <title data-i18n-title="_title.contact">留言 · 叶志挺</title>
+  <meta name="description" data-i18n-content="_desc.contact" content="给叶志挺 (LIXUWEI) 留言。无需登录，先审后发。">
   <link rel="canonical" href="https://apodfg.com/contact/">
   <meta name="robots" content="index, follow">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://apodfg.com/contact/">
-  <meta property="og:title" content="留言 · Zhiting">
-  <meta property="og:description" content="给小叶留言。无需登录，先审后发。">
+  <meta property="og:title" content="留言 · 叶志挺">
+  <meta property="og:description" content="给叶志挺 (LIXUWEI) 留言。无需登录，先审后发。">
   <meta property="og:image" content="https://apodfg.com/favicon.svg">
   <meta name="twitter:card" content="summary">
   <link rel="icon" href="../favicon.svg" type="image/svg+xml">
@@ -25,8 +25,6 @@
       const dark = t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
       document.documentElement.dataset.theme = dark ? 'dark' : 'light';
       const l = localStorage.getItem('lang');
-      // Default to Chinese when no explicit choice is stored — also covers crawlers
-      // (Googlebot reports navigator.language=en-US), so they index the Chinese version.
       const lang = (l === 'en' || l === 'zh') ? l : 'zh';
       document.documentElement.dataset.lang = lang;
       document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
@@ -49,6 +47,7 @@
       padding: 9px 18px; border: 1px solid var(--fg); border-radius: 8px;
       background: var(--fg); color: var(--bg); font-weight: 600;
       transition: opacity .15s ease;
+      cursor: pointer;
     }
     .form button[type="submit"]:hover { opacity: .85; }
     .form button[type="submit"]:disabled { opacity: .5; cursor: progress; }
@@ -59,7 +58,6 @@
 
     .section-title { font-size: 18px; font-weight: 600; margin: 0 0 16px; }
     
-    /* 精选筛选按钮 */
     .filter-bar {
       display: flex;
       gap: 8px;
@@ -97,6 +95,7 @@
     .msg .head {
       display: flex; justify-content: space-between; align-items: baseline;
       gap: 12px; margin-bottom: 6px;
+      flex-wrap: wrap;
     }
     .msg .nick { font-weight: 600; color: var(--fg); }
     .msg .region { font-size: 12px; color: var(--fg-muted); margin-left: 8px; font-weight: 400; }
@@ -114,6 +113,8 @@
     .more button {
       padding: 8px 18px; border: 1px solid var(--border); border-radius: 8px;
       color: var(--fg-muted); transition: color .15s, border-color .15s;
+      cursor: pointer;
+      background: transparent;
     }
     .more button:hover { color: var(--fg); border-color: var(--fg); }
     
@@ -127,13 +128,22 @@
       margin-left: 6px;
       font-weight: 600;
     }
+    
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
   </style>
 </head>
 <body>
   <header class="site-header">
     <div class="site-header-inner">
       <div class="brand">
-        <a href="index.html" class="brand-name">Zhiting</a>
+        <a href="index.html" class="brand-name">Xuwei</a>
       </div>
       <nav class="site-nav" data-i18n-aria-label="aria.mainNav" aria-label="主导航">
         <a href="index.html" data-i18n="nav.home">首页</a>
@@ -182,9 +192,9 @@
       </div>
     </form>
 
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+    <div class="section-header">
       <h2 class="section-title" style="margin:0;" data-i18n="list.section">展示的留言</h2>
-      <div class="filter-bar">
+      <div class="filter-bar" style="margin:0;">
         <button class="active" data-filter="all">全部</button>
         <button data-filter="featured">⭐ 精选</button>
       </div>
@@ -198,14 +208,14 @@
   </main>
 
   <footer class="site-footer">
-    <small>2026 © YEZHITING</small>
-  
+    <small>2026 © LIXUWEI</small>
+    <small style="display:block;font-style:normal;"><a href="https://beian.miit.gov.cn" target="_blank" rel="noopener noreferrer">闽ICP备2026017342号-1</a></small>
   </footer>
 
   <script src="static/js/script.js" defer></script>
   <script>
     // ============================================================
-    // Supabase 配置（使用您提供的信息）
+    // Supabase 配置
     // ============================================================
     const supabaseUrl = "https://pmqkockdjvaoiuoxvigl.supabase.co"
     const supabaseKey = "sb_publishable_Q5w_4CffRHSvpNYsnhXsAw_X_-TZpKb"
@@ -220,7 +230,6 @@
       const submitBtn = document.getElementById('submit-btn');
       const statusEl = document.getElementById('status');
       const listEl = document.getElementById('list');
-      const emptyEl = document.getElementById('empty');
       const moreWrap = document.getElementById('more');
       const moreBtn = document.getElementById('more-btn');
       const filterBtns = document.querySelectorAll('.filter-bar button');
@@ -450,7 +459,7 @@
       });
 
       // ============================================================
-      // 初始化
+      // 初始化加载
       // ============================================================
       loadMessages();
       console.log('✅ 留言板已接入 Supabase');
