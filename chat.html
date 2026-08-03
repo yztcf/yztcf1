@@ -14,6 +14,8 @@
   <meta property="og:image" content="https://apodfg.com/favicon.svg">
   <meta name="twitter:card" content="summary">
   <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  
+  <!-- ⭐ 保留您的外部样式 -->
   <link rel="stylesheet" href="static/css/style.css">
   
   <!-- 引入 Supabase 客户端 -->
@@ -30,34 +32,10 @@
       document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
     })();
   </script>
+  
+  <!-- ⭐ 只添加精选留言相关的额外样式 -->
   <style>
-    .form { display: flex; flex-direction: column; gap: 12px; margin: 0 0 48px; }
-    .form .row { display: flex; flex-direction: column; gap: 6px; }
-    .form label { font-size: 13px; color: var(--fg-muted); }
-    .form input, .form textarea {
-      font: inherit; color: var(--fg); background: var(--chip-bg);
-      border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px;
-      outline: none; transition: border-color .15s ease;
-    }
-    .form input:focus, .form textarea:focus { border-color: var(--fg); }
-    .form textarea { min-height: 120px; resize: vertical; line-height: 1.6; }
-    .form .hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
-    .form .submit-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-    .form button[type="submit"] {
-      padding: 9px 18px; border: 1px solid var(--fg); border-radius: 8px;
-      background: var(--fg); color: var(--bg); font-weight: 600;
-      transition: opacity .15s ease;
-      cursor: pointer;
-    }
-    .form button[type="submit"]:hover { opacity: .85; }
-    .form button[type="submit"]:disabled { opacity: .5; cursor: progress; }
-    .form .hint { font-size: 13px; color: var(--fg-muted); }
-    .form .status { font-size: 14px; min-height: 1.5em; }
-    .form .status.ok { color: var(--fg); }
-    .form .status.error { color: #d32f2f; }
-
-    .section-title { font-size: 18px; font-weight: 600; margin: 0 0 16px; }
-    
+    /* 精选筛选按钮 */
     .filter-bar {
       display: flex;
       gap: 8px;
@@ -83,41 +61,13 @@
       border-color: var(--fg);
     }
     
-    .msg-list { display: flex; flex-direction: column; gap: 12px; }
-    .msg {
-      border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px;
-      background: var(--chip-bg);
-    }
+    /* 精选留言高亮 */
     .msg.featured {
       border-color: #f9a825;
       background: linear-gradient(to right, var(--chip-bg), rgba(249, 168, 37, 0.06));
     }
-    .msg .head {
-      display: flex; justify-content: space-between; align-items: baseline;
-      gap: 12px; margin-bottom: 6px;
-      flex-wrap: wrap;
-    }
-    .msg .nick { font-weight: 600; color: var(--fg); }
-    .msg .region { font-size: 12px; color: var(--fg-muted); margin-left: 8px; font-weight: 400; }
-    .msg .when { font-size: 12px; color: var(--fg-muted); font-variant-numeric: tabular-nums; }
-    .msg .body { white-space: pre-wrap; word-break: break-word; color: var(--fg); }
-    .msg .reply {
-      margin-top: 10px; padding: 10px 12px;
-      border-left: 2px solid var(--fg); background: var(--chip-bg);
-      border-radius: 0 8px 8px 0;
-    }
-    .msg .reply-label { font-size: 12px; color: var(--fg-muted); margin-bottom: 4px; }
-    .msg .reply-body  { white-space: pre-wrap; word-break: break-word; color: var(--fg); }
-    .empty { color: var(--fg-muted); text-align: center; padding: 32px 0; font-size: 14px; }
-    .more { text-align: center; margin-top: 18px; }
-    .more button {
-      padding: 8px 18px; border: 1px solid var(--border); border-radius: 8px;
-      color: var(--fg-muted); transition: color .15s, border-color .15s;
-      cursor: pointer;
-      background: transparent;
-    }
-    .more button:hover { color: var(--fg); border-color: var(--fg); }
     
+    /* 精选徽章 */
     .featured-badge {
       display: inline-block;
       font-size: 11px;
@@ -129,6 +79,7 @@
       font-weight: 600;
     }
     
+    /* 留言列表头部 flex 布局 */
     .section-header {
       display: flex;
       justify-content: space-between;
@@ -137,9 +88,14 @@
       flex-wrap: wrap;
       gap: 10px;
     }
+    
+    .form .status.error {
+      color: #d32f2f;
+    }
   </style>
 </head>
 <body>
+  <!-- 页面内容保持不变，使用您原来的结构 -->
   <header class="site-header">
     <div class="site-header-inner">
       <div class="brand">
