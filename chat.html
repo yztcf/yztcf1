@@ -33,13 +33,13 @@
     })();
   </script>
   
-  <!-- ⭐ 只添加精选留言相关的额外样式 -->
   <style>
+    /* ===== 只添加必要的功能样式 ===== */
+    
     /* 精选筛选按钮 */
     .filter-bar {
       display: flex;
       gap: 8px;
-      margin-bottom: 16px;
     }
     .filter-bar button {
       padding: 6px 16px;
@@ -63,8 +63,8 @@
     
     /* 精选留言高亮 */
     .msg.featured {
-      border-color: #f9a825;
-      background: linear-gradient(to right, var(--chip-bg), rgba(249, 168, 37, 0.06));
+      border-color: #f9a825 !important;
+      background: linear-gradient(to right, var(--chip-bg), rgba(249, 168, 37, 0.06)) !important;
     }
     
     /* 精选徽章 */
@@ -89,13 +89,17 @@
       gap: 10px;
     }
     
+    /* 表单状态错误 */
     .form .status.error {
       color: #d32f2f;
+    }
+    .form .status.ok {
+      color: #2e7d32;
     }
   </style>
 </head>
 <body>
-  <!-- 页面内容保持不变，使用您原来的结构 -->
+  <!-- ===== 页面结构完全保持您原来的 ===== -->
   <header class="site-header">
     <div class="site-header-inner">
       <div class="brand">
@@ -131,6 +135,7 @@
       <p class="hero-desc" data-i18n="contact.heroDesc">想说点什么都可以，有些留言会展示。</p>
     </section>
 
+    <!-- ===== 表单 ===== -->
     <form class="form" id="msg-form" autocomplete="off" novalidate>
       <div class="row">
         <label for="nickname" data-i18n="form.nickname">昵称</label>
@@ -148,9 +153,10 @@
       </div>
     </form>
 
+    <!-- ===== 留言列表 ===== -->
     <div class="section-header">
       <h2 class="section-title" style="margin:0;" data-i18n="list.section">展示的留言</h2>
-      <div class="filter-bar" style="margin:0;">
+      <div class="filter-bar">
         <button class="active" data-filter="all">全部</button>
         <button data-filter="featured">⭐ 精选</button>
       </div>
@@ -221,7 +227,6 @@
         const card = document.createElement('div');
         card.className = 'msg' + (m.is_featured ? ' featured' : '');
         card.dataset.id = String(m.id);
-        card.__data = m;
         
         let html = `
           <div class="head">
@@ -419,6 +424,7 @@
       // ============================================================
       loadMessages();
       console.log('✅ 留言板已接入 Supabase');
+      console.log('📌 表: messages, 字段: id, nickname, body, region, created_at, is_featured, reply_body, reply_at');
     });
   </script>
 </body>
