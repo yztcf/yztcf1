@@ -1,330 +1,460 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <title>任务管理系统</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n-title="_title.contact">留言 · Zhiting</title>
+  <meta name="description" data-i18n-content="_desc.contact" content="给 小叶 留言。无需登录，先审后发。">
+  <link rel="canonical" href="https://apodfg.com/contact/">
+  <meta name="robots" content="index, follow">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://apodfg.com/contact/">
+  <meta property="og:title" content="留言 · Zhiting">
+  <meta property="og:description" content="给小叶留言。无需登录，先审后发。">
+  <meta property="og:image" content="https://apodfg.com/favicon.svg">
+  <meta name="twitter:card" content="summary">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="static/css/style.css">
+  
+  <!-- 引入 Supabase 客户端 -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <script>
+    (() => {
+      const t = localStorage.getItem('theme');
+      const dark = t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+      const l = localStorage.getItem('lang');
+      // Default to Chinese when no explicit choice is stored — also covers crawlers
+      // (Googlebot reports navigator.language=en-US), so they index the Chinese version.
+      const lang = (l === 'en' || l === 'zh') ? l : 'zh';
+      document.documentElement.dataset.lang = lang;
+      document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+    })();
+  </script>
+  <style>
+    .form { display: flex; flex-direction: column; gap: 12px; margin: 0 0 48px; }
+    .form .row { display: flex; flex-direction: column; gap: 6px; }
+    .form label { font-size: 13px; color: var(--fg-muted); }
+    .form input, .form textarea {
+      font: inherit; color: var(--fg); background: var(--chip-bg);
+      border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px;
+      outline: none; transition: border-color .15s ease;
+    }
+    .form input:focus, .form textarea:focus { border-color: var(--fg); }
+    .form textarea { min-height: 120px; resize: vertical; line-height: 1.6; }
+    .form .hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+    .form .submit-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .form button[type="submit"] {
+      padding: 9px 18px; border: 1px solid var(--fg); border-radius: 8px;
+      background: var(--fg); color: var(--bg); font-weight: 600;
+      transition: opacity .15s ease;
+    }
+    .form button[type="submit"]:hover { opacity: .85; }
+    .form button[type="submit"]:disabled { opacity: .5; cursor: progress; }
+    .form .hint { font-size: 13px; color: var(--fg-muted); }
+    .form .status { font-size: 14px; min-height: 1.5em; }
+    .form .status.ok { color: var(--fg); }
+    .form .status.error { color: #d32f2f; }
+
+    .section-title { font-size: 18px; font-weight: 600; margin: 0 0 16px; }
+    
+    /* 精选筛选按钮 */
+    .filter-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .filter-bar button {
+      padding: 6px 16px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: transparent;
+      color: var(--fg-muted);
+      cursor: pointer;
+      transition: all .15s ease;
+      font-size: 13px;
+    }
+    .filter-bar button:hover {
+      border-color: var(--fg);
+      color: var(--fg);
+    }
+    .filter-bar button.active {
+      background: var(--fg);
+      color: var(--bg);
+      border-color: var(--fg);
+    }
+    
+    .msg-list { display: flex; flex-direction: column; gap: 12px; }
+    .msg {
+      border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px;
+      background: var(--chip-bg);
+    }
+    .msg.featured {
+      border-color: #f9a825;
+      background: linear-gradient(to right, var(--chip-bg), rgba(249, 168, 37, 0.06));
+    }
+    .msg .head {
+      display: flex; justify-content: space-between; align-items: baseline;
+      gap: 12px; margin-bottom: 6px;
+    }
+    .msg .nick { font-weight: 600; color: var(--fg); }
+    .msg .region { font-size: 12px; color: var(--fg-muted); margin-left: 8px; font-weight: 400; }
+    .msg .when { font-size: 12px; color: var(--fg-muted); font-variant-numeric: tabular-nums; }
+    .msg .body { white-space: pre-wrap; word-break: break-word; color: var(--fg); }
+    .msg .reply {
+      margin-top: 10px; padding: 10px 12px;
+      border-left: 2px solid var(--fg); background: var(--chip-bg);
+      border-radius: 0 8px 8px 0;
+    }
+    .msg .reply-label { font-size: 12px; color: var(--fg-muted); margin-bottom: 4px; }
+    .msg .reply-body  { white-space: pre-wrap; word-break: break-word; color: var(--fg); }
+    .empty { color: var(--fg-muted); text-align: center; padding: 32px 0; font-size: 14px; }
+    .more { text-align: center; margin-top: 18px; }
+    .more button {
+      padding: 8px 18px; border: 1px solid var(--border); border-radius: 8px;
+      color: var(--fg-muted); transition: color .15s, border-color .15s;
+    }
+    .more button:hover { color: var(--fg); border-color: var(--fg); }
+    
+    .featured-badge {
+      display: inline-block;
+      font-size: 11px;
+      background: #f9a825;
+      color: #fff;
+      padding: 1px 10px;
+      border-radius: 12px;
+      margin-left: 6px;
+      font-weight: 600;
+    }
+  </style>
 </head>
 <body>
-    <h2>在线任务清单</h2>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <div class="brand">
+        <a href="index.html" class="brand-name">Zhiting</a>
+      </div>
+      <nav class="site-nav" data-i18n-aria-label="aria.mainNav" aria-label="主导航">
+        <a href="index.html" data-i18n="nav.home">首页</a>
+        <a href="index1.html" target="_blank" rel="noopener noreferrer" data-i18n="nav.blog">博客</a>
+        <button id="lang-toggle" class="theme-toggle lang-toggle" type="button" data-i18n-aria-label="aria.toggleLang" aria-label="切换语言">
+          <span data-i18n="langLabel">EN</span>
+        </button>
+        <button id="theme-toggle" class="theme-toggle" type="button" data-i18n-aria-label="aria.toggleTheme" aria-label="切换主题">
+          <svg class="icon icon-sun" viewbox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"></circle>
+            <g stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"></path>
+            </g>
+          </svg>
+          <svg class="icon icon-moon" viewbox="0 0 24 24" aria-hidden="true">
+            <path d="M20 14.5A8 8 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"></path>
+          </svg>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container is-flow">
+    <section class="hero">
+      <h1 class="hero-title">
+        <span class="sparkle" aria-hidden="true">✉️</span>
+        <span data-i18n="contact.heroTitle">留言</span>
+      </h1>
+      <p class="hero-desc" data-i18n="contact.heroDesc">想说点什么都可以，有些留言会展示。</p>
+    </section>
+
+    <form class="form" id="msg-form" autocomplete="off" novalidate>
+      <div class="row">
+        <label for="nickname" data-i18n="form.nickname">昵称</label>
+        <input id="nickname" name="nickname" type="text" maxlength="32" required>
+      </div>
+      <div class="row">
+        <label for="body" data-i18n="form.body">内容</label>
+        <textarea id="body" name="body" maxlength="500" required></textarea>
+        <span class="hint" id="counter">0 / 500</span>
+      </div>
+      <input class="hp" name="website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <div class="submit-row">
+        <button type="submit" id="submit-btn" data-i18n="form.submit">提交</button>
+        <span class="status" id="status" role="status" aria-live="polite"></span>
+      </div>
+    </form>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+      <h2 class="section-title" style="margin:0;" data-i18n="list.section">展示的留言</h2>
+      <div class="filter-bar">
+        <button class="active" data-filter="all">全部</button>
+        <button data-filter="featured">⭐ 精选</button>
+      </div>
+    </div>
+    <div class="msg-list" id="list">
+      <p class="empty" id="empty" data-i18n="list.loading">加载中…</p>
+    </div>
+    <div class="more" id="more" hidden>
+      <button type="button" id="more-btn" data-i18n="list.more">加载更多</button>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <small>2026 © YEZHITING</small>
+  
+  </footer>
+
+  <script src="static/js/script.js" defer></script>
+  <script>
+    // ============================================================
+    // Supabase 配置（使用您提供的信息）
+    // ============================================================
+    const supabaseUrl = "https://pmqkockdjvaoiuoxvigl.supabase.co"
+    const supabaseKey = "sb_publishable_Q5w_4CffRHSvpNYsnhXsAw_X_-TZpKb"
     
-    <!-- 登录区域 -->
-    <div id="loginArea">
-        <h4>注册 / 登录</h4>
-        <input type="email" id="email" placeholder="输入邮箱"><br>
-        <input type="password" id="pwd" placeholder="输入密码"><br>
-        <button onclick="signUp()">注册账号</button>
-        <button onclick="signIn()">登录账号</button>
-        <button onclick="signOut()">退出登录</button>
-    </div>
+    document.addEventListener('DOMContentLoaded', () => {
+      const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+      
+      const form = document.getElementById('msg-form');
+      const nick = document.getElementById('nickname');
+      const body = document.getElementById('body');
+      const counter = document.getElementById('counter');
+      const submitBtn = document.getElementById('submit-btn');
+      const statusEl = document.getElementById('status');
+      const listEl = document.getElementById('list');
+      const emptyEl = document.getElementById('empty');
+      const moreWrap = document.getElementById('more');
+      const moreBtn = document.getElementById('more-btn');
+      const filterBtns = document.querySelectorAll('.filter-bar button');
 
-    <!-- 任务区域 -->
-    <div id="taskArea" style="display:none;">
-        <h4>我的待办任务</h4>
-        <input id="taskInput" placeholder="输入新任务">
-        <button onclick="addTask()">新增任务</button>
-        <div id="taskList"></div>
-        <!-- 添加调试信息 -->
-        <div id="debugInfo" style="margin-top:20px; padding:10px; background:#f0f0f0; font-size:12px; display:none;"></div>
-    </div>
+      let currentFilter = 'all';
+      let lastId = null;
+      let isLoading = false;
+      let hasMore = true;
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
-    </script>
-    <script>
-        // ===== 1. 初始化 Supabase =====
-        const supabaseUrl = "https://pmqkockdjvaoiuoxvigl.supabase.co";
-        const supabaseKey = "sb_publishable_Q5w_4CffRHSvpNYsnhXsAw_X_-TZpKb";
-        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+      // ============================================================
+      // 工具函数
+      // ============================================================
+      function fmt(ts) {
+        if (!ts) return '';
+        const d = new Date(ts);
+        const pad = n => String(n).padStart(2, '0');
+        return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+      }
 
-        console.log('Supabase 初始化成功');
+      function setStatus(msg, type = '') {
+        statusEl.textContent = msg;
+        statusEl.className = 'status' + (type ? ' ' + type : '');
+      }
 
-        // 调试函数
-        function showDebug(message) {
-            const debugEl = document.getElementById('debugInfo');
-            debugEl.style.display = 'block';
-            debugEl.innerHTML += `<div>${new Date().toLocaleTimeString()}: ${message}</div>`;
-            console.log(message);
+      function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      function buildCard(m) {
+        const card = document.createElement('div');
+        card.className = 'msg' + (m.is_featured ? ' featured' : '');
+        card.dataset.id = String(m.id);
+        card.__data = m;
+        
+        let html = `
+          <div class="head">
+            <span>
+              <span class="nick">${escapeHtml(m.nickname || '匿名')}</span>
+              ${m.is_featured ? '<span class="featured-badge">⭐ 精选</span>' : ''}
+              <span class="region">${m.region ? '· ' + escapeHtml(m.region) : ''}</span>
+            </span>
+            <span class="when">${fmt(m.created_at)}</span>
+          </div>
+          <div class="body">${escapeHtml(m.body || '')}</div>
+        `;
+        
+        if (m.reply_body) {
+          html += `
+            <div class="reply">
+              <div class="reply-label">站长回复 · ${fmt(m.reply_at)}</div>
+              <div class="reply-body">${escapeHtml(m.reply_body)}</div>
+            </div>
+          `;
+        }
+        
+        card.innerHTML = html;
+        return card;
+      }
+
+      // ============================================================
+      // 加载留言
+      // ============================================================
+      async function loadMessages(append = false) {
+        if (isLoading) return;
+        if (!append) {
+          lastId = null;
+          hasMore = true;
+          listEl.innerHTML = '';
+        }
+        if (!hasMore && append) return;
+
+        isLoading = true;
+        if (!append) {
+          const loadingEl = document.createElement('p');
+          loadingEl.className = 'empty';
+          loadingEl.id = 'empty';
+          loadingEl.textContent = '加载中…';
+          listEl.appendChild(loadingEl);
         }
 
-        // ===== 2. 认证功能 =====
-        async function signUp() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('pwd').value;
-            
-            if (!email || !password) {
-                alert('请填写邮箱和密码');
-                return;
-            }
+        try {
+          let query = supabase
+            .from('messages')
+            .select('*')
+            .order('created_at', { ascending: false })
+            .limit(20);
 
-            showDebug(`尝试注册: ${email}`);
-            
-            const { data, error } = await supabase.auth.signUp({
-                email: email,
-                password: password
-            });
+          if (currentFilter === 'featured') {
+            query = query.eq('is_featured', true);
+          }
 
-            if (error) {
-                alert('注册失败: ' + error.message);
-                showDebug(`注册失败: ${error.message}`);
-            } else {
-                alert('注册成功！请登录');
-                showDebug(`注册成功: ${data.user?.email}`);
-                console.log('注册成功:', data);
+          if (lastId && append) {
+            query = query.lt('id', lastId);
+          }
+
+          const { data, error } = await query;
+          
+          if (error) {
+            console.error('Supabase 错误:', error);
+            throw new Error(error.message || '查询失败');
+          }
+
+          const existingEmpty = document.getElementById('empty');
+          if (existingEmpty) existingEmpty.remove();
+
+          if (!data || data.length === 0) {
+            if (!append) {
+              const emptyMsg = document.createElement('p');
+              emptyMsg.className = 'empty';
+              emptyMsg.id = 'empty';
+              emptyMsg.textContent = currentFilter === 'featured' 
+                ? '还没有精选留言 🤔' 
+                : '还没有留言，快来抢沙发！';
+              listEl.appendChild(emptyMsg);
             }
+            hasMore = false;
+            moreWrap.hidden = true;
+            return;
+          }
+
+          if (data.length > 0) {
+            lastId = data[data.length - 1].id;
+          }
+
+          if (!append) {
+            listEl.innerHTML = '';
+          }
+          data.forEach(msg => {
+            listEl.appendChild(buildCard(msg));
+          });
+
+          hasMore = data.length === 20;
+          moreWrap.hidden = !hasMore;
+
+        } catch (err) {
+          console.error('加载留言失败:', err);
+          const existingEmpty = document.getElementById('empty');
+          if (existingEmpty) existingEmpty.remove();
+          
+          const emptyMsg = document.createElement('p');
+          emptyMsg.className = 'empty';
+          emptyMsg.id = 'empty';
+          emptyMsg.textContent = '加载失败: ' + (err.message || '未知错误');
+          listEl.appendChild(emptyMsg);
+          moreWrap.hidden = true;
+        } finally {
+          isLoading = false;
+        }
+      }
+
+      // ============================================================
+      // 提交留言
+      // ============================================================
+      async function submitMessage(e) {
+        e.preventDefault();
+        
+        const nickname = nick.value.trim();
+        const content = body.value.trim();
+        
+        if (!nickname || !content) {
+          setStatus('请填写昵称和内容', 'error');
+          return;
+        }
+        if (content.length < 2) {
+          setStatus('内容至少 2 个字符', 'error');
+          return;
         }
 
-        async function signIn() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('pwd').value;
-            
-            if (!email || !password) {
-                alert('请填写邮箱和密码');
-                return;
-            }
+        setStatus('提交中…', '');
+        submitBtn.disabled = true;
 
-            showDebug(`尝试登录: ${email}`);
+        try {
+          const { data, error } = await supabase
+            .from('messages')
+            .insert([
+              {
+                nickname: nickname,
+                body: content,
+                region: null,
+                is_featured: false,
+              }
+            ])
+            .select();
 
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email: email,
-                password: password
-            });
+          if (error) {
+            console.error('提交错误:', error);
+            throw new Error(error.message || '提交失败');
+          }
 
-            if (error) {
-                alert('登录失败: ' + error.message);
-                showDebug(`登录失败: ${error.message}`);
-            } else {
-                alert('登录成功！');
-                showDebug(`登录成功: ${data.user?.email}, user_id: ${data.user?.id}`);
-                console.log('登录成功:', data);
-                document.getElementById('taskArea').style.display = 'block';
-                await loadTasks();
-            }
+          setStatus('✅ 留言提交成功！', 'ok');
+          form.reset();
+          counter.textContent = '0 / 500';
+          
+          await loadMessages(false);
+          
+        } catch (err) {
+          console.error('提交失败:', err);
+          setStatus('提交失败: ' + (err.message || '未知错误'), 'error');
+        } finally {
+          submitBtn.disabled = false;
         }
+      }
 
-        async function signOut() {
-            const { error } = await supabase.auth.signOut();
-            if (error) {
-                alert('退出失败: ' + error.message);
-            } else {
-                alert('已退出');
-                document.getElementById('taskArea').style.display = 'none';
-                document.getElementById('taskList').innerHTML = '';
-                document.getElementById('debugInfo').style.display = 'none';
-                document.getElementById('debugInfo').innerHTML = '';
-            }
-        }
+      // ============================================================
+      // 事件绑定
+      // ============================================================
+      body.addEventListener('input', () => {
+        counter.textContent = body.value.length + ' / 500';
+      });
 
-        // ===== 3. 任务管理功能 =====
-        async function loadTasks() {
-            try {
-                showDebug('开始加载任务...');
-                
-                // 获取当前用户
-                const { data: { user }, error: userError } = await supabase.auth.getUser();
-                if (userError) {
-                    showDebug(`获取用户失败: ${userError.message}`);
-                    alert('请先登录');
-                    return;
-                }
-                
-                if (!user) {
-                    showDebug('未找到用户');
-                    alert('请先登录');
-                    return;
-                }
+      form.addEventListener('submit', submitMessage);
 
-                showDebug(`当前用户: ${user.email}, ID: ${user.id}`);
+      moreBtn.addEventListener('click', () => {
+        loadMessages(true);
+      });
 
-                // 查询当前用户的任务
-                const { data, error } = await supabase
-                    .from('tasks')
-                    .select('*')
-                    .eq('user_id', user.id)
-                    .order('created_at', { ascending: false });
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          filterBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentFilter = btn.dataset.filter;
+          loadMessages(false);
+        });
+      });
 
-                if (error) {
-                    showDebug(`查询任务失败: ${error.message}`);
-                    alert('加载任务失败: ' + error.message);
-                    return;
-                }
-
-                showDebug(`成功加载 ${data?.length || 0} 条任务`);
-
-                // 渲染任务列表
-                let html = '';
-                if (data && data.length > 0) {
-                    data.forEach(item => {
-                        html += `
-                            <div style="margin:5px 0; padding:8px; border:1px solid #ccc; background:#f9f9f9;">
-                                ${item.is_finished ? '✅' : '⬜'} 
-                                <span style="${item.is_finished ? 'text-decoration:line-through; color:#999;' : ''}">
-                                    ${item.content}
-                                </span>
-                                <span style="font-size:12px; color:#999; margin-left:10px;">
-                                    ${new Date(item.created_at).toLocaleString()}
-                                </span>
-                                <button onclick="toggleTask(${item.id}, ${!item.is_finished})" style="margin-left:10px;">切换</button>
-                                <button onclick="deleteTask(${item.id})" style="margin-left:5px;">删除</button>
-                            </div>
-                        `;
-                    });
-                } else {
-                    html = '<p style="color:#999;">📭 暂无任务，添加一个吧！</p>';
-                }
-                document.getElementById('taskList').innerHTML = html;
-                
-            } catch (err) {
-                showDebug(`加载任务异常: ${err.message}`);
-                console.error('加载任务出错:', err);
-                alert('加载任务出错，请查看控制台');
-            }
-        }
-
-        async function addTask() {
-            const content = document.getElementById('taskInput').value.trim();
-            
-            if (!content) {
-                alert('请输入任务内容');
-                return;
-            }
-
-            try {
-                showDebug(`尝试添加任务: ${content}`);
-                
-                // 获取当前用户
-                const { data: { user }, error: userError } = await supabase.auth.getUser();
-                if (userError) {
-                    showDebug(`获取用户失败: ${userError.message}`);
-                    alert('请先登录');
-                    return;
-                }
-                
-                if (!user) {
-                    showDebug('未找到用户');
-                    alert('请先登录');
-                    return;
-                }
-
-                showDebug(`当前用户ID: ${user.id}`);
-
-                // 插入任务
-                const { data, error } = await supabase
-                    .from('tasks')
-                    .insert([{
-                        content: content,
-                        user_id: user.id,
-                        is_finished: false
-                    }])
-                    .select();
-
-                if (error) {
-                    showDebug(`添加任务失败: ${error.message}`);
-                    alert('添加任务失败: ' + error.message);
-                    return;
-                }
-
-                showDebug(`任务添加成功: ${data?.[0]?.id || 'unknown'}`);
-                document.getElementById('taskInput').value = '';
-                await loadTasks();
-                
-            } catch (err) {
-                showDebug(`添加任务异常: ${err.message}`);
-                console.error('添加任务出错:', err);
-                alert('添加任务出错，请查看控制台');
-            }
-        }
-
-        async function toggleTask(id, newStatus) {
-            try {
-                showDebug(`切换任务 ${id} 为 ${newStatus ? '完成' : '未完成'}`);
-                
-                const { error } = await supabase
-                    .from('tasks')
-                    .update({ is_finished: newStatus })
-                    .eq('id', id);
-
-                if (error) {
-                    showDebug(`更新任务失败: ${error.message}`);
-                    alert('更新任务失败: ' + error.message);
-                    return;
-                }
-
-                showDebug(`任务更新成功`);
-                await loadTasks();
-                
-            } catch (err) {
-                showDebug(`更新任务异常: ${err.message}`);
-                console.error('更新任务出错:', err);
-                alert('更新任务出错，请查看控制台');
-            }
-        }
-
-        async function deleteTask(id) {
-            if (!confirm('确定要删除这个任务吗？')) {
-                return;
-            }
-
-            try {
-                showDebug(`删除任务 ${id}`);
-                
-                const { error } = await supabase
-                    .from('tasks')
-                    .delete()
-                    .eq('id', id);
-
-                if (error) {
-                    showDebug(`删除任务失败: ${error.message}`);
-                    alert('删除任务失败: ' + error.message);
-                    return;
-                }
-
-                showDebug(`任务删除成功`);
-                await loadTasks();
-                
-            } catch (err) {
-                showDebug(`删除任务异常: ${err.message}`);
-                console.error('删除任务出错:', err);
-                alert('删除任务出错，请查看控制台');
-            }
-        }
-
-        // ===== 4. 页面加载时检查登录状态 =====
-        async function checkLoginStatus() {
-            try {
-                const { data: { user } } = await supabase.auth.getUser();
-                if (user) {
-                    document.getElementById('taskArea').style.display = 'block';
-                    await loadTasks();
-                    console.log('已登录用户:', user.email);
-                    showDebug(`已登录用户: ${user.email}`);
-                } else {
-                    showDebug('未登录');
-                }
-            } catch (err) {
-                console.error('检查登录状态失败:', err);
-            }
-        }
-
-        // ===== 5. 手动刷新任务（方便调试） =====
-        function refreshTasks() {
-            loadTasks();
-        }
-
-        // 页面加载后执行
-        setTimeout(checkLoginStatus, 500);
-
-        // 暴露函数到全局
-        window.signUp = signUp;
-        window.signIn = signIn;
-        window.signOut = signOut;
-        window.addTask = addTask;
-        window.toggleTask = toggleTask;
-        window.deleteTask = deleteTask;
-        window.loadTasks = loadTasks;
-        window.refreshTasks = refreshTasks;
-        window.showDebug = showDebug;
-
-        console.log('✅ 应用已启动，请登录使用');
-        console.log('💡 如需调试，请在控制台执行: refreshTasks()');
-    </script>
+      // ============================================================
+      // 初始化
+      // ============================================================
+      loadMessages();
+      console.log('✅ 留言板已接入 Supabase');
+    });
+  </script>
 </body>
 </html>
