@@ -15,7 +15,7 @@
   <meta name="twitter:card" content="summary">
   <link rel="icon" href="../favicon.svg" type="image/svg+xml">
   
-  <!-- ⭐ 保留您的外部样式 -->
+  <!-- ⭐ 关键：保留你原来的样式文件 -->
   <link rel="stylesheet" href="static/css/style.css">
   
   <!-- 引入 Supabase 客户端 -->
@@ -33,10 +33,9 @@
     })();
   </script>
   
+  <!-- ⭐ 只添加功能所需的少量样式（不影响你原有设计） -->
   <style>
-    /* ===== 只添加必要的功能样式 ===== */
-    
-    /* 精选筛选按钮 */
+    /* 精选筛选按钮 - 适配你的主题变量 */
     .filter-bar {
       display: flex;
       gap: 8px;
@@ -61,7 +60,7 @@
       border-color: var(--fg);
     }
     
-    /* 精选留言高亮 */
+    /* 精选留言高亮 - 适配你的主题 */
     .msg.featured {
       border-color: #f9a825 !important;
       background: linear-gradient(to right, var(--chip-bg), rgba(249, 168, 37, 0.06)) !important;
@@ -89,7 +88,7 @@
       gap: 10px;
     }
     
-    /* 表单状态错误 */
+    /* 表单状态 */
     .form .status.error {
       color: #d32f2f;
     }
@@ -99,7 +98,7 @@
   </style>
 </head>
 <body>
-  <!-- ===== 页面结构完全保持您原来的 ===== -->
+  <!-- ===== 页面结构完全保持你原来的 ===== -->
   <header class="site-header">
     <div class="site-header-inner">
       <div class="brand">
@@ -174,7 +173,12 @@
     <small style="display:block;font-style:normal;"><a href="https://beian.miit.gov.cn" target="_blank" rel="noopener noreferrer">闽ICP备2026017342号-1</a></small>
   </footer>
 
+  <!-- ⭐ 你原来的 script.js（保留） -->
   <script src="static/js/script.js" defer></script>
+  
+  <!-- ============================================================
+    Supabase 功能代码
+    ============================================================ -->
   <script>
     // ============================================================
     // Supabase 配置
@@ -227,6 +231,7 @@
         const card = document.createElement('div');
         card.className = 'msg' + (m.is_featured ? ' featured' : '');
         card.dataset.id = String(m.id);
+        card.__data = m;
         
         let html = `
           <div class="head">
@@ -420,7 +425,7 @@
       });
 
       // ============================================================
-      // 初始化加载
+      // 初始化
       // ============================================================
       loadMessages();
       console.log('✅ 留言板已接入 Supabase');
