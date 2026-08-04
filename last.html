@@ -4,908 +4,1792 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>深莞 · 销售智脑</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+    </script>
     <style>
-        /* 你的原有样式保持不变，此处省略，实际使用时粘贴完整样式 */
-        /* 为节省篇幅，样式同你提供的最新版本，直接复制你上面的样式即可 */
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif; }
-        html, body { height: 100%; overflow: hidden; background: #f0f2f7; }
-        body { display: flex; justify-content: center; align-items: center; padding: 10px; }
-        .app { max-width: 480px; width: 100%; height: 100%; max-height: 860px; background: #f0f2f7; border-radius: 28px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 8px 40px rgba(0, 10, 30, 0.10); position: relative; }
-        .app-header { flex-shrink: 0; padding: 12px 14px 6px; background: #f0f2f7; z-index: 10; }
-        .header-row { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
-        .header-row h1 { font-size: 16px; font-weight: 700; color: #0b1b33; flex-shrink: 0; }
-        .icon-switch { display: flex; background: #ffffff; border-radius: 30px; padding: 2px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); flex-shrink: 0; gap: 1px; }
-        .icon-btn { width: 30px; height: 30px; border-radius: 30px; border: none; background: transparent; font-size: 14px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
-        .icon-btn.active { background: #1a3a6b; box-shadow: 0 2px 8px rgba(30,60,120,0.2); color: #fff; }
-        .icon-btn:active { transform: scale(0.92); }
-        .header-row .date-selector { position: relative; display: flex; align-items: center; gap: 2px; background: #ffffff; padding: 3px 8px 3px 6px; border-radius: 40px; font-size: 10px; font-weight: 500; color: #1f3f6e; border: 1px solid #e6eaf2; margin-left: auto; flex-shrink: 0; cursor: pointer; }
-        .header-row .date-selector input[type="date"] { border: none; background: transparent; font-size: 10px; font-weight: 500; color: #1f3f6e; outline: none; width: 85px; padding: 1px 0; cursor: pointer; }
-        .header-row .date-selector input[type="date"]::-webkit-calendar-picker-indicator { opacity: 0.5; cursor: pointer; }
-        .date-selector .dot-marker { position: absolute; bottom: 2px; right: 6px; display: flex; gap: 2px; }
-        .date-selector .dot-marker span { display: inline-block; width: 4px; height: 4px; border-radius: 50%; background: #1a3a6b; opacity: 0.4; }
-        .date-selector .dot-marker span.has-data { opacity: 1; background: #1a3a6b; }
-        .stats-section { flex-shrink: 0; padding: 0 0 4px; }
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
-        .stat-item { display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 10px; padding: 5px 2px; text-align: center; min-height: 44px; border: 1px solid rgba(255,255,255,0.3); }
-        .stat-item:nth-child(1) { background: linear-gradient(135deg, #1a3a6b, #2d5aa0); color: white; }
-        .stat-item:nth-child(2) { background: linear-gradient(135deg, #0f7b4a, #1a9e6a); color: white; }
-        .stat-item:nth-child(3) { background: linear-gradient(135deg, #a0302a, #c94038); color: white; }
-        .stat-item:nth-child(4) { background: linear-gradient(135deg, #b8782a, #d4993a); color: white; }
-        .stat-item .label { font-size: 7px; font-weight: 500; opacity: 0.85; letter-spacing: 0.2px; text-transform: uppercase; }
-        .stat-item .value { font-size: 15px; font-weight: 700; line-height: 1.2; margin-top: 1px; color: white; }
-        .stat-item .trend-up { color: #8effb2; }
-        .stat-item .trend-down { color: #ffb0a0; }
-        .search-section { flex-shrink: 0; padding: 0 0 4px; }
-        .search-bar { background: #ffffff; border-radius: 30px; padding: 5px 12px; font-size: 10px; color: #334e77; display: flex; align-items: center; gap: 4px; border: 1px solid #e6eaf2; }
-        .search-bar input { flex: 1; border: none; background: transparent; font-size: 10px; color: #334e77; outline: none; min-width: 0; }
-        .search-bar input::placeholder { color: #b0bcca; font-size: 9px; }
-        .search-bar .search-btn { background: none; border: none; font-size: 12px; cursor: pointer; color: #1a3a6b; padding: 0 2px; }
-        .search-bar .search-btn:active { transform: scale(0.9); }
-        .tab-group { display: flex; gap: 3px; background: #ffffff; border-radius: 40px; padding: 2px; margin-top: 5px; border: 1px solid #e6eaf2; }
-        .tab-item { flex: 1; text-align: center; padding: 3px 0; border-radius: 30px; font-size: 10px; font-weight: 500; color: #4b6589; border: none; background: transparent; cursor: pointer; }
-        .tab-item.active { background: #1a3a6b; color: white; font-weight: 600; }
-        .scroll-content { flex: 1; overflow-y: auto; padding: 0 12px 8px; -webkit-overflow-scrolling: touch; }
-        .scroll-content::-webkit-scrollbar { width: 3px; }
-        .scroll-content::-webkit-scrollbar-thumb { background: #c0c8d8; border-radius: 10px; }
-        .row-two { display: flex; gap: 6px; margin-top: 4px; }
-        .col-half { flex: 1; background: #ffffff; border-radius: 14px; padding: 8px 6px; box-shadow: 0 2px 12px rgba(0,0,0,0.02); min-width: 0; overflow: hidden; }
-        .mod-title { font-size: 10px; font-weight: 600; color: #14273e; margin-bottom: 4px; display: flex; align-items: center; }
-        .mod-title::before { content: ""; width: 3px; height: 12px; background: #2d7aff; border-radius: 4px; margin-right: 4px; }
-        .info-line { display: flex; justify-content: space-between; padding: 3px 5px; align-items: center; border-radius: 5px; margin-bottom: 2px; background: #f8faff; border: 1px solid #eef2f9; }
-        .info-line:last-child { margin-bottom: 0; }
-        .info-tag { display: flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 500; color: #1d314a; }
-        .info-tag .icon { width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; flex-shrink: 0; }
-        .icon-star { background: #fff3d6; color: #d68b1a; }
-        .icon-yen { background: #e3edff; color: #2d6ef0; }
-        .icon-people { background: #e1ecfe; color: #2d6ef0; }
-        .icon-up { background: #dcf9e7; color: #0f9d58; }
-        .icon-down { background: #ffe8e3; color: #e74c3c; }
-        .info-line .value-text { font-weight: 600; color: #0b1b33; font-size: 11px; }
-        .pie-box { height: 70px; width: 100%; margin: 0 auto 1px; }
-        .pie-legend { display: grid; grid-template-columns: 1fr 1fr; gap: 0px 3px; font-size: 8px; color: #1b334f; margin-top: 2px; }
-        .legend-dot { display: inline-block; width: 6px; height: 6px; border-radius: 3px; margin-right: 2px; vertical-align: middle; }
-        .rank-wrap { background: #ffffff; border-radius: 14px; padding: 8px 8px 2px; margin-top: 6px; box-shadow: 0 2px 12px rgba(0,0,0,0.02); }
-        .rank-wrap .mod-title { font-size: 10px; margin-bottom: 0; }
-        .rank-wrap .mod-title span { font-size: 9px; color: #6a7f9e; font-weight: 400; }
-        .filter-group { display: flex; gap: 3px; overflow-x: auto; padding: 2px 0 5px; scrollbar-width: none; white-space: nowrap; }
-        .filter-group::-webkit-scrollbar { display: none; }
-        .filter-btn { padding: 2px 8px; border-radius: 30px; border: 1px solid #e2e8f2; font-size: 9px; font-weight: 500; color: #3b5780; background: transparent; flex-shrink: 0; cursor: pointer; }
-        .filter-btn.active { background: #1a3a6b; color: white; border-color: #1a3a6b; }
-        .filter-btn:active { transform: scale(0.94); }
-        .rank-header { display: grid; grid-template-columns: 18px 1fr 32px 28px 26px; font-size: 8px; color: #697f9e; padding: 2px 0 4px; border-bottom: 1px solid #edf2f9; }
-        .rank-item { display: grid; grid-template-columns: 18px 1fr 32px 28px 26px; padding: 4px 0; align-items: center; border-bottom: 1px solid #f2f6fd; font-size: 10px; }
-        .rank-item:last-child { border-bottom: none; }
-        .rank-num { width: 16px; height: 16px; border-radius: 30px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 8px; color: white; background: #b6c6e0; }
-        .rank-num.gold { background: #f5b342; }
-        .rank-num.silver { background: #b0bcca; }
-        .rank-num.bronze { background: #dba16a; }
-        .cate-tag { font-size: 7px; background: #eef3fc; padding: 1px 5px; border-radius: 30px; color: #3a5b84; display: inline-block; margin-top: 1px; }
-        .text-new { color: #e74c3c; font-weight: 600; font-size: 9px; }
-        .text-muted { color: #6f87aa; font-size: 9px; }
-        .fw-600 { font-weight: 600; }
-        .action-bar { display: flex; gap: 5px; margin: 4px 0; flex-wrap: wrap; }
-        .action-btn { padding: 3px 10px; border-radius: 30px; border: none; font-size: 10px; font-weight: 600; cursor: pointer; background: #1a3a6b; color: white; }
-        .action-btn:active { transform: scale(0.95); }
-        .action-btn.danger { background: #c94038; }
-        .action-btn.success { background: #0f7b4a; }
-        .action-btn.gold { background: #b8782a; }
-        .modal-mask { position: fixed; left: 0; top: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 999; display: none; align-items: center; justify-content: center; padding: 20px; }
-        .modal-content { background: #fff; border-radius: 20px; padding: 20px; max-width: 380px; width: 100%; }
-        .modal-content h3 { margin-bottom: 12px; font-size: 15px; }
-        .modal-content input { width: 100%; padding: 7px 10px; border-radius: 8px; border: 1px solid #dde4f0; margin-bottom: 8px; font-size: 12px; }
-        .modal-content .btn-row { display: flex; gap: 8px; justify-content: flex-end; }
-        .modal-content .btn-row button { padding: 6px 16px; border-radius: 30px; border: none; font-weight: 600; font-size: 12px; cursor: pointer; }
-        .modal-content .btn-row .cancel { background: #eef2f9; color: #4b6589; }
-        .modal-content .btn-row .confirm { background: #1a3a6b; color: white; }
-        .rank-item .del-btn { background: none; border: none; color: #c94038; font-size: 12px; cursor: pointer; padding: 0 2px; }
-        .rank-item .del-btn:active { transform: scale(0.85); }
-        .loading-text { text-align: center; padding: 30px 16px; color: #6a7f9e; font-size: 12px; }
-        .loading-text .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid #e2e8f2; border-top-color: #1a3a6b; border-radius: 50%; animation: spin 0.7s linear infinite; margin-right: 8px; vertical-align: middle; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .manage-table { display: table; width: 100%; border-collapse: collapse; font-size: 11px; }
-        .manage-row { display: table-row; border-bottom: 1px solid #eef2f9; }
-        .manage-cell { display: table-cell; padding: 4px 3px; vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .manage-cell.name { width: 38%; font-weight: 600; color: #0b1b33; }
-        .manage-cell.cat { width: 18%; font-size: 9px; color: #6a7f9e; }
-        .manage-cell.detail { width: 30%; text-align: right; font-size: 10px; color: #1d314a; }
-        .manage-cell.del { width: 14%; text-align: center; }
-        .manage-cell.del button { background: none; border: none; color: #c94038; font-size: 14px; cursor: pointer; padding: 0; }
-        .manage-cell.del button:active { transform: scale(0.85); }
-        .ai-card { background: #ffffff; border-radius: 14px; padding: 12px; margin-bottom: 6px; box-shadow: 0 2px 12px rgba(0,0,0,0.02); }
-        .ai-card h3 { font-size: 12px; color: #0b1b33; margin-bottom: 4px; display: flex; align-items: center; gap: 4px; }
-        .ai-card h3 .badge { font-size: 8px; background: #1a3a6b; color: white; padding: 1px 8px; border-radius: 30px; font-weight: 400; }
-        .ai-card p, .ai-card li { font-size: 11px; color: #1d314a; line-height: 1.5; }
-        .ai-card ul { padding-left: 16px; margin: 3px 0; }
-        .quick-actions { display: flex; gap: 4px; flex-wrap: wrap; margin: 6px 0 3px; }
-        .quick-actions button { padding: 3px 10px; border-radius: 30px; border: 1px solid #dde1ec; background: white; font-size: 9px; color: #3b5780; cursor: pointer; }
-        .quick-actions button:active { transform: scale(0.94); }
-        .ai-input-row { display: flex; gap: 6px; margin-top: 8px; }
-        .ai-input-row input { flex: 1; padding: 6px 12px; border-radius: 30px; border: 1px solid #e2e8f2; font-size: 11px; outline: none; background: #f8faff; }
-        .ai-input-row input:focus { border-color: #2d7aff; }
-        .ai-input-row button { padding: 6px 14px; border-radius: 30px; border: none; background: #1a3a6b; color: white; font-weight: 600; font-size: 11px; cursor: pointer; white-space: nowrap; }
-        .ai-input-row button:active { transform: scale(0.95); }
-        .ai-input-row button:disabled { opacity: 0.5; cursor: not-allowed; }
-        .ai-response { background: #f8faff; border-radius: 10px; padding: 10px; margin-top: 8px; font-size: 11px; line-height: 1.6; color: #1d314a; white-space: pre-wrap; max-height: 200px; overflow-y: auto; border: 1px solid #eef2f9; }
-        .ai-response .loading { display: flex; align-items: center; gap: 6px; color: #6a7f9e; }
-        .ai-response .loading::after { content: ''; width: 12px; height: 12px; border: 2px solid #e2e8f2; border-top-color: #1a3a6b; border-radius: 50%; animation: spin 0.7s linear infinite; }
-        @media (max-width: 420px) { body { padding: 4px; } .app { max-height: 820px; border-radius: 20px; } .app-header { padding: 8px 10px 4px; } .header-row h1 { font-size: 14px; } .icon-btn { width: 26px; height: 26px; font-size: 12px; } .header-row .date-selector { font-size: 9px; padding: 2px 6px; } .header-row .date-selector input[type="date"] { width: 70px; font-size: 9px; } .stat-item .value { font-size: 13px; } .stat-item { min-height: 38px; padding: 4px 2px; } .stat-item .label { font-size: 6px; } .search-bar { font-size: 9px; padding: 4px 10px; } .tab-item { font-size: 9px; padding: 2px 0; } .scroll-content { padding: 0 8px 6px; } .col-half { padding: 6px 5px; } .mod-title { font-size: 9px; } .info-line { padding: 2px 4px; } .info-tag { font-size: 9px; } .info-tag .icon { width: 14px; height: 14px; font-size: 7px; } .info-line .value-text { font-size: 10px; } .pie-box { height: 60px; } .pie-legend { font-size: 7px; } .rank-wrap { padding: 6px 6px 2px; } .rank-header { font-size: 7px; grid-template-columns: 16px 1fr 28px 24px 22px; } .rank-item { font-size: 9px; grid-template-columns: 16px 1fr 28px 24px 22px; padding: 3px 0; } .rank-num { width: 14px; height: 14px; font-size: 7px; } .filter-btn { font-size: 8px; padding: 2px 6px; } .manage-cell.name { font-size: 10px; } .manage-cell.detail { font-size: 9px; } .manage-cell.del button { font-size: 12px; } .modal-content { padding: 16px; } .modal-content h3 { font-size: 13px; } .modal-content input { font-size: 11px; padding: 6px 8px; } .modal-content .btn-row button { font-size: 11px; padding: 5px 14px; } .ai-card { padding: 10px; } .ai-card h3 { font-size: 11px; } .ai-card p, .ai-card li { font-size: 10px; } .ai-input-row input { font-size: 10px; padding: 5px 10px; } .ai-input-row button { font-size: 10px; padding: 5px 12px; } .ai-response { font-size: 10px; padding: 8px; } }
+        /* ===== 样式（同你之前的版本，只修改了头部日期交互） ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+        html,
+        body {
+            height: 100%;
+            overflow: hidden;
+            background: #f0f2f7;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+        .app {
+            max-width: 480px;
+            width: 100%;
+            height: 100%;
+            max-height: 860px;
+            background: #f0f2f7;
+            border-radius: 28px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 8px 40px rgba(0, 10, 30, 0.10);
+            position: relative;
+        }
+        .app-header {
+            flex-shrink: 0;
+            padding: 12px 14px 6px;
+            background: #f0f2f7;
+            z-index: 10;
+        }
+        .header-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+        .header-row h1 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0b1b33;
+            flex-shrink: 0;
+        }
+        .icon-switch {
+            display: flex;
+            background: #ffffff;
+            border-radius: 30px;
+            padding: 2px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            flex-shrink: 0;
+            gap: 1px;
+        }
+        .icon-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 30px;
+            border: none;
+            background: transparent;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .icon-btn.active {
+            background: #1a3a6b;
+            box-shadow: 0 2px 8px rgba(30, 60, 120, 0.2);
+            color: #fff;
+        }
+        .icon-btn:active {
+            transform: scale(0.92);
+        }
+        .header-row .date-selector {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            background: #ffffff;
+            padding: 3px 8px 3px 6px;
+            border-radius: 40px;
+            font-size: 10px;
+            font-weight: 500;
+            color: #1f3f6e;
+            border: 1px solid #e6eaf2;
+            margin-left: auto;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+        .header-row .date-selector input[type="date"] {
+            border: none;
+            background: transparent;
+            font-size: 10px;
+            font-weight: 500;
+            color: #1f3f6e;
+            outline: none;
+            width: 85px;
+            padding: 1px 0;
+            cursor: pointer;
+        }
+        .header-row .date-selector input[type="date"]::-webkit-calendar-picker-indicator {
+            opacity: 0.5;
+            cursor: pointer;
+        }
+        .date-selector .dot-marker {
+            position: absolute;
+            bottom: 2px;
+            right: 6px;
+            display: flex;
+            gap: 2px;
+        }
+        .date-selector .dot-marker span {
+            display: inline-block;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #1a3a6b;
+            opacity: 0.4;
+        }
+        .date-selector .dot-marker span.has-data {
+            opacity: 1;
+            background: #1a3a6b;
+        }
+
+        .stats-section {
+            flex-shrink: 0;
+            padding: 0 0 4px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+        }
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            padding: 5px 2px;
+            text-align: center;
+            min-height: 44px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .stat-item:nth-child(1) {
+            background: linear-gradient(135deg, #1a3a6b, #2d5aa0);
+            color: white;
+        }
+        .stat-item:nth-child(2) {
+            background: linear-gradient(135deg, #0f7b4a, #1a9e6a);
+            color: white;
+        }
+        .stat-item:nth-child(3) {
+            background: linear-gradient(135deg, #a0302a, #c94038);
+            color: white;
+        }
+        .stat-item:nth-child(4) {
+            background: linear-gradient(135deg, #b8782a, #d4993a);
+            color: white;
+        }
+        .stat-item .label {
+            font-size: 7px;
+            font-weight: 500;
+            opacity: 0.85;
+            letter-spacing: 0.2px;
+            text-transform: uppercase;
+        }
+        .stat-item .value {
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-top: 1px;
+            color: white;
+        }
+        .stat-item .trend-up {
+            color: #8effb2;
+        }
+        .stat-item .trend-down {
+            color: #ffb0a0;
+        }
+
+        .search-section {
+            flex-shrink: 0;
+            padding: 0 0 4px;
+        }
+        .search-bar {
+            background: #ffffff;
+            border-radius: 30px;
+            padding: 5px 12px;
+            font-size: 10px;
+            color: #334e77;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            border: 1px solid #e6eaf2;
+        }
+        .search-bar input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-size: 10px;
+            color: #334e77;
+            outline: none;
+            min-width: 0;
+        }
+        .search-bar input::placeholder {
+            color: #b0bcca;
+            font-size: 9px;
+        }
+        .search-bar .search-btn {
+            background: none;
+            border: none;
+            font-size: 12px;
+            cursor: pointer;
+            color: #1a3a6b;
+            padding: 0 2px;
+        }
+        .search-bar .search-btn:active {
+            transform: scale(0.9);
+        }
+
+        .tab-group {
+            display: flex;
+            gap: 3px;
+            background: #ffffff;
+            border-radius: 40px;
+            padding: 2px;
+            margin-top: 5px;
+            border: 1px solid #e6eaf2;
+        }
+        .tab-item {
+            flex: 1;
+            text-align: center;
+            padding: 3px 0;
+            border-radius: 30px;
+            font-size: 10px;
+            font-weight: 500;
+            color: #4b6589;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+        }
+        .tab-item.active {
+            background: #1a3a6b;
+            color: white;
+            font-weight: 600;
+        }
+
+        .scroll-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 12px 8px;
+            -webkit-overflow-scrolling: touch;
+        }
+        .scroll-content::-webkit-scrollbar {
+            width: 3px;
+        }
+        .scroll-content::-webkit-scrollbar-thumb {
+            background: #c0c8d8;
+            border-radius: 10px;
+        }
+
+        .row-two {
+            display: flex;
+            gap: 6px;
+            margin-top: 4px;
+        }
+        .col-half {
+            flex: 1;
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 8px 6px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02);
+            min-width: 0;
+            overflow: hidden;
+        }
+        .mod-title {
+            font-size: 10px;
+            font-weight: 600;
+            color: #14273e;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+        }
+        .mod-title::before {
+            content: "";
+            width: 3px;
+            height: 12px;
+            background: #2d7aff;
+            border-radius: 4px;
+            margin-right: 4px;
+        }
+        .info-line {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 5px;
+            align-items: center;
+            border-radius: 5px;
+            margin-bottom: 2px;
+            background: #f8faff;
+            border: 1px solid #eef2f9;
+        }
+        .info-line:last-child {
+            margin-bottom: 0;
+        }
+        .info-tag {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 10px;
+            font-weight: 500;
+            color: #1d314a;
+        }
+        .info-tag .icon {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            flex-shrink: 0;
+        }
+        .icon-star {
+            background: #fff3d6;
+            color: #d68b1a;
+        }
+        .icon-yen {
+            background: #e3edff;
+            color: #2d6ef0;
+        }
+        .icon-people {
+            background: #e1ecfe;
+            color: #2d6ef0;
+        }
+        .icon-up {
+            background: #dcf9e7;
+            color: #0f9d58;
+        }
+        .icon-down {
+            background: #ffe8e3;
+            color: #e74c3c;
+        }
+        .info-line .value-text {
+            font-weight: 600;
+            color: #0b1b33;
+            font-size: 11px;
+        }
+
+        .pie-box {
+            height: 70px;
+            width: 100%;
+            margin: 0 auto 1px;
+        }
+        .pie-legend {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0px 3px;
+            font-size: 8px;
+            color: #1b334f;
+            margin-top: 2px;
+        }
+        .legend-dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 3px;
+            margin-right: 2px;
+            vertical-align: middle;
+        }
+
+        .rank-wrap {
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 8px 8px 2px;
+            margin-top: 6px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02);
+        }
+        .rank-wrap .mod-title {
+            font-size: 10px;
+            margin-bottom: 0;
+        }
+        .rank-wrap .mod-title span {
+            font-size: 9px;
+            color: #6a7f9e;
+            font-weight: 400;
+        }
+        .filter-group {
+            display: flex;
+            gap: 3px;
+            overflow-x: auto;
+            padding: 2px 0 5px;
+            scrollbar-width: none;
+            white-space: nowrap;
+        }
+        .filter-group::-webkit-scrollbar {
+            display: none;
+        }
+        .filter-btn {
+            padding: 2px 8px;
+            border-radius: 30px;
+            border: 1px solid #e2e8f2;
+            font-size: 9px;
+            font-weight: 500;
+            color: #3b5780;
+            background: transparent;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+        .filter-btn.active {
+            background: #1a3a6b;
+            color: white;
+            border-color: #1a3a6b;
+        }
+        .filter-btn:active {
+            transform: scale(0.94);
+        }
+
+        .rank-header {
+            display: grid;
+            grid-template-columns: 18px 1fr 32px 28px 26px;
+            font-size: 8px;
+            color: #697f9e;
+            padding: 2px 0 4px;
+            border-bottom: 1px solid #edf2f9;
+        }
+        .rank-item {
+            display: grid;
+            grid-template-columns: 18px 1fr 32px 28px 26px;
+            padding: 4px 0;
+            align-items: center;
+            border-bottom: 1px solid #f2f6fd;
+            font-size: 10px;
+        }
+        .rank-item:last-child {
+            border-bottom: none;
+        }
+        .rank-num {
+            width: 16px;
+            height: 16px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 8px;
+            color: white;
+            background: #b6c6e0;
+        }
+        .rank-num.gold {
+            background: #f5b342;
+        }
+        .rank-num.silver {
+            background: #b0bcca;
+        }
+        .rank-num.bronze {
+            background: #dba16a;
+        }
+        .cate-tag {
+            font-size: 7px;
+            background: #eef3fc;
+            padding: 1px 5px;
+            border-radius: 30px;
+            color: #3a5b84;
+            display: inline-block;
+            margin-top: 1px;
+        }
+        .text-new {
+            color: #e74c3c;
+            font-weight: 600;
+            font-size: 9px;
+        }
+        .text-muted {
+            color: #6f87aa;
+            font-size: 9px;
+        }
+        .fw-600 {
+            font-weight: 600;
+        }
+
+        .action-bar {
+            display: flex;
+            gap: 5px;
+            margin: 4px 0;
+            flex-wrap: wrap;
+        }
+        .action-btn {
+            padding: 3px 10px;
+            border-radius: 30px;
+            border: none;
+            font-size: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            background: #1a3a6b;
+            color: white;
+        }
+        .action-btn:active {
+            transform: scale(0.95);
+        }
+        .action-btn.danger {
+            background: #c94038;
+        }
+        .action-btn.success {
+            background: #0f7b4a;
+        }
+        .action-btn.gold {
+            background: #b8782a;
+        }
+
+        .modal-mask {
+            position: fixed;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-content {
+            background: #fff;
+            border-radius: 20px;
+            padding: 20px;
+            max-width: 380px;
+            width: 100%;
+        }
+        .modal-content h3 {
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+        .modal-content input {
+            width: 100%;
+            padding: 7px 10px;
+            border-radius: 8px;
+            border: 1px solid #dde4f0;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+        .modal-content .btn-row {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+        .modal-content .btn-row button {
+            padding: 6px 16px;
+            border-radius: 30px;
+            border: none;
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .modal-content .btn-row .cancel {
+            background: #eef2f9;
+            color: #4b6589;
+        }
+        .modal-content .btn-row .confirm {
+            background: #1a3a6b;
+            color: white;
+        }
+
+        .rank-item .del-btn {
+            background: none;
+            border: none;
+            color: #c94038;
+            font-size: 12px;
+            cursor: pointer;
+            padding: 0 2px;
+        }
+        .rank-item .del-btn:active {
+            transform: scale(0.85);
+        }
+
+        .loading-text {
+            text-align: center;
+            padding: 30px 16px;
+            color: #6a7f9e;
+            font-size: 12px;
+        }
+        .loading-text .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #e2e8f2;
+            border-top-color: #1a3a6b;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .manage-table {
+            display: table;
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+        }
+        .manage-row {
+            display: table-row;
+            border-bottom: 1px solid #eef2f9;
+        }
+        .manage-cell {
+            display: table-cell;
+            padding: 4px 3px;
+            vertical-align: middle;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .manage-cell.name {
+            width: 38%;
+            font-weight: 600;
+            color: #0b1b33;
+        }
+        .manage-cell.cat {
+            width: 18%;
+            font-size: 9px;
+            color: #6a7f9e;
+        }
+        .manage-cell.detail {
+            width: 30%;
+            text-align: right;
+            font-size: 10px;
+            color: #1d314a;
+        }
+        .manage-cell.del {
+            width: 14%;
+            text-align: center;
+        }
+        .manage-cell.del button {
+            background: none;
+            border: none;
+            color: #c94038;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 0;
+        }
+        .manage-cell.del button:active {
+            transform: scale(0.85);
+        }
+
+        .ai-card {
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 12px;
+            margin-bottom: 6px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02);
+        }
+        .ai-card h3 {
+            font-size: 12px;
+            color: #0b1b33;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .ai-card h3 .badge {
+            font-size: 8px;
+            background: #1a3a6b;
+            color: white;
+            padding: 1px 8px;
+            border-radius: 30px;
+            font-weight: 400;
+        }
+        .ai-card p,
+        .ai-card li {
+            font-size: 11px;
+            color: #1d314a;
+            line-height: 1.5;
+        }
+        .ai-card ul {
+            padding-left: 16px;
+            margin: 3px 0;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            margin: 6px 0 3px;
+        }
+        .quick-actions button {
+            padding: 3px 10px;
+            border-radius: 30px;
+            border: 1px solid #dde1ec;
+            background: white;
+            font-size: 9px;
+            color: #3b5780;
+            cursor: pointer;
+        }
+        .quick-actions button:active {
+            transform: scale(0.94);
+        }
+
+        .ai-input-row {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        .ai-input-row input {
+            flex: 1;
+            padding: 6px 12px;
+            border-radius: 30px;
+            border: 1px solid #e2e8f2;
+            font-size: 11px;
+            outline: none;
+            background: #f8faff;
+        }
+        .ai-input-row input:focus {
+            border-color: #2d7aff;
+        }
+        .ai-input-row button {
+            padding: 6px 14px;
+            border-radius: 30px;
+            border: none;
+            background: #1a3a6b;
+            color: white;
+            font-weight: 600;
+            font-size: 11px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .ai-input-row button:active {
+            transform: scale(0.95);
+        }
+        .ai-input-row button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .ai-response {
+            background: #f8faff;
+            border-radius: 10px;
+            padding: 10px;
+            margin-top: 8px;
+            font-size: 11px;
+            line-height: 1.6;
+            color: #1d314a;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #eef2f9;
+        }
+        .ai-response .loading {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #6a7f9e;
+        }
+        .ai-response .loading::after {
+            content: '';
+            width: 12px;
+            height: 12px;
+            border: 2px solid #e2e8f2;
+            border-top-color: #1a3a6b;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        /* ===== 今日快捷按钮 ===== */
+        .today-btn {
+            background: none;
+            border: none;
+            font-size: 10px;
+            color: #2d6ef0;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 30px;
+            font-weight: 500;
+        }
+        .today-btn:active {
+            background: #e3edff;
+        }
+
+        @media (max-width: 420px) {
+            body {
+                padding: 4px;
+            }
+            .app {
+                max-height: 820px;
+                border-radius: 20px;
+            }
+            .app-header {
+                padding: 8px 10px 4px;
+            }
+            .header-row h1 {
+                font-size: 14px;
+            }
+            .icon-btn {
+                width: 26px;
+                height: 26px;
+                font-size: 12px;
+            }
+            .header-row .date-selector {
+                font-size: 9px;
+                padding: 2px 6px;
+            }
+            .header-row .date-selector input[type="date"] {
+                width: 70px;
+                font-size: 9px;
+            }
+            .stat-item .value {
+                font-size: 13px;
+            }
+            .stat-item {
+                min-height: 38px;
+                padding: 4px 2px;
+            }
+            .stat-item .label {
+                font-size: 6px;
+            }
+            .search-bar {
+                font-size: 9px;
+                padding: 4px 10px;
+            }
+            .tab-item {
+                font-size: 9px;
+                padding: 2px 0;
+            }
+            .scroll-content {
+                padding: 0 8px 6px;
+            }
+            .col-half {
+                padding: 6px 5px;
+            }
+            .mod-title {
+                font-size: 9px;
+            }
+            .info-line {
+                padding: 2px 4px;
+            }
+            .info-tag {
+                font-size: 9px;
+            }
+            .info-tag .icon {
+                width: 14px;
+                height: 14px;
+                font-size: 7px;
+            }
+            .info-line .value-text {
+                font-size: 10px;
+            }
+            .pie-box {
+                height: 60px;
+            }
+            .pie-legend {
+                font-size: 7px;
+            }
+            .rank-wrap {
+                padding: 6px 6px 2px;
+            }
+            .rank-header {
+                font-size: 7px;
+                grid-template-columns: 16px 1fr 28px 24px 22px;
+            }
+            .rank-item {
+                font-size: 9px;
+                grid-template-columns: 16px 1fr 28px 24px 22px;
+                padding: 3px 0;
+            }
+            .rank-num {
+                width: 14px;
+                height: 14px;
+                font-size: 7px;
+            }
+            .filter-btn {
+                font-size: 8px;
+                padding: 2px 6px;
+            }
+            .manage-cell.name {
+                font-size: 10px;
+            }
+            .manage-cell.detail {
+                font-size: 9px;
+            }
+            .manage-cell.del button {
+                font-size: 12px;
+            }
+            .modal-content {
+                padding: 16px;
+            }
+            .modal-content h3 {
+                font-size: 13px;
+            }
+            .modal-content input {
+                font-size: 11px;
+                padding: 6px 8px;
+            }
+            .modal-content .btn-row button {
+                font-size: 11px;
+                padding: 5px 14px;
+            }
+            .ai-card {
+                padding: 10px;
+            }
+            .ai-card h3 {
+                font-size: 11px;
+            }
+            .ai-card p,
+            .ai-card li {
+                font-size: 10px;
+            }
+            .ai-input-row input {
+                font-size: 10px;
+                padding: 5px 10px;
+            }
+            .ai-input-row button {
+                font-size: 10px;
+                padding: 5px 12px;
+            }
+            .ai-response {
+                font-size: 10px;
+                padding: 8px;
+            }
+        }
     </style>
 </head>
 <body>
-<div class="app">
-    <div class="app-header">
-        <div class="header-row">
-            <h1 id="pageTitle">深莞 · 销售智脑</h1>
-            <div class="icon-switch">
-                <button class="icon-btn active" data-page="turnover" id="iconMoney">💰</button>
-                <button class="icon-btn" data-page="sale" id="iconBox">📦</button>
-                <button class="icon-btn" data-page="ai" id="iconAI">🧠</button>
-                <button class="icon-btn" data-page="manage" id="iconManage">✏️</button>
+    <div class="app">
+
+        <div class="app-header">
+            <div class="header-row">
+                <h1 id="pageTitle">深莞 · 销售智脑</h1>
+                <div class="icon-switch" id="iconSwitch">
+                    <button class="icon-btn active" data-page="turnover" id="iconMoney">💰</button>
+                    <button class="icon-btn" data-page="sale" id="iconBox">📦</button>
+                    <button class="icon-btn" data-page="ai" id="iconAI">🧠</button>
+                    <button class="icon-btn" data-page="manage" id="iconManage">✏️</button>
+                </div>
+                <div class="date-selector" id="dateSelector">
+                    <span>📅</span>
+                    <input type="date" id="datePicker">
+                    <button class="today-btn" id="todayBtn">今日</button>
+                    <span class="dot-marker" id="dotMarker"></span>
+                </div>
             </div>
-            <div class="date-selector">
-                📅 <input type="date" id="datePicker">
-                <span class="dot-marker" id="dotMarker"></span>
+
+            <div class="stats-section" id="statsContainer">
+                <div class="loading-text"><span class="spinner"></span>加载中...</div>
+            </div>
+
+            <div class="search-section">
+                <div class="search-bar">
+                    <span>🔍</span>
+                    <input type="text" id="searchInput" placeholder="输入商品名或条码，查看逐笔销售明细">
+                    <button class="search-btn" id="searchBtn">▶</button>
+                </div>
+                <div class="tab-group" id="timeTabs">
+                    <button class="tab-item active" data-period="day">日</button>
+                    <button class="tab-item" data-period="week">周</button>
+                    <button class="tab-item" data-period="month">月</button>
+                </div>
             </div>
         </div>
-        <div class="stats-section" id="statsContainer"><div class="loading-text"><span class="spinner"></span>加载中...</div></div>
-        <div class="search-section">
-            <div class="search-bar">
-                <span>🔍</span>
-                <input type="text" id="searchInput" placeholder="输入商品名或条码，查看逐笔销售明细">
-                <button class="search-btn" id="searchBtn">▶</button>
-            </div>
-            <div class="tab-group" id="timeTabs">
-                <button class="tab-item active" data-period="today">本日</button>
-                <button class="tab-item" data-period="week">本周</button>
-                <button class="tab-item" data-period="month">本月</button>
+
+        <div class="scroll-content" id="scrollContent">
+            <div class="loading-text"><span class="spinner"></span>加载中...</div>
+        </div>
+
+    </div>
+
+    <!-- 新增商品弹窗 -->
+    <div class="modal-mask" id="addModal">
+        <div class="modal-content">
+            <h3>➕ 新增商品</h3>
+            <input id="newName" placeholder="商品名称">
+            <input id="newCategory" placeholder="分类（如：日用品）">
+            <input id="newPrice" type="number" step="0.01" placeholder="单价（元）">
+            <input id="newQty" type="number" step="1" placeholder="数量（件）">
+            <div class="btn-row">
+                <button class="cancel" onclick="closeAddModal()">取消</button>
+                <button class="confirm" onclick="confirmAdd()">确认添加</button>
             </div>
         </div>
     </div>
-    <div class="scroll-content" id="scrollContent"><div class="loading-text"><span class="spinner"></span>加载中...</div></div>
-</div>
 
-<!-- 新增商品弹窗 -->
-<div class="modal-mask" id="addModal">
-    <div class="modal-content">
-        <h3>➕ 新增商品</h3>
-        <input id="newName" placeholder="商品名称">
-        <input id="newCategory" placeholder="分类（如：日用品）">
-        <input id="newPrice" type="number" step="0.01" placeholder="单价（元）">
-        <input id="newQty" type="number" step="1" placeholder="数量（件）">
-        <div class="btn-row">
-            <button class="cancel" onclick="closeAddModal()">取消</button>
-            <button class="confirm" onclick="confirmAdd()">确认添加</button>
-        </div>
-    </div>
-</div>
+    <script>
+        // ============================================================
+        // 0. Supabase 配置
+        // ============================================================
+        const SUPABASE_URL = 'https://pmqkockdjvaoiuoxvigl.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_Q5w_4CffRHSvpNYsnhXsAw_X_-TZpKb';
 
-<script>
-    // ============================================================
-    // 0. Supabase 配置
-    // ============================================================
-    const SUPABASE_URL = 'https://pmqkockdjvaoiuoxvigl.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_Q5w_4CffRHSvpNYsnhXsAw_X_-TZpKb';
-    const { createClient } = supabase;
-    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const { createClient } = supabase;
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // ============================================================
-    // 1. 全局状态
-    // ============================================================
-    let currentPage = 'turnover';
-    let currentPeriod = 'today';
-    let selectedDate = '';
-    let allProducts = [];
-    let currentProducts = [];
-    let currentReport = null;
-    let datesWithData = [];
-    let isRefreshing = false;          // 防止重复刷新
+        // ============================================================
+        // 1. 全局状态
+        // ============================================================
+        let currentPage = 'turnover';
+        let currentPeriod = 'day'; // 'day' | 'week' | 'month'
+        let selectedDate = ''; // 用户选择的基准日期 YYYY-MM-DD
+        let allProducts = [];
+        let currentProducts = [];
+        let currentReport = null;
+        let datesWithData = [];
+        let isRefreshing = false;
 
-    // ============================================================
-    // 2. DOM 引用
-    // ============================================================
-    const statsContainer = document.getElementById('statsContainer');
-    const scrollContent = document.getElementById('scrollContent');
-    const pageTitle = document.getElementById('pageTitle');
-    const iconMoney = document.getElementById('iconMoney');
-    const iconBox = document.getElementById('iconBox');
-    const iconAI = document.getElementById('iconAI');
-    const iconManage = document.getElementById('iconManage');
-    const datePicker = document.getElementById('datePicker');
-    const searchInput = document.getElementById('searchInput');
-    const searchBtn = document.getElementById('searchBtn');
-    const dotMarker = document.getElementById('dotMarker');
+        // ============================================================
+        // 2. DOM 引用
+        // ============================================================
+        const statsContainer = document.getElementById('statsContainer');
+        const scrollContent = document.getElementById('scrollContent');
+        const pageTitle = document.getElementById('pageTitle');
+        const iconMoney = document.getElementById('iconMoney');
+        const iconBox = document.getElementById('iconBox');
+        const iconAI = document.getElementById('iconAI');
+        const iconManage = document.getElementById('iconManage');
+        const datePicker = document.getElementById('datePicker');
+        const todayBtn = document.getElementById('todayBtn');
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const dotMarker = document.getElementById('dotMarker');
 
-    // ============================================================
-    // 3. 工具函数
-    // ============================================================
-    function getToday() {
-        const d = new Date();
-        const y = d.getFullYear();
-        const m = String(d.getMonth() + 1).padStart(2, '0');
-        const day = String(d.getDate()).padStart(2, '0');
-        return y + '-' + m + '-' + day;
-    }
+        // ============================================================
+        // 3. 日期工具（纯本地时区）
+        // ============================================================
+        function getToday() {
+            const d = new Date();
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return y + '-' + m + '-' + day;
+        }
 
-    function getWeekStart() {
-        const d = new Date();
-        const day = d.getDay();
-        const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-        d.setDate(diff);
-        const y = d.getFullYear();
-        const m = String(d.getMonth() + 1).padStart(2, '0');
-        const day2 = String(d.getDate()).padStart(2, '0');
-        return y + '-' + m + '-' + day2;
-    }
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            const parts = dateStr.split('-');
+            return parts[0] + '/' + parts[1] + '/' + parts[2];
+        }
 
-    function getMonthStart() {
-        const d = new Date();
-        d.setDate(1);
-        const y = d.getFullYear();
-        const m = String(d.getMonth() + 1).padStart(2, '0');
-        return y + '-' + m + '-01';
-    }
+        function getWeekStart(baseDate) {
+            const d = new Date(baseDate + 'T00:00:00');
+            const day = d.getDay();
+            const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+            d.setDate(diff);
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day2 = String(d.getDate()).padStart(2, '0');
+            return y + '-' + m + '-' + day2;
+        }
 
-    // ============================================================
-    // 4. 数据加载
-    // ============================================================
-    async function loadAllProducts() {
-        const { data, error } = await supabaseClient
-            .from('products')
-            .select('*')
-            .order('report_date', { ascending: true });
-        if (error) { console.error('加载失败:', error); return []; }
-        return data || [];
-    }
+        function getMonthStart(baseDate) {
+            const parts = baseDate.split('-');
+            return parts[0] + '-' + parts[1] + '-01';
+        }
 
-    async function loadReport(date) {
-        const { data, error } = await supabaseClient
-            .from('monthly_reports')
-            .select('*')
-            .eq('report_date', date)
-            .limit(1);
-        if (error) { console.error('加载报表失败:', error); return null; }
-        return data?.[0] || null;
-    }
+        // ============================================================
+        // 4. 数据加载
+        // ============================================================
+        async function loadAllProducts() {
+            const { data, error } = await supabaseClient
+                .from('products')
+                .select('*')
+                .order('report_date', { ascending: true });
+            if (error) { console.error('加载失败:', error); return []; }
+            return data || [];
+        }
 
-    // ============================================================
-    // 5. 核心计算（按商品名称合并）
-    // ============================================================
-    function calculateReport(products, report) {
-        if (!products || products.length === 0) {
+        async function loadReport(date) {
+            const { data, error } = await supabaseClient
+                .from('monthly_reports')
+                .select('*')
+                .eq('report_date', date)
+                .limit(1);
+            if (error) { console.error('加载报表失败:', error); return null; }
+            return data?.[0] || null;
+        }
+
+        // ============================================================
+        // 5. 核心计算（按商品名称合并）
+        // ============================================================
+        function calculateReport(products, report) {
+            if (!products || products.length === 0) {
+                return {
+                    total_revenue: 0,
+                    total_orders: 0,
+                    total_products: 0,
+                    avg_price: 0,
+                    visitor_count: report?.visitor_count || 0,
+                    category_data: {},
+                    rank_data: []
+                };
+            }
+
+            const productMap = {};
+            products.forEach(p => {
+                const key = p.name;
+                if (!productMap[key]) {
+                    productMap[key] = { name: p.name, category: p.category, totalRevenue: 0, totalQty: 0, ids: [] };
+                }
+                productMap[key].totalRevenue += p.price * p.qty;
+                productMap[key].totalQty += p.qty;
+                productMap[key].ids.push(p.id);
+            });
+
+            const aggregated = Object.values(productMap);
+
+            let totalRevenue = 0,
+                totalQty = 0;
+            const catMap = {};
+            aggregated.forEach(p => {
+                totalRevenue += p.totalRevenue;
+                totalQty += p.totalQty;
+                catMap[p.category] = (catMap[p.category] || 0) + p.totalRevenue;
+            });
+
+            const categoryData = {};
+            Object.keys(catMap).forEach(cat => {
+                categoryData[cat] = totalRevenue > 0 ? Math.round((catMap[cat] / totalRevenue) * 100) : 0;
+            });
+
+            const sorted = [...aggregated].sort((a, b) => b.totalRevenue - a.totalRevenue);
+            const rankData = sorted.map((p, i) => ({
+                rank: i + 1,
+                name: p.name,
+                category: p.category,
+                revenue: Math.round(p.totalRevenue * 100) / 100,
+                qty: p.totalQty,
+                id: p.ids[0]
+            }));
+
+            const avgPrice = totalQty > 0 ? Math.round((totalRevenue / totalQty) * 100) / 100 : 0;
+
             return {
-                total_revenue: 0,
-                total_orders: 0,
-                total_products: 0,
-                avg_price: 0,
+                total_revenue: Math.round(totalRevenue * 100) / 100,
+                total_orders: totalQty,
+                total_products: aggregated.length,
+                avg_price: avgPrice,
                 visitor_count: report?.visitor_count || 0,
-                category_data: {},
-                rank_data: []
+                category_data: categoryData,
+                rank_data: rankData
             };
         }
 
-        const productMap = {};
-        products.forEach(p => {
-            const key = p.name;
-            if (!productMap[key]) {
-                productMap[key] = { name: p.name, category: p.category, totalRevenue: 0, totalQty: 0, ids: [] };
-            }
-            productMap[key].totalRevenue += p.price * p.qty;
-            productMap[key].totalQty += p.qty;
-            productMap[key].ids.push(p.id);
-        });
+        // ============================================================
+        // 6. 数据刷新（基于 selectedDate 和 currentPeriod）
+        // ============================================================
+        async function refreshData() {
+            if (isRefreshing) return;
+            isRefreshing = true;
+            try {
+                allProducts = await loadAllProducts();
+                const dateSet = new Set(allProducts.map(p => p.report_date));
+                datesWithData = Array.from(dateSet).sort();
+                updateDotMarker();
 
-        const aggregated = Object.values(productMap);
+                // 确定基准日期
+                const baseDate = selectedDate || getToday();
 
-        let totalRevenue = 0, totalQty = 0;
-        const catMap = {};
-        aggregated.forEach(p => {
-            totalRevenue += p.totalRevenue;
-            totalQty += p.totalQty;
-            catMap[p.category] = (catMap[p.category] || 0) + p.totalRevenue;
-        });
+                // 根据周期计算日期范围
+                let startDate = baseDate;
+                let endDate = baseDate;
+                let displayLabel = '';
 
-        const categoryData = {};
-        Object.keys(catMap).forEach(cat => {
-            categoryData[cat] = totalRevenue > 0 ? Math.round((catMap[cat] / totalRevenue) * 100) : 0;
-        });
-
-        const sorted = [...aggregated].sort((a, b) => b.totalRevenue - a.totalRevenue);
-        const rankData = sorted.map((p, i) => ({
-            rank: i + 1,
-            name: p.name,
-            category: p.category,
-            revenue: Math.round(p.totalRevenue * 100) / 100,
-            qty: p.totalQty,
-            id: p.ids[0]
-        }));
-
-        const avgPrice = totalQty > 0 ? Math.round((totalRevenue / totalQty) * 100) / 100 : 0;
-
-        return {
-            total_revenue: Math.round(totalRevenue * 100) / 100,
-            total_orders: totalQty,
-            total_products: aggregated.length,
-            avg_price: avgPrice,
-            visitor_count: report?.visitor_count || 0,
-            category_data: categoryData,
-            rank_data: rankData
-        };
-    }
-
-    // ============================================================
-    // 6. 数据刷新（增加防重锁）
-    // ============================================================
-    async function refreshData() {
-        if (isRefreshing) return;
-        isRefreshing = true;
-        try {
-            allProducts = await loadAllProducts();
-            const dateSet = new Set(allProducts.map(p => p.report_date));
-            datesWithData = Array.from(dateSet).sort();
-            updateDotMarker();
-
-            let filtered = [];
-            if (selectedDate) {
-                filtered = allProducts.filter(p => p.report_date === selectedDate);
-            } else {
-                const today = getToday();
-                const weekStart = getWeekStart();
-                const monthStart = getMonthStart();
                 switch (currentPeriod) {
-                    case 'today': filtered = allProducts.filter(p => p.report_date === today); break;
-                    case 'week': filtered = allProducts.filter(p => p.report_date >= weekStart && p.report_date <= today); break;
-                    case 'month': filtered = allProducts.filter(p => p.report_date >= monthStart && p.report_date <= today); break;
-                    default: filtered = allProducts.filter(p => p.report_date === today);
+                    case 'day':
+                        startDate = baseDate;
+                        endDate = baseDate;
+                        displayLabel = formatDate(baseDate);
+                        break;
+                    case 'week': {
+                        const weekStart = getWeekStart(baseDate);
+                        startDate = weekStart;
+                        // 计算周日
+                        const d = new Date(weekStart + 'T00:00:00');
+                        d.setDate(d.getDate() + 6);
+                        const y = d.getFullYear();
+                        const m = String(d.getMonth() + 1).padStart(2, '0');
+                        const day2 = String(d.getDate()).padStart(2, '0');
+                        endDate = y + '-' + m + '-' + day2;
+                        displayLabel = formatDate(startDate) + ' ~ ' + formatDate(endDate);
+                        break;
+                    }
+                    case 'month': {
+                        const monthStart = getMonthStart(baseDate);
+                        startDate = monthStart;
+                        // 计算月末
+                        const d = new Date(baseDate + 'T00:00:00');
+                        d.setMonth(d.getMonth() + 1);
+                        d.setDate(0);
+                        const y = d.getFullYear();
+                        const m = String(d.getMonth() + 1).padStart(2, '0');
+                        const day2 = String(d.getDate()).padStart(2, '0');
+                        endDate = y + '-' + m + '-' + day2;
+                        displayLabel = formatDate(startDate) + ' ~ ' + formatDate(endDate);
+                        break;
+                    }
                 }
-            }
 
-            currentProducts = filtered;
-            const reportDate = selectedDate || getToday();
-            const report = await loadReport(reportDate);
-            currentReport = calculateReport(currentProducts, report);
+                // 过滤商品
+                currentProducts = allProducts.filter(p =>
+                    p.report_date >= startDate && p.report_date <= endDate
+                );
 
-            if (!selectedDate) {
-                datePicker.value = getToday();
+                // 加载报表（使用基准日期）
+                const report = await loadReport(baseDate);
+                currentReport = calculateReport(currentProducts, report);
+
+                // 更新日期选择器显示
+                if (!selectedDate) {
+                    datePicker.value = getToday();
+                } else {
+                    datePicker.value = selectedDate;
+                }
+
+                // 更新标题显示周期
+                const periodNames = { day: '日', week: '周', month: '月' };
+                const titleSuffix = periodNames[currentPeriod] || '日';
+                // 在页面标题中显示，但不覆盖主标题
+                document.querySelector('.app-header .header-row h1').textContent = '深莞 · 销售智脑';
+
+                renderPage(currentPage);
+
+            } catch (e) {
+                console.error('刷新失败:', e);
+            } finally {
+                isRefreshing = false;
             }
-            renderPage(currentPage);
-        } catch (e) {
-            console.error('刷新失败:', e);
-        } finally {
-            isRefreshing = false;
         }
-    }
 
-    // ============================================================
-    // 7. 日期标记
-    // ============================================================
-    function updateDotMarker() {
-        const val = datePicker.value;
-        if (!val) return;
-        const hasData = datesWithData.includes(val);
-        dotMarker.innerHTML = hasData ? '<span class="has-data"></span>' : '<span></span>';
-    }
+        // ============================================================
+        // 7. 日期标记
+        // ============================================================
+        function updateDotMarker() {
+            const val = datePicker.value;
+            if (!val) return;
+            const hasData = datesWithData.includes(val);
+            dotMarker.innerHTML = hasData ? '<span class="has-data"></span>' : '<span></span>';
+        }
 
-    datePicker.addEventListener('change', function() {
-        selectedDate = this.value;
-        updateDotMarker();
-        if (selectedDate) {
+        // ============================================================
+        // 8. 日期选择器事件
+        // ============================================================
+        datePicker.addEventListener('change', function() {
+            const val = this.value;
+            if (val) {
+                selectedDate = val;
+                // 不改变 currentPeriod，保持当前视图
+                refreshData();
+            }
+        });
+
+        // ============================================================
+        // 9. "今日"按钮
+        // ============================================================
+        todayBtn.addEventListener('click', function() {
+            const today = getToday();
+            selectedDate = today;
+            datePicker.value = today;
+            // 切换到"日"视图
             document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-            currentPeriod = 'custom';
+            document.querySelector('.tab-item[data-period="day"]')?.classList.add('active');
+            currentPeriod = 'day';
             refreshData();
-        } else {
-            selectedDate = '';
-            document.querySelector('.tab-item[data-period="today"]')?.classList.add('active');
-            currentPeriod = 'today';
-            refreshData();
+        });
+
+        // ============================================================
+        // 10. CRUD
+        // ============================================================
+        async function addProduct(name, category, price, qty) {
+            if (!name || !category || !price || !qty) { alert('请填写完整信息'); return false; }
+            const today = getToday();
+            const { error: insertError } = await supabaseClient
+                .from('products')
+                .insert([{ name, category, price: parseFloat(price), qty: parseInt(qty), report_date: today }]);
+            if (insertError) { alert('添加失败: ' + insertError.message); return false; }
+
+            const { data: existing } = await supabaseClient
+                .from('monthly_reports')
+                .select('visitor_count')
+                .eq('report_date', today)
+                .limit(1);
+            const newCount = (existing?.[0]?.visitor_count || 0) + 1;
+            await supabaseClient
+                .from('monthly_reports')
+                .upsert({ report_date: today, visitor_count: newCount }, { onConflict: 'report_date' });
+
+            await refreshData();
+            return true;
         }
-    });
 
-    // ============================================================
-    // 8. CRUD
-    // ============================================================
-    async function addProduct(name, category, price, qty) {
-        if (!name || !category || !price || !qty) { alert('请填写完整信息'); return false; }
-        const today = getToday();
-        const { error: insertError } = await supabaseClient
-            .from('products')
-            .insert([{ name, category, price: parseFloat(price), qty: parseInt(qty), report_date: today }]);
-        if (insertError) { alert('添加失败: ' + insertError.message); return false; }
-
-        const { data: existing } = await supabaseClient
-            .from('monthly_reports')
-            .select('visitor_count')
-            .eq('report_date', today)
-            .limit(1);
-        const newCount = (existing?.[0]?.visitor_count || 0) + 1;
-        await supabaseClient
-            .from('monthly_reports')
-            .upsert({ report_date: today, visitor_count: newCount }, { onConflict: 'report_date' });
-
-        await refreshData();
-        return true;
-    }
-
-    async function deleteProduct(id) {
-        if (!confirm('确定删除该商品？')) return;
-        const { error } = await supabaseClient.from('products').delete().eq('id', id);
-        if (error) { alert('删除失败: ' + error.message); return; }
-        await refreshData();
-    }
-
-    // ============================================================
-    // 9. 弹窗
-    // ============================================================
-    function openAddModal() { document.getElementById('addModal').style.display = 'flex'; }
-    function closeAddModal() {
-        document.getElementById('addModal').style.display = 'none';
-        document.getElementById('newName').value = '';
-        document.getElementById('newCategory').value = '';
-        document.getElementById('newPrice').value = '';
-        document.getElementById('newQty').value = '';
-    }
-    async function confirmAdd() {
-        const name = document.getElementById('newName').value.trim();
-        const category = document.getElementById('newCategory').value.trim();
-        const price = document.getElementById('newPrice').value;
-        const qty = document.getElementById('newQty').value;
-        const success = await addProduct(name, category, price, qty);
-        if (success) closeAddModal();
-    }
-    window.openAddModal = openAddModal;
-    window.closeAddModal = closeAddModal;
-    window.confirmAdd = confirmAdd;
-    window.deleteProduct = deleteProduct;
-
-    // ============================================================
-    // 10. 搜索
-    // ============================================================
-    function performSearch() {
-        const keyword = searchInput.value.trim();
-        if (!keyword) { refreshData(); return; }
-        const results = allProducts.filter(p =>
-            p.name.includes(keyword) ||
-            p.category.includes(keyword) ||
-            p.id.toString() === keyword
-        );
-        if (results.length === 0) {
-            alert('⚠️ 未找到匹配的商品，请检查商品名或条码是否正确');
-            return;
+        async function deleteProduct(id) {
+            if (!confirm('确定删除该商品？')) return;
+            const { error } = await supabaseClient.from('products').delete().eq('id', id);
+            if (error) { alert('删除失败: ' + error.message); return; }
+            await refreshData();
         }
-        currentProducts = results;
-        currentReport = calculateReport(results, currentReport);
-        renderPage(currentPage);
-    }
-    searchBtn.addEventListener('click', performSearch);
-    searchInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); performSearch(); } });
 
-    // ============================================================
-    // 11. 构建展示数据（省略，同你原版，此处保留函数名但不重复代码）
-    //     实际使用时请保留你原有的 buildTurnoverData / buildSaleData
-    // ============================================================
-    // 为了节省篇幅，此处假设你已复制原有 buildTurnoverData 和 buildSaleData
-    // 下面给出简化占位，实际请替换为你的完整函数
-    function buildTurnoverData() {
-        if (!currentReport) return null;
-        const r = currentReport;
-        const catData = r.category_data || {};
-        const catLabels = Object.keys(catData);
-        const catValues = Object.values(catData).map(v => parseFloat(v));
-        const colors = ['#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6', '#95a5a6'];
-        return {
-            title: '💰 营业额',
-            stats: [
-                { label: '本月营业额', value: `¥${r.total_revenue || 0}` },
-                { label: '本月累计', value: `¥${r.total_revenue || 0}` },
-                { label: '较昨日', value: '-¥71', cls: 'trend-down' },
-                { label: '客单价', value: `¥${Math.round(r.avg_price || 0)}` }
-            ],
-            infoLines: [
-                { icon: '★', iconCls: 'icon-star', label: '成交商品', value: `${r.total_products || 0}种` },
-                { icon: '¥', iconCls: 'icon-yen', label: '客单价', value: `¥${Math.round(r.avg_price || 0)}` },
-                { icon: '👤', iconCls: 'icon-people', label: '到店人数', value: `${r.visitor_count || 0}人` }
-            ],
-            pieData: catValues.length ? catValues : [],
-            pieLabels: catLabels.length ? catLabels : [],
-            pieColors: colors.slice(0, catLabels.length || 6),
-            pieLegend: catLabels.map((label, i) => ({ label, pct: `${catValues[i] || 0}%`, color: colors[i % colors.length] })),
-            rankTitle: '商品营业额排行',
-            rankCount: `共${r.total_products || 0}种`,
-            filters: ['全部', ...new Set(currentProducts.map(p => p.category))],
-            headers: ['排名', '商品名称', '金额', '件数', ''],
-            rows: r.rank_data.map(r => ({
-                rank: r.rank,
-                rankCls: r.rank === 1 ? 'gold' : r.rank === 2 ? 'silver' : r.rank === 3 ? 'bronze' : 'default',
-                name: r.name,
-                cat: r.category,
-                col1: `¥${r.revenue}`,
-                col2: `${r.qty}件`,
-                id: r.id
-            })),
-            hasCol4: false
-        };
-    }
+        // ============================================================
+        // 11. 弹窗
+        // ============================================================
+        function openAddModal() { document.getElementById('addModal').style.display = 'flex'; }
 
-    function buildSaleData() {
-        if (!currentReport) return null;
-        const r = currentReport;
-        const catData = r.category_data || {};
-        const catLabels = Object.keys(catData);
-        const catValues = Object.values(catData).map(v => parseFloat(v));
-        return {
-            title: '📦 售出商品数',
-            stats: [
-                { label: '本月售出', value: `¥${r.total_revenue || 0}` },
-                { label: '本月累计', value: `¥${r.total_revenue || 0}` },
-                { label: '较昨日', value: '+41', cls: 'trend-up' },
-                { label: '本月日均', value: `${Math.round((r.total_orders || 0) / 3)}件` }
-            ],
-            infoLines: [
-                { icon: '★', iconCls: 'icon-star', label: '畅销商品', value: `${Math.min(3, r.total_products)}种` },
-                { icon: '↑', iconCls: 'icon-up', label: '销量上涨', value: '264' },
-                { icon: '↓', iconCls: 'icon-down', label: '销量下降', value: '0' }
-            ],
-            pieData: catValues.length ? catValues.map(v => Math.round(v * 0.8)) : [],
-            pieLabels: catLabels.length ? catLabels : [],
-            pieColors: ['#3498db', '#f39c12', '#2ecc71', '#e74c3c', '#9b59b6', '#1abc9c'],
-            pieLegend: catLabels.map((label, i) => ({
-                label,
-                pct: `${Math.round((catValues[i] || 0) * 0.8)}%`,
-                color: ['#3498db', '#f39c12', '#2ecc71', '#e74c3c', '#9b59b6', '#1abc9c'][i % 6]
-            })),
-            rankTitle: '商品销量排行',
-            rankCount: `共${r.total_products || 0}种`,
-            filters: ['全部', ...new Set(currentProducts.map(p => p.category))],
-            headers: ['排名', '商品名称', '当月', '本月', '变化'],
-            rows: r.rank_data.slice(0, 4).map(r => ({
-                rank: r.rank,
-                rankCls: r.rank === 1 ? 'gold' : r.rank === 2 ? 'silver' : r.rank === 3 ? 'bronze' : 'default',
-                name: r.name,
-                cat: r.category,
-                col1: r.qty,
-                col2: r.qty,
-                col3: '新增',
-                col3Cls: 'text-new'
-            })),
-            hasCol4: true
-        };
-    }
+        function closeAddModal() {
+            document.getElementById('addModal').style.display = 'none';
+            document.getElementById('newName').value = '';
+            document.getElementById('newCategory').value = '';
+            document.getElementById('newPrice').value = '';
+            document.getElementById('newQty').value = '';
+        }
 
-    // ============================================================
-    // 12. 渲染核心（使用上面两个构建函数）
-    // ============================================================
-    function renderPage(pageKey) {
-        if (pageKey === 'ai') { renderAIPage(); return; }
-        if (pageKey === 'manage') { renderManagePage(); return; }
+        async function confirmAdd() {
+            const name = document.getElementById('newName').value.trim();
+            const category = document.getElementById('newCategory').value.trim();
+            const price = document.getElementById('newPrice').value;
+            const qty = document.getElementById('newQty').value;
+            const success = await addProduct(name, category, price, qty);
+            if (success) closeAddModal();
+        }
 
-        if (!currentReport || currentProducts.length === 0) {
+        window.openAddModal = openAddModal;
+        window.closeAddModal = closeAddModal;
+        window.confirmAdd = confirmAdd;
+        window.deleteProduct = deleteProduct;
+
+        // ============================================================
+        // 12. 搜索
+        // ============================================================
+        function performSearch() {
+            const keyword = searchInput.value.trim();
+            if (!keyword) { refreshData(); return; }
+            const results = allProducts.filter(p =>
+                p.name.includes(keyword) ||
+                p.category.includes(keyword) ||
+                p.id.toString() === keyword
+            );
+            if (results.length === 0) {
+                alert('⚠️ 未找到匹配的商品，请检查商品名或条码是否正确');
+                return;
+            }
+            currentProducts = results;
+            currentReport = calculateReport(results, currentReport);
+            renderPage(currentPage);
+        }
+
+        searchBtn.addEventListener('click', performSearch);
+        searchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') { e.preventDefault();
+                performSearch(); }
+        });
+
+        // ============================================================
+        // 13. 构建展示数据
+        // ============================================================
+        function buildTurnoverData() {
+            if (!currentReport) return null;
+            const r = currentReport;
+            const catData = r.category_data || {};
+            const catLabels = Object.keys(catData);
+            const catValues = Object.values(catData).map(v => parseFloat(v));
+            const colors = ['#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6', '#95a5a6'];
+
+            return {
+                title: '💰 营业额',
+                stats: [
+                    { label: '本月营业额', value: `¥${r.total_revenue || 0}` },
+                    { label: '本月累计', value: `¥${r.total_revenue || 0}` },
+                    { label: '较昨日', value: '-¥71', cls: 'trend-down' },
+                    { label: '客单价', value: `¥${Math.round(r.avg_price || 0)}` }
+                ],
+                infoLines: [
+                    { icon: '★', iconCls: 'icon-star', label: '成交商品', value: `${r.total_products || 0}种` },
+                    { icon: '¥', iconCls: 'icon-yen', label: '客单价', value: `¥${Math.round(r.avg_price || 0)}` },
+                    { icon: '👤', iconCls: 'icon-people', label: '到店人数', value: `${r.visitor_count || 0}人` }
+                ],
+                pieData: catValues.length ? catValues : [],
+                pieLabels: catLabels.length ? catLabels : [],
+                pieColors: colors.slice(0, catLabels.length || 6),
+                pieLegend: catLabels.map((label, i) => ({
+                    label: label,
+                    pct: `${catValues[i] || 0}%`,
+                    color: colors[i % colors.length]
+                })),
+                rankTitle: '商品营业额排行',
+                rankCount: `共${r.total_products || 0}种`,
+                filters: ['全部', ...new Set(currentProducts.map(p => p.category))],
+                headers: ['排名', '商品名称', '金额', '件数', ''],
+                rows: r.rank_data.map(r => ({
+                    rank: r.rank,
+                    rankCls: r.rank === 1 ? 'gold' : r.rank === 2 ? 'silver' : r.rank === 3 ? 'bronze' : 'default',
+                    name: r.name,
+                    cat: r.category,
+                    col1: `¥${r.revenue}`,
+                    col2: `${r.qty}件`,
+                    id: r.id
+                })),
+                hasCol4: false
+            };
+        }
+
+        function buildSaleData() {
+            if (!currentReport) return null;
+            const r = currentReport;
+            const catData = r.category_data || {};
+            const catLabels = Object.keys(catData);
+            const catValues = Object.values(catData).map(v => parseFloat(v));
+
+            return {
+                title: '📦 售出商品数',
+                stats: [
+                    { label: '本月售出', value: `¥${r.total_revenue || 0}` },
+                    { label: '本月累计', value: `¥${r.total_revenue || 0}` },
+                    { label: '较昨日', value: '+41', cls: 'trend-up' },
+                    { label: '本月日均', value: `${Math.round((r.total_orders || 0) / 3)}件` }
+                ],
+                infoLines: [
+                    { icon: '★', iconCls: 'icon-star', label: '畅销商品', value: `${Math.min(3, r.total_products)}种` },
+                    { icon: '↑', iconCls: 'icon-up', label: '销量上涨', value: '264' },
+                    { icon: '↓', iconCls: 'icon-down', label: '销量下降', value: '0' }
+                ],
+                pieData: catValues.length ? catValues.map(v => Math.round(v * 0.8)) : [],
+                pieLabels: catLabels.length ? catLabels : [],
+                pieColors: ['#3498db', '#f39c12', '#2ecc71', '#e74c3c', '#9b59b6', '#1abc9c'],
+                pieLegend: catLabels.map((label, i) => ({
+                    label: label,
+                    pct: `${Math.round((catValues[i] || 0) * 0.8)}%`,
+                    color: ['#3498db', '#f39c12', '#2ecc71', '#e74c3c', '#9b59b6', '#1abc9c'][i % 6]
+                })),
+                rankTitle: '商品销量排行',
+                rankCount: `共${r.total_products || 0}种`,
+                filters: ['全部', ...new Set(currentProducts.map(p => p.category))],
+                headers: ['排名', '商品名称', '当月', '本月', '变化'],
+                rows: r.rank_data.slice(0, 4).map(r => ({
+                    rank: r.rank,
+                    rankCls: r.rank === 1 ? 'gold' : r.rank === 2 ? 'silver' : r.rank === 3 ? 'bronze' : 'default',
+                    name: r.name,
+                    cat: r.category,
+                    col1: r.qty,
+                    col2: r.qty,
+                    col3: '新增',
+                    col3Cls: 'text-new'
+                })),
+                hasCol4: true
+            };
+        }
+
+        // ============================================================
+        // 14. 渲染核心
+        // ============================================================
+        function renderPage(pageKey) {
+            if (pageKey === 'ai') { renderAIPage(); return; }
+            if (pageKey === 'manage') { renderManagePage(); return; }
+
+            if (!currentReport || currentProducts.length === 0) {
+                statsContainer.innerHTML = `
+                    <div class="stats-grid">
+                        <div class="stat-item"><span class="label">本月营业额</span><span class="value">¥0</span></div>
+                        <div class="stat-item"><span class="label">成交商品</span><span class="value">0种</span></div>
+                        <div class="stat-item"><span class="label">到店人数</span><span class="value">0人</span></div>
+                        <div class="stat-item"><span class="label">客单价</span><span class="value">¥0</span></div>
+                    </div>
+                `;
+                scrollContent.innerHTML =
+                    `<div style="text-align:center;padding:30px 16px;color:#6a7f9e;font-size:12px;">📭 当前日期暂无数据<br><span style="font-size:10px;">请选择其他日期或添加商品</span></div>`;
+                return;
+            }
+
+            const d = pageKey === 'turnover' ? buildTurnoverData() : buildSaleData();
+            if (!d) return;
+
+            pageTitle.textContent = d.title;
+            iconMoney.classList.toggle('active', pageKey === 'turnover');
+            iconBox.classList.toggle('active', pageKey === 'sale');
+            iconAI.classList.remove('active');
+            iconManage.classList.remove('active');
+
             statsContainer.innerHTML = `
                 <div class="stats-grid">
-                    <div class="stat-item"><span class="label">本月营业额</span><span class="value">¥0</span></div>
-                    <div class="stat-item"><span class="label">成交商品</span><span class="value">0种</span></div>
-                    <div class="stat-item"><span class="label">到店人数</span><span class="value">0人</span></div>
-                    <div class="stat-item"><span class="label">客单价</span><span class="value">¥0</span></div>
+                    ${d.stats.map(s => `<div class="stat-item"><span class="label">${s.label}</span><span class="value ${s.cls || ''}">${s.value}</span></div>`).join('')}
                 </div>
             `;
-            scrollContent.innerHTML = `<div style="text-align:center;padding:30px 16px;color:#6a7f9e;font-size:12px;">📭 当前时间段暂无数据<br><span style="font-size:10px;">请切换"本日/本周/本月"或添加商品</span></div>`;
-            return;
-        }
 
-        const d = pageKey === 'turnover' ? buildTurnoverData() : buildSaleData();
-        if (!d) return;
+            const infoHtml = d.infoLines.map(line => `
+                <div class="info-line">
+                    <div class="info-tag"><span class="icon ${line.iconCls}">${line.icon}</span>${line.label}</div>
+                    <span class="value-text">${line.value}</span>
+                </div>
+            `).join('');
 
-        pageTitle.textContent = d.title;
-        iconMoney.classList.toggle('active', pageKey === 'turnover');
-        iconBox.classList.toggle('active', pageKey === 'sale');
-        iconAI.classList.remove('active');
-        iconManage.classList.remove('active');
+            const legendHtml = d.pieLegend.map(l => `
+                <div><span class="legend-dot" style="background:${l.color};"></span>${l.label} ${l.pct}</div>
+            `).join('');
 
-        statsContainer.innerHTML = `
-            <div class="stats-grid">
-                ${d.stats.map(s => `<div class="stat-item"><span class="label">${s.label}</span><span class="value ${s.cls || ''}">${s.value}</span></div>`).join('')}
-            </div>
-        `;
+            const rankRowsHtml = d.rows.map(r => {
+                const cols = d.hasCol4 ? `
+                    <span>${r.col1}</span>
+                    <span>${r.col2}</span>
+                    <span class="${r.col3Cls || ''}">${r.col3 || ''}</span>
+                ` : `
+                    <span class="fw-600">${r.col1}</span>
+                    <span class="text-muted">${r.col2}</span>
+                    ${r.id ? `<button class="del-btn" onclick="deleteProduct(${r.id})">✕</button>` : '<span></span>'}
+                `;
+                return `
+                    <div class="rank-item">
+                        <span class="rank-num ${r.rankCls}">${r.rank}</span>
+                        <div><div>${r.name}</div><span class="cate-tag">${r.cat}</span></div>
+                        ${cols}
+                    </div>
+                `;
+            }).join('');
 
-        const infoHtml = d.infoLines.map(line => `
-            <div class="info-line">
-                <div class="info-tag"><span class="icon ${line.iconCls}">${line.icon}</span>${line.label}</div>
-                <span class="value-text">${line.value}</span>
-            </div>
-        `).join('');
+            const filterBtns = d.filters.map(cat =>
+                `<button class="filter-btn ${cat === '全部' ? 'active' : ''}" data-cat="${cat}">${cat}</button>`
+            ).join('');
 
-        const legendHtml = d.pieLegend.map(l => `
-            <div><span class="legend-dot" style="background:${l.color};"></span>${l.label} ${l.pct}</div>
-        `).join('');
-
-        const rankRowsHtml = d.rows.map(r => {
-            const cols = d.hasCol4 ? `
-                <span>${r.col1}</span>
-                <span>${r.col2}</span>
-                <span class="${r.col3Cls || ''}">${r.col3 || ''}</span>
-            ` : `
-                <span class="fw-600">${r.col1}</span>
-                <span class="text-muted">${r.col2}</span>
-                ${r.id ? `<button class="del-btn" onclick="deleteProduct(${r.id})">✕</button>` : '<span></span>'}
-            `;
-            return `
-                <div class="rank-item">
-                    <span class="rank-num ${r.rankCls}">${r.rank}</span>
-                    <div><div>${r.name}</div><span class="cate-tag">${r.cat}</span></div>
-                    ${cols}
+            scrollContent.innerHTML = `
+                <div class="row-two">
+                    <div class="col-half">
+                        <div class="mod-title">${pageKey === 'turnover' ? '营业变化总览' : '销量变化总览'}</div>
+                        ${infoHtml}
+                    </div>
+                    <div class="col-half">
+                        <div class="mod-title">${pageKey === 'turnover' ? '分类营业额汇总' : '分类销量占比'}</div>
+                        <div class="pie-box"><canvas id="pieChart"></canvas></div>
+                        <div class="pie-legend">${legendHtml}</div>
+                    </div>
+                </div>
+                <div class="rank-wrap">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div class="mod-title" style="margin-bottom:0;">${d.rankTitle} <span>${d.rankCount}</span></div>
+                        <button class="action-btn success" onclick="openAddModal()">➕ 新增</button>
+                    </div>
+                    <div class="filter-group">${filterBtns}</div>
+                    <div class="rank-header">${d.headers.map(h => `<span>${h}</span>`).join('')}</div>
+                    ${rankRowsHtml}
                 </div>
             `;
-        }).join('');
 
-        const filterBtns = d.filters.map(cat =>
-            `<button class="filter-btn ${cat === '全部' ? 'active' : ''}" data-cat="${cat}">${cat}</button>`
-        ).join('');
+            setTimeout(() => {
+                const canvas = document.getElementById('pieChart');
+                if (!canvas) return;
+                if (window._pieChartInstance) { window._pieChartInstance.destroy();
+                    window._pieChartInstance = null; }
+                window._pieChartInstance = new Chart(canvas.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: d.pieLabels,
+                        datasets: [{ data: d.pieData, backgroundColor: d.pieColors, borderWidth: 1.5,
+                            borderColor: '#ffffff', hoverOffset: 6 }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, cutout: '56%',
+                        plugins: { legend: { display: false } }, animation: { animateRotate: true,
+                            duration: 400 } }
+                });
+            }, 50);
 
-        scrollContent.innerHTML = `
-            <div class="row-two">
-                <div class="col-half">
-                    <div class="mod-title">${pageKey === 'turnover' ? '营业变化总览' : '销量变化总览'}</div>
-                    ${infoHtml}
-                </div>
-                <div class="col-half">
-                    <div class="mod-title">${pageKey === 'turnover' ? '分类营业额汇总' : '分类销量占比'}</div>
-                    <div class="pie-box"><canvas id="pieChart"></canvas></div>
-                    <div class="pie-legend">${legendHtml}</div>
-                </div>
-            </div>
-            <div class="rank-wrap">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <div class="mod-title" style="margin-bottom:0;">${d.rankTitle} <span>${d.rankCount}</span></div>
-                    <button class="action-btn success" onclick="openAddModal()">➕ 新增</button>
-                </div>
-                <div class="filter-group">${filterBtns}</div>
-                <div class="rank-header">${d.headers.map(h => `<span>${h}</span>`).join('')}</div>
-                ${rankRowsHtml}
-            </div>
-        `;
-
-        setTimeout(() => {
-            const canvas = document.getElementById('pieChart');
-            if (!canvas) return;
-            if (window._pieChartInstance) { window._pieChartInstance.destroy(); window._pieChartInstance = null; }
-            window._pieChartInstance = new Chart(canvas.getContext('2d'), {
-                type: 'doughnut',
-                data: {
-                    labels: d.pieLabels,
-                    datasets: [{ data: d.pieData, backgroundColor: d.pieColors, borderWidth: 1.5, borderColor: '#ffffff', hoverOffset: 6 }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, cutout: '56%', plugins: { legend: { display: false } }, animation: { animateRotate: true, duration: 400 } }
-            });
-        }, 50);
-
-        document.querySelectorAll('.filter-group .filter-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.filter-group .filter-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                const cat = this.dataset.cat;
-                document.querySelectorAll('.rank-item').forEach(item => {
-                    const catTag = item.querySelector('.cate-tag');
-                    if (!catTag) return;
-                    const c = catTag.textContent;
-                    item.style.display = (cat === '全部' || c === cat) ? 'grid' : 'none';
+            document.querySelectorAll('.filter-group .filter-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.filter-group .filter-btn').forEach(b => b.classList.remove(
+                    'active'));
+                    this.classList.add('active');
+                    const cat = this.dataset.cat;
+                    document.querySelectorAll('.rank-item').forEach(item => {
+                        const catTag = item.querySelector('.cate-tag');
+                        if (!catTag) return;
+                        const c = catTag.textContent;
+                        item.style.display = (cat === '全部' || c === cat) ? 'grid' : 'none';
+                    });
                 });
             });
-        });
-    }
+        }
 
-    // ============================================================
-    // 13. 商品管理
-    // ============================================================
-    function renderManagePage() {
-        pageTitle.textContent = '✏️ 商品管理';
-        iconMoney.classList.remove('active');
-        iconBox.classList.remove('active');
-        iconAI.classList.remove('active');
-        iconManage.classList.add('active');
+        // ============================================================
+        // 15. 商品管理
+        // ============================================================
+        function renderManagePage() {
+            pageTitle.textContent = '✏️ 商品管理';
+            iconMoney.classList.remove('active');
+            iconBox.classList.remove('active');
+            iconAI.classList.remove('active');
+            iconManage.classList.add('active');
 
-        statsContainer.innerHTML = `
-            <div class="stats-grid">
-                <div class="stat-item"><span class="label">商品总数</span><span class="value">${allProducts.length}种</span></div>
-                <div class="stat-item"><span class="label">总营业额</span><span class="value">¥${currentReport?.total_revenue || 0}</span></div>
-                <div class="stat-item"><span class="label">总件数</span><span class="value">${currentReport?.total_orders || 0}件</span></div>
-                <div class="stat-item"><span class="label">到店人数</span><span class="value">${currentReport?.visitor_count || 0}人</span></div>
-            </div>
-        `;
-
-        const listHtml = allProducts.map(p => `
-            <div class="manage-row">
-                <span class="manage-cell name">${p.name}</span>
-                <span class="manage-cell cat">${p.category}</span>
-                <span class="manage-cell detail">¥${p.price} × ${p.qty}</span>
-                <span class="manage-cell del"><button onclick="deleteProduct(${p.id})">✕</button></span>
-            </div>
-        `).join('');
-
-        scrollContent.innerHTML = `
-            <div class="ai-card">
-                <h3>📦 商品列表 <span class="badge">${allProducts.length}种</span></h3>
-                <div class="action-bar">
-                    <button class="action-btn success" onclick="openAddModal()">➕ 新增商品</button>
-                    <button class="action-btn gold" onclick="refreshData()">🔄 刷新数据</button>
+            statsContainer.innerHTML = `
+                <div class="stats-grid">
+                    <div class="stat-item"><span class="label">商品总数</span><span class="value">${allProducts.length}种</span></div>
+                    <div class="stat-item"><span class="label">总营业额</span><span class="value">¥${currentReport?.total_revenue || 0}</span></div>
+                    <div class="stat-item"><span class="label">总件数</span><span class="value">${currentReport?.total_orders || 0}件</span></div>
+                    <div class="stat-item"><span class="label">到店人数</span><span class="value">${currentReport?.visitor_count || 0}人</span></div>
                 </div>
-                <div class="manage-table" style="max-height:380px;overflow-y:auto;">
-                    ${listHtml || '<div style="padding:16px;color:#6a7f9e;font-size:12px;">暂无商品，点击上方添加</div>'}
+            `;
+
+            const listHtml = allProducts.map(p => `
+                <div class="manage-row">
+                    <span class="manage-cell name">${p.name}</span>
+                    <span class="manage-cell cat">${p.category}</span>
+                    <span class="manage-cell detail">¥${p.price} × ${p.qty}</span>
+                    <span class="manage-cell del"><button onclick="deleteProduct(${p.id})">✕</button></span>
                 </div>
-            </div>
-            <div class="ai-card">
-                <h3>📊 实时汇总</h3>
-                <div class="info-line"><span>总营业额</span><span class="fw-600">¥${currentReport?.total_revenue || 0}</span></div>
-                <div class="info-line"><span>总件数</span><span class="fw-600">${currentReport?.total_orders || 0}件</span></div>
-                <div class="info-line"><span>商品种类</span><span class="fw-600">${currentReport?.total_products || 0}种</span></div>
-                <div class="info-line"><span>客单价</span><span class="fw-600">¥${Math.round(currentReport?.avg_price || 0)}</span></div>
-                <div class="info-line"><span>到店人数</span><span class="fw-600">${currentReport?.visitor_count || 0}人</span></div>
-                <div style="margin-top:6px;font-size:10px;color:#6a7f9e;">
-                    分类占比：${Object.entries(currentReport?.category_data || {}).map(([k,v]) => `${k} ${v}%`).join(' · ') || '无数据'}
+            `).join('');
+
+            scrollContent.innerHTML = `
+                <div class="ai-card">
+                    <h3>📦 商品列表 <span class="badge">${allProducts.length}种</span></h3>
+                    <div class="action-bar">
+                        <button class="action-btn success" onclick="openAddModal()">➕ 新增商品</button>
+                        <button class="action-btn gold" onclick="refreshData()">🔄 刷新数据</button>
+                    </div>
+                    <div class="manage-table" style="max-height:380px;overflow-y:auto;">
+                        ${listHtml || '<div style="padding:16px;color:#6a7f9e;font-size:12px;">暂无商品，点击上方添加</div>'}
+                    </div>
                 </div>
-            </div>
-        `;
-    }
-
-    // ============================================================
-    // 14. AI（保留你的原有逻辑）
-    // ============================================================
-    function renderAIPage() {
-        pageTitle.textContent = '🧠 AI 智能复盘';
-        iconMoney.classList.remove('active');
-        iconBox.classList.remove('active');
-        iconAI.classList.add('active');
-        iconManage.classList.remove('active');
-
-        const r = currentReport || {};
-        statsContainer.innerHTML = `
-            <div class="stats-grid">
-                <div class="stat-item"><span class="label">本月营业额</span><span class="value">¥${r.total_revenue || 0}</span></div>
-                <div class="stat-item"><span class="label">成交商品</span><span class="value">${r.total_products || 0}种</span></div>
-                <div class="stat-item"><span class="label">到店人数</span><span class="value">${r.visitor_count || 0}人</span></div>
-                <div class="stat-item"><span class="label">客单价</span><span class="value">¥${Math.round(r.avg_price || 0)}</span></div>
-            </div>
-        `;
-
-        scrollContent.innerHTML = `
-            <div class="ai-card">
-                <h3>📊 一键复盘报告 <span class="badge">AI 生成</span></h3>
-                <div class="quick-actions">
-                    <button onclick="triggerAI('summary')">📋 本月总结</button>
-                    <button onclick="triggerAI('lost')">🔍 丢单归因</button>
-                    <button onclick="triggerAI('advice')">💡 改进建议</button>
-                    <button onclick="triggerAI('trend')">📈 趋势预测</button>
-                    <button onclick="triggerAI('full')">📄 完整报告</button>
+                <div class="ai-card">
+                    <h3>📊 实时汇总</h3>
+                    <div class="info-line"><span>总营业额</span><span class="fw-600">¥${currentReport?.total_revenue || 0}</span></div>
+                    <div class="info-line"><span>总件数</span><span class="fw-600">${currentReport?.total_orders || 0}件</span></div>
+                    <div class="info-line"><span>商品种类</span><span class="fw-600">${currentReport?.total_products || 0}种</span></div>
+                    <div class="info-line"><span>客单价</span><span class="fw-600">¥${Math.round(currentReport?.avg_price || 0)}</span></div>
+                    <div class="info-line"><span>到店人数</span><span class="fw-600">${currentReport?.visitor_count || 0}人</span></div>
+                    <div style="margin-top:6px;font-size:10px;color:#6a7f9e;">
+                        分类占比：${Object.entries(currentReport?.category_data || {}).map(([k,v]) => `${k} ${v}%`).join(' · ') || '无数据'}
+                    </div>
                 </div>
-                <div id="aiResponse" class="ai-response" style="min-height:70px;">💡 点击上方按钮，AI 将基于当前数据生成深度复盘报告</div>
-            </div>
-            <div class="ai-card">
-                <h3>💬 智能问数</h3>
-                <p style="font-size:10px;color:#6a7f9e;margin-bottom:4px;">用自然语言提问，AI 帮你分析数据</p>
-                <div class="ai-input-row">
-                    <input id="aiQuestion" placeholder="例如：为什么老客户推荐成交率那么高？" />
-                    <button id="askBtn">发送</button>
-                </div>
-                <div id="qaResponse" class="ai-response" style="min-height:40px;margin-top:6px;">💬 输入问题，AI 将为你解答</div>
-            </div>
-        `;
+            `;
+        }
 
-        document.getElementById('askBtn').addEventListener('click', function() {
-            const q = document.getElementById('aiQuestion').value.trim();
-            if (!q) return;
-            askAI(q, 'qaResponse');
-        });
-        document.getElementById('aiQuestion').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') document.getElementById('askBtn').click();
-        });
+        // ============================================================
+        // 16. AI（保留完整功能）
+        // ============================================================
+        function renderAIPage() {
+            pageTitle.textContent = '🧠 AI 智能复盘';
+            iconMoney.classList.remove('active');
+            iconBox.classList.remove('active');
+            iconAI.classList.add('active');
+            iconManage.classList.remove('active');
 
-        window.triggerAI = function(type) {
             const r = currentReport || {};
-            const prompts = {
-                summary: `基于以下销售数据，写一份本月销售表现总结（100字以内）：营业额¥${r.total_revenue || 0}，成交商品${r.total_products || 0}种，到店人数${r.visitor_count || 0}人，客单价¥${Math.round(r.avg_price || 0)}。分类占比：${JSON.stringify(r.category_data || {})}。`,
-                lost: '基于以下数据，分析丢单主要原因（80字以内）：63%丢单客户实际表达的是"你不懂我"，39%说"价格不行"。老客户推荐转化率47%但团队80%精力在新客户。',
-                advice: '基于销售数据，给出3条具体可执行的改进建议（每条15字以内）。',
-                trend: '基于当前数据，预测下月营业额趋势和风险提示（60字以内）。',
-                full: `请基于以下数据，生成一份完整的销售复盘报告（300字以内），包含：1.本月表现总结 2.丢单归因分析 3.改进建议 4.下月趋势预测。数据：营业额¥${r.total_revenue || 0}，成交${r.total_products || 0}种，到店${r.visitor_count || 0}人，客单价¥${Math.round(r.avg_price || 0)}。分类占比：${JSON.stringify(r.category_data || {})}。丢单分析：63%客户实际表达"你不懂我"，39%说"价格不行"。老客户推荐转化率47%，但80%精力在新客户。签约客户平均跟进7次，丢单客户平均跟进3次。`
-            };
-            const prompt = prompts[type] || prompts.full;
-            askAI(prompt, 'aiResponse');
-        };
-    }
+            statsContainer.innerHTML = `
+                <div class="stats-grid">
+                    <div class="stat-item"><span class="label">本月营业额</span><span class="value">¥${r.total_revenue || 0}</span></div>
+                    <div class="stat-item"><span class="label">成交商品</span><span class="value">${r.total_products || 0}种</span></div>
+                    <div class="stat-item"><span class="label">到店人数</span><span class="value">${r.visitor_count || 0}人</span></div>
+                    <div class="stat-item"><span class="label">客单价</span><span class="value">¥${Math.round(r.avg_price || 0)}</span></div>
+                </div>
+            `;
 
-    async function askAI(prompt, targetId) {
-        const el = document.getElementById(targetId);
-        if (!el) return;
-        if (window._isAILoading) return;
-        const key = localStorage.getItem('deepseek_api_key') || 'sk-d3c3759509594ada95fd20dc57066670';
-        if (!key) { el.innerHTML = '⚠️ 请先配置 API 密钥'; return; }
-        window._isAILoading = true;
-        el.innerHTML = `<div class="loading">AI 正在分析数据...</div>`;
-        try {
-            const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
-                body: JSON.stringify({
-                    model: 'deepseek-chat',
-                    messages: [{ role: 'system', content: '你是深莞区销售团队的AI复盘助手。你擅长基于销售数据做深度分析、归因和预测。回答要简洁、专业、可执行。' }, { role: 'user', content: prompt }],
-                    temperature: 0.7,
-                    max_tokens: 2000
-                })
+            scrollContent.innerHTML = `
+                <div class="ai-card">
+                    <h3>📊 一键复盘报告 <span class="badge">AI 生成</span></h3>
+                    <div class="quick-actions">
+                        <button onclick="triggerAI('summary')">📋 本月总结</button>
+                        <button onclick="triggerAI('lost')">🔍 丢单归因</button>
+                        <button onclick="triggerAI('advice')">💡 改进建议</button>
+                        <button onclick="triggerAI('trend')">📈 趋势预测</button>
+                        <button onclick="triggerAI('full')">📄 完整报告</button>
+                    </div>
+                    <div id="aiResponse" class="ai-response" style="min-height:70px;">💡 点击上方按钮，AI 将基于当前数据生成深度复盘报告</div>
+                </div>
+                <div class="ai-card">
+                    <h3>💬 智能问数</h3>
+                    <p style="font-size:10px;color:#6a7f9e;margin-bottom:4px;">用自然语言提问，AI 帮你分析数据</p>
+                    <div class="ai-input-row">
+                        <input id="aiQuestion" placeholder="例如：为什么老客户推荐成交率那么高？" />
+                        <button id="askBtn">发送</button>
+                    </div>
+                    <div id="qaResponse" class="ai-response" style="min-height:40px;margin-top:6px;">💬 输入问题，AI 将为你解答</div>
+                </div>
+            `;
+
+            document.getElementById('askBtn').addEventListener('click', function() {
+                const q = document.getElementById('aiQuestion').value.trim();
+                if (!q) return;
+                askAI(q, 'qaResponse');
             });
-            if (!response.ok) { const err = await response.text(); throw new Error(`API 错误 (${response.status}): ${err}`); }
-            const result = await response.json();
-            const reply = result.choices?.[0]?.message?.content || 'AI 未返回有效内容';
-            el.innerHTML = reply;
-        } catch (err) { el.innerHTML = `⚠️ 请求失败：${err.message}`; } finally { window._isAILoading = false; }
-    }
+            document.getElementById('aiQuestion').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') document.getElementById('askBtn').click();
+            });
 
-    // ============================================================
-    // 15. 页面切换（修复核心）
-    // ============================================================
-    function switchPage(pageKey) {
-        if (currentPage === pageKey) return;          // 避免重复切换
-        currentPage = pageKey;
-        // 更新按钮激活状态
-        document.querySelectorAll('.icon-btn').forEach(b => b.classList.remove('active'));
-        const btnMap = {
-            'turnover': iconMoney,
-            'sale': iconBox,
-            'ai': iconAI,
-            'manage': iconManage
-        };
-        if (btnMap[pageKey]) btnMap[pageKey].classList.add('active');
+            window.triggerAI = function(type) {
+                const r = currentReport || {};
+                const prompts = {
+                    summary: `基于以下销售数据，写一份本月销售表现总结（100字以内）：营业额¥${r.total_revenue || 0}，成交商品${r.total_products || 0}种，到店人数${r.visitor_count || 0}人，客单价¥${Math.round(r.avg_price || 0)}。分类占比：${JSON.stringify(r.category_data || {})}。`,
+                    lost: '基于以下数据，分析丢单主要原因（80字以内）：63%丢单客户实际表达的是"你不懂我"，39%说"价格不行"。老客户推荐转化率47%但团队80%精力在新客户。',
+                    advice: '基于销售数据，给出3条具体可执行的改进建议（每条15字以内）。',
+                    trend: '基于当前数据，预测下月营业额趋势和风险提示（60字以内）。',
+                    full: `请基于以下数据，生成一份完整的销售复盘报告（300字以内），包含：1.本月表现总结 2.丢单归因分析 3.改进建议 4.下月趋势预测。数据：营业额¥${r.total_revenue || 0}，成交${r.total_products || 0}种，到店${r.visitor_count || 0}人，客单价¥${Math.round(r.avg_price || 0)}。分类占比：${JSON.stringify(r.category_data || {})}。丢单分析：63%客户实际表达"你不懂我"，39%说"价格不行"。老客户推荐转化率47%，但80%精力在新客户。签约客户平均跟进7次，丢单客户平均跟进3次。`
+                };
+                const prompt = prompts[type] || prompts.full;
+                askAI(prompt, 'aiResponse');
+            };
+        }
 
-        // 清空搜索状态
-        searchInput.value = '';
-        // 刷新数据
-        refreshData();
-    }
+        async function askAI(prompt, targetId) {
+            const el = document.getElementById(targetId);
+            if (!el) return;
+            if (window._isAILoading) return;
+            const key = localStorage.getItem('deepseek_api_key') || 'sk-d3c3759509594ada95fd20dc57066670';
+            if (!key) { el.innerHTML = '⚠️ 请先配置 API 密钥'; return; }
+            window._isAILoading = true;
+            el.innerHTML = `<div class="loading">AI 正在分析数据...</div>`;
+            try {
+                const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
+                    body: JSON.stringify({
+                        model: 'deepseek-chat',
+                        messages: [{ role: 'system', content: '你是深莞区销售团队的AI复盘助手。你擅长基于销售数据做深度分析、归因和预测。回答要简洁、专业、可执行。' }, { role: 'user',
+                                content: prompt }],
+                        temperature: 0.7,
+                        max_tokens: 2000
+                    })
+                });
+                if (!response.ok) { const err = await response.text(); throw new Error(`API 错误 (${response.status}): ${err}`); }
+                const result = await response.json();
+                const reply = result.choices?.[0]?.message?.content || 'AI 未返回有效内容';
+                el.innerHTML = reply;
+            } catch (err) { el.innerHTML = `⚠️ 请求失败：${err.message}`; } finally { window._isAILoading = false; }
+        }
 
-    // 绑定四个图标点击事件（确保不重复绑定）
-    iconMoney.addEventListener('click', function(e) {
-        e.stopPropagation();
-        switchPage('turnover');
-    });
-    iconBox.addEventListener('click', function(e) {
-        e.stopPropagation();
-        switchPage('sale');
-    });
-    iconAI.addEventListener('click', function(e) {
-        e.stopPropagation();
-        switchPage('ai');
-    });
-    iconManage.addEventListener('click', function(e) {
-        e.stopPropagation();
-        switchPage('manage');
-    });
-
-    // ============================================================
-    // 16. 本日/本周/本月
-    // ============================================================
-    document.querySelectorAll('.tab-item').forEach(tab => {
-        tab.addEventListener('click', function() {
-            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-            this.classList.add('active');
-            currentPeriod = this.dataset.period;
-            selectedDate = '';
-            datePicker.value = getToday();
+        // ============================================================
+        // 17. 页面切换
+        // ============================================================
+        function switchPage(pageKey) {
+            if (currentPage === pageKey) return;
+            currentPage = pageKey;
+            document.querySelectorAll('.icon-btn').forEach(b => b.classList.remove('active'));
+            const btnMap = {
+                'turnover': iconMoney,
+                'sale': iconBox,
+                'ai': iconAI,
+                'manage': iconManage
+            };
+            if (btnMap[pageKey]) btnMap[pageKey].classList.add('active');
+            searchInput.value = '';
             refreshData();
+        }
+
+        iconMoney.addEventListener('click', function(e) { e.stopPropagation();
+            switchPage('turnover'); });
+        iconBox.addEventListener('click', function(e) { e.stopPropagation();
+            switchPage('sale'); });
+        iconAI.addEventListener('click', function(e) { e.stopPropagation();
+            switchPage('ai'); });
+        iconManage.addEventListener('click', function(e) { e.stopPropagation();
+            switchPage('manage'); });
+
+        // ============================================================
+        // 18. 日/周/月 切换
+        // ============================================================
+        document.querySelectorAll('.tab-item').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                currentPeriod = this.dataset.period;
+                refreshData();
+            });
         });
-    });
 
-    // ============================================================
-    // 17. 启动
-    // ============================================================
-    async function init() {
-        datePicker.value = getToday();
-        await refreshData();
-    }
-    init();
+        // ============================================================
+        // 19. 启动
+        // ============================================================
+        async function init() {
+            const today = getToday();
+            selectedDate = today;
+            datePicker.value = today;
+            await refreshData();
+        }
 
-    let resizeTimer;
-    window.addEventListener('resize', function() {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(() => { if (window._pieChartInstance) window._pieChartInstance.resize(); }, 150);
-    });
-</script>
+        init();
+
+        let resizeTimer;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => { if (window._pieChartInstance) window._pieChartInstance.resize(); },
+            150);
+        });
+    </script>
 </body>
 </html>
