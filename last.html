@@ -1210,25 +1210,45 @@
         });
 
         // ============================================================
-        // 8. CRUD
+        // 8. CRUD (修复到店人数)
         // ============================================================
         async function addProduct(name, category, price, qty) {
             if (!name || !category || !price || !qty) { alert('请填写完整信息'); return false; }
             const today = getToday();
+
+            // 插入商品
             const { error: insertError } = await supabaseClient
                 .from('products')
                 .insert([{ name, category, price: parseFloat(price), qty: parseInt(qty), report_date: today }]);
             if (insertError) { alert('添加失败: ' + insertError.message); return false; }
 
-            const { data: existing } = await supabaseClient
+            // ✅ 修复：每次新增商品，到店人数 +1
+            // 先查询当天的 visitor_count
+            const { data: existing, error: queryError } = await supabaseClient
                 .from('monthly_reports')
                 .select('visitor_count')
                 .eq('report_date', today)
                 .limit(1);
-            const newCount = (existing?.[0]?.visitor_count || 0) + 1;
-            await supabaseClient
-                .from('monthly_reports')
-                .upsert({ report_date: today, visitor_count: newCount }, { onConflict: 'report_date' });
+
+            if (queryError) {
+                console.error('查询报表失败:', queryError);
+                // 查询失败时，尝试直接插入新记录
+                const { error: insertReportError } = await supabaseClient
+                    .from('monthly_reports')
+                    .insert([{ report_date: today, visitor_count: 1 }]);
+                if (insertReportError) {
+                    console.error('插入报表失败:', insertReportError);
+                }
+            } else {
+                const currentCount = existing?.[0]?.visitor_count || 0;
+                const newCount = currentCount + 1;
+                const { error: upsertError } = await supabaseClient
+                    .from('monthly_reports')
+                    .upsert({ report_date: today, visitor_count: newCount }, { onConflict: 'report_date' });
+                if (upsertError) {
+                    console.error('更新报表失败:', upsertError);
+                }
+            }
 
             await refreshData();
             return true;
@@ -1236,6 +1256,7 @@
 
         async function deleteProduct(id) {
             if (!confirm('确定删除该商品？')) return;
+            // 删除时，到店人数保持不变（不减少）
             const { error } = await supabaseClient.from('products').delete().eq('id', id);
             if (error) { alert('删除失败: ' + error.message); return; }
             await refreshData();
@@ -1344,7 +1365,7 @@
         }
 
         // ============================================================
-        // 12. 构建售出商品数数据（已修复）
+        // 12. 构建售出商品数数据
         // ============================================================
         function buildSaleData() {
             if (!currentReport) return null;
@@ -1353,20 +1374,15 @@
             const catLabels = Object.keys(catData);
             const catValues = Object.values(catData).map(v => parseFloat(v));
 
-            // 计算总件数（所有商品数量之和）
             const totalQty = currentProducts.reduce((sum, p) => sum + p.qty, 0);
-
-            // 商品总数（去重后的商品种类数）
             const uniqueProducts = new Set(currentProducts.map(p => p.name)).size;
 
             return {
                 title: '📦 售出商品数',
                 stats: [
-                     { label: '总件数', value: `${totalQty}件` },
-                 
+                    { label: '本月售出', value: `¥${r.total_revenue || 0}` },
                     { label: '商品总数', value: `${uniqueProducts}种` },
-                   
-                   { label: '较昨日', value: '+41', cls: 'trend-up' },
+                    { label: '总件数', value: `${totalQty}件` },
                     { label: '本月日均', value: `${Math.round((r.total_orders || 0) / 3)}件` }
                 ],
                 infoLines: [
