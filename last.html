@@ -880,7 +880,7 @@
             // 2. 状态
             // ============================================================
             let currentPage = 'turnover';
-            let apiKey = localStorage.getItem('agnes_api_key') || '';
+            window.apiKey = localStorage.getItem('agnes_api_key') || '';
             let isAILoading = false;
 
             // ============================================================
@@ -904,21 +904,20 @@
                 keyStatus.textContent = '✅ 已配置';
                 keyStatus.style.color = '#0f7b4a';
             }
-
-            saveKeyBtn.addEventListener('click', function() {
-                const key = apiKeyInput.value.trim();
-                if (key) {
-                    localStorage.setItem('agnes_api_key', key);
-                    apiKey = key;
-                    keyStatus.textContent = '✅ 已保存';
-                    keyStatus.style.color = '#0f7b4a';
-                } else {
-                    localStorage.removeItem('agnes_api_key');
-                    apiKey = '';
-                    keyStatus.textContent = '⚪ 未配置';
-                    keyStatus.style.color = '#6a7f9e';
-                }
-            });
+saveKeyBtn.addEventListener('click', function() {
+    const key = apiKeyInput.value.trim();
+    if (key) {
+        localStorage.setItem('agnes_api_key', key);
+        window.apiKey = key;
+        keyStatus.textContent = '✅ 已保存';
+        keyStatus.style.color = '#0f7b4a';
+    } else {
+        localStorage.removeItem('agnes_api_key');
+        window.apiKey = '';
+        keyStatus.textContent = '⚪ 未配置';
+        keyStatus.style.color = '#6a7f9e';
+    }
+});
 
             // ============================================================
             // 5. 渲染函数
@@ -1097,10 +1096,10 @@
                 document.getElementById('askBtn').addEventListener('click', function() {
                     const q = document.getElementById('aiQuestion').value.trim();
                     if (!q) return;
-                    if (!apiKey) {
-                        document.getElementById('qaResponse').innerHTML = '⚠️ 请先配置 API 密钥';
-                        return;
-                    }
+                   if (!window.apiKey) {
+    document.getElementById('qaResponse').innerHTML = '⚠️ 请先配置 API 密钥';
+    return;
+}
                     askAI(q, 'qaResponse');
                 });
                 document.getElementById('aiQuestion').addEventListener('keydown', function(e) {
@@ -1146,7 +1145,7 @@
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${apiKey}`
+                           Authorization: `Bearer ${window.apiKey}`
                         },
                         body: JSON.stringify({
                             model: 'agnes-2.0-flash',
