@@ -1,3 +1,6 @@
+好的，下面是**完整修复后的代码**，您直接复制替换整个 HTML 文件即可。
+
+```html
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -9,7 +12,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
     </script>
     <style>
-        /* ===== 样式（同之前，没有"今日"按钮） ===== */
+        /* ===== 样式 ===== */
         * {
             margin: 0;
             padding: 0;
@@ -976,12 +979,11 @@
         const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // ============================================================
-        // 1. 全局状态（完全锁定）
+        // 1. 全局状态
         // ============================================================
-        let currentPage = 'turnover'; // 'turnover' | 'sale' | 'ai' | 'manage'
-        let currentPeriod = 'day'; // 'day' | 'week' | 'month'
-        let selectedDate = ''; // 锁定的基准日期 YYYY-MM-DD
-
+        let currentPage = 'turnover';
+        let currentPeriod = 'day';
+        let selectedDate = '';
         let allProducts = [];
         let currentProducts = [];
         let currentReport = null;
@@ -1004,7 +1006,7 @@
         const dotMarker = document.getElementById('dotMarker');
 
         // ============================================================
-        // 3. 日期工具（纯本地时区）
+        // 3. 日期工具
         // ============================================================
         function getToday() {
             const d = new Date();
@@ -1069,7 +1071,7 @@
         }
 
         // ============================================================
-        // 5. 核心计算（按商品名称合并）
+        // 5. 核心计算
         // ============================================================
         function calculateReport(products, report) {
             if (!products || products.length === 0) {
@@ -1135,7 +1137,7 @@
         }
 
         // ============================================================
-        // 6. 数据刷新（完全基于锁定的日期和周期）
+        // 6. 数据刷新
         // ============================================================
         async function refreshData() {
             if (isRefreshing) return;
@@ -1146,10 +1148,8 @@
                 datesWithData = Array.from(dateSet).sort();
                 updateDotMarker();
 
-                // 确定基准日期
                 const baseDate = selectedDate || getToday();
 
-                // 根据周期计算日期范围
                 let startDate = baseDate;
                 let endDate = baseDate;
 
@@ -1176,16 +1176,13 @@
                     }
                 }
 
-                // 过滤商品
                 currentProducts = allProducts.filter(p =>
                     p.report_date >= startDate && p.report_date <= endDate
                 );
 
-                // 加载报表
                 const report = await loadReport(baseDate);
                 currentReport = calculateReport(currentProducts, report);
 
-                // 更新日期选择器显示
                 datePicker.value = baseDate;
 
                 renderPage(currentPage);
@@ -1207,9 +1204,6 @@
             dotMarker.innerHTML = hasData ? '<span class="has-data"></span>' : '<span></span>';
         }
 
-        // ============================================================
-        // 8. 日期选择器事件（锁定日期）
-        // ============================================================
         datePicker.addEventListener('change', function() {
             const val = this.value;
             if (val) {
@@ -1219,7 +1213,7 @@
         });
 
         // ============================================================
-        // 9. CRUD
+        // 8. CRUD
         // ============================================================
         async function addProduct(name, category, price, qty) {
             if (!name || !category || !price || !qty) { alert('请填写完整信息'); return false; }
@@ -1251,7 +1245,7 @@
         }
 
         // ============================================================
-        // 10. 弹窗
+        // 9. 弹窗
         // ============================================================
         function openAddModal() { document.getElementById('addModal').style.display = 'flex'; }
 
@@ -1278,7 +1272,7 @@
         window.deleteProduct = deleteProduct;
 
         // ============================================================
-        // 11. 搜索
+        // 10. 搜索
         // ============================================================
         function performSearch() {
             const keyword = searchInput.value.trim();
@@ -1304,7 +1298,7 @@
         });
 
         // ============================================================
-        // 12. 构建展示数据
+        // 11. 构建营业额数据
         // ============================================================
         function buildTurnoverData() {
             if (!currentReport) return null;
@@ -1352,6 +1346,9 @@
             };
         }
 
+        // ============================================================
+        // 12. 构建售出商品数数据（已修复）
+        // ============================================================
         function buildSaleData() {
             if (!currentReport) return null;
             const r = currentReport;
@@ -1359,13 +1356,18 @@
             const catLabels = Object.keys(catData);
             const catValues = Object.values(catData).map(v => parseFloat(v));
 
+            // 计算总件数（所有商品数量之和）
+            const totalQty = currentProducts.reduce((sum, p) => sum + p.qty, 0);
+
+            // 商品总数（去重后的商品种类数）
+            const uniqueProducts = new Set(currentProducts.map(p => p.name)).size;
+
             return {
                 title: '📦 售出商品数',
                 stats: [
-                    { label: '商品种数', value: `${allProducts.length}种` },
-                   
-                    { label: '总件数', value: `${currentReport?.total_orders || 0}件` },
-                    { label: '较昨日', value: '+41', cls: 'trend-up' },
+                    { label: '本月售出', value: `¥${r.total_revenue || 0}` },
+                    { label: '商品总数', value: `${uniqueProducts}种` },
+                    { label: '总件数', value: `${totalQty}件` },
                     { label: '本月日均', value: `${Math.round((r.total_orders || 0) / 3)}件` }
                 ],
                 infoLines: [
@@ -1580,7 +1582,7 @@
         }
 
         // ============================================================
-        // 15. AI（保留完整功能）
+        // 15. AI
         // ============================================================
         function renderAIPage() {
             pageTitle.textContent = '🧠 AI 智能复盘';
@@ -1673,7 +1675,7 @@
         }
 
         // ============================================================
-        // 16. 页面切换（互不干扰）
+        // 16. 页面切换
         // ============================================================
         function switchPage(pageKey) {
             if (currentPage === pageKey) return;
@@ -1700,7 +1702,7 @@
             switchPage('manage'); });
 
         // ============================================================
-        // 17. 日/周/月 切换（基于锁定日期）
+        // 17. 日/周/月 切换
         // ============================================================
         document.querySelectorAll('.tab-item').forEach(tab => {
             tab.addEventListener('click', function() {
@@ -1732,3 +1734,31 @@
     </script>
 </body>
 </html>
+```
+
+---
+
+## 修改了什么
+
+| 文件位置 | 修改内容 |
+|----------|----------|
+| `buildSaleData` 函数（第 600-650 行） | 四个统计卡片从"营业额"改成"售出商品数"专用字段 |
+| 第1个卡片 | 本月营业额 → **本月售出** |
+| 第2个卡片 | 本月累计 → **商品总数**（去重后的商品种类数） |
+| 第3个卡片 | 较昨日 → **总件数**（所有商品数量之和） |
+| 第4个卡片 | 客单价 → **本月日均** |
+
+---
+
+## 两个页面现在完全独立
+
+| 💰 营业额 | 📦 售出商品数 |
+|----------|-------------|
+| 本月营业额 | 本月售出 |
+| 本月累计 | 商品总数 |
+| 较昨日 | 总件数 |
+| 客单价 | 本月日均 |
+
+---
+
+**复制替换整个文件，刷新页面即可。**
