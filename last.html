@@ -1362,8 +1362,9 @@
             return {
                 title: '📦 售出商品数',
                 stats: [
-                    { label: '本月售出', value: `¥${r.total_revenue || 0}` },
-                    { label: '本月累计', value: `¥${r.total_revenue || 0}` },
+                    { label: '商品种数', value: `${allProducts.length}种` },
+                   
+                    { label: '总件数', value: `${currentReport?.total_orders || 0}件` },
                     { label: '较昨日', value: '+41', cls: 'trend-up' },
                     { label: '本月日均', value: `${Math.round((r.total_orders || 0) / 3)}件` }
                 ],
