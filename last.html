@@ -9,7 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
     </script>
     <style>
-        /* ===== 样式（同你之前的版本，只修改了头部日期交互） ===== */
+        /* ===== 样式（同之前，没有"今日"按钮） ===== */
         * {
             margin: 0;
             padding: 0;
@@ -139,7 +139,6 @@
             opacity: 1;
             background: #1a3a6b;
         }
-
         .stats-section {
             flex-shrink: 0;
             padding: 0 0 4px;
@@ -196,7 +195,6 @@
         .stat-item .trend-down {
             color: #ffb0a0;
         }
-
         .search-section {
             flex-shrink: 0;
             padding: 0 0 4px;
@@ -236,7 +234,6 @@
         .search-bar .search-btn:active {
             transform: scale(0.9);
         }
-
         .tab-group {
             display: flex;
             gap: 3px;
@@ -263,7 +260,6 @@
             color: white;
             font-weight: 600;
         }
-
         .scroll-content {
             flex: 1;
             overflow-y: auto;
@@ -277,7 +273,6 @@
             background: #c0c8d8;
             border-radius: 10px;
         }
-
         .row-two {
             display: flex;
             gap: 6px;
@@ -364,7 +359,6 @@
             color: #0b1b33;
             font-size: 11px;
         }
-
         .pie-box {
             height: 70px;
             width: 100%;
@@ -386,7 +380,6 @@
             margin-right: 2px;
             vertical-align: middle;
         }
-
         .rank-wrap {
             background: #ffffff;
             border-radius: 14px;
@@ -433,7 +426,6 @@
         .filter-btn:active {
             transform: scale(0.94);
         }
-
         .rank-header {
             display: grid;
             grid-template-columns: 18px 1fr 32px 28px 26px;
@@ -495,7 +487,6 @@
         .fw-600 {
             font-weight: 600;
         }
-
         .action-bar {
             display: flex;
             gap: 5px;
@@ -524,7 +515,6 @@
         .action-btn.gold {
             background: #b8782a;
         }
-
         .modal-mask {
             position: fixed;
             left: 0;
@@ -578,7 +568,6 @@
             background: #1a3a6b;
             color: white;
         }
-
         .rank-item .del-btn {
             background: none;
             border: none;
@@ -590,7 +579,6 @@
         .rank-item .del-btn:active {
             transform: scale(0.85);
         }
-
         .loading-text {
             text-align: center;
             padding: 30px 16px;
@@ -613,7 +601,6 @@
                 transform: rotate(360deg);
             }
         }
-
         .manage-table {
             display: table;
             width: 100%;
@@ -663,7 +650,6 @@
         .manage-cell.del button:active {
             transform: scale(0.85);
         }
-
         .ai-card {
             background: #ffffff;
             border-radius: 14px;
@@ -697,7 +683,6 @@
             padding-left: 16px;
             margin: 3px 0;
         }
-
         .quick-actions {
             display: flex;
             gap: 4px;
@@ -716,7 +701,6 @@
         .quick-actions button:active {
             transform: scale(0.94);
         }
-
         .ai-input-row {
             display: flex;
             gap: 6px;
@@ -752,7 +736,6 @@
             opacity: 0.5;
             cursor: not-allowed;
         }
-
         .ai-response {
             background: #f8faff;
             border-radius: 10px;
@@ -781,22 +764,6 @@
             border-radius: 50%;
             animation: spin 0.7s linear infinite;
         }
-
-        /* ===== 今日快捷按钮 ===== */
-        .today-btn {
-            background: none;
-            border: none;
-            font-size: 10px;
-            color: #2d6ef0;
-            cursor: pointer;
-            padding: 2px 6px;
-            border-radius: 30px;
-            font-weight: 500;
-        }
-        .today-btn:active {
-            background: #e3edff;
-        }
-
         @media (max-width: 420px) {
             body {
                 padding: 4px;
@@ -955,7 +922,6 @@
                 <div class="date-selector" id="dateSelector">
                     <span>📅</span>
                     <input type="date" id="datePicker">
-                    <button class="today-btn" id="todayBtn">今日</button>
                     <span class="dot-marker" id="dotMarker"></span>
                 </div>
             </div>
@@ -1010,11 +976,12 @@
         const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // ============================================================
-        // 1. 全局状态
+        // 1. 全局状态（完全锁定）
         // ============================================================
-        let currentPage = 'turnover';
+        let currentPage = 'turnover'; // 'turnover' | 'sale' | 'ai' | 'manage'
         let currentPeriod = 'day'; // 'day' | 'week' | 'month'
-        let selectedDate = ''; // 用户选择的基准日期 YYYY-MM-DD
+        let selectedDate = ''; // 锁定的基准日期 YYYY-MM-DD
+
         let allProducts = [];
         let currentProducts = [];
         let currentReport = null;
@@ -1032,7 +999,6 @@
         const iconAI = document.getElementById('iconAI');
         const iconManage = document.getElementById('iconManage');
         const datePicker = document.getElementById('datePicker');
-        const todayBtn = document.getElementById('todayBtn');
         const searchInput = document.getElementById('searchInput');
         const searchBtn = document.getElementById('searchBtn');
         const dotMarker = document.getElementById('dotMarker');
@@ -1068,6 +1034,16 @@
         function getMonthStart(baseDate) {
             const parts = baseDate.split('-');
             return parts[0] + '-' + parts[1] + '-01';
+        }
+
+        function getMonthEnd(baseDate) {
+            const d = new Date(baseDate + 'T00:00:00');
+            d.setMonth(d.getMonth() + 1);
+            d.setDate(0);
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return y + '-' + m + '-' + day;
         }
 
         // ============================================================
@@ -1159,7 +1135,7 @@
         }
 
         // ============================================================
-        // 6. 数据刷新（基于 selectedDate 和 currentPeriod）
+        // 6. 数据刷新（完全基于锁定的日期和周期）
         // ============================================================
         async function refreshData() {
             if (isRefreshing) return;
@@ -1176,39 +1152,26 @@
                 // 根据周期计算日期范围
                 let startDate = baseDate;
                 let endDate = baseDate;
-                let displayLabel = '';
 
                 switch (currentPeriod) {
                     case 'day':
                         startDate = baseDate;
                         endDate = baseDate;
-                        displayLabel = formatDate(baseDate);
                         break;
                     case 'week': {
                         const weekStart = getWeekStart(baseDate);
                         startDate = weekStart;
-                        // 计算周日
                         const d = new Date(weekStart + 'T00:00:00');
                         d.setDate(d.getDate() + 6);
                         const y = d.getFullYear();
                         const m = String(d.getMonth() + 1).padStart(2, '0');
                         const day2 = String(d.getDate()).padStart(2, '0');
                         endDate = y + '-' + m + '-' + day2;
-                        displayLabel = formatDate(startDate) + ' ~ ' + formatDate(endDate);
                         break;
                     }
                     case 'month': {
-                        const monthStart = getMonthStart(baseDate);
-                        startDate = monthStart;
-                        // 计算月末
-                        const d = new Date(baseDate + 'T00:00:00');
-                        d.setMonth(d.getMonth() + 1);
-                        d.setDate(0);
-                        const y = d.getFullYear();
-                        const m = String(d.getMonth() + 1).padStart(2, '0');
-                        const day2 = String(d.getDate()).padStart(2, '0');
-                        endDate = y + '-' + m + '-' + day2;
-                        displayLabel = formatDate(startDate) + ' ~ ' + formatDate(endDate);
+                        startDate = getMonthStart(baseDate);
+                        endDate = getMonthEnd(baseDate);
                         break;
                     }
                 }
@@ -1218,22 +1181,12 @@
                     p.report_date >= startDate && p.report_date <= endDate
                 );
 
-                // 加载报表（使用基准日期）
+                // 加载报表
                 const report = await loadReport(baseDate);
                 currentReport = calculateReport(currentProducts, report);
 
                 // 更新日期选择器显示
-                if (!selectedDate) {
-                    datePicker.value = getToday();
-                } else {
-                    datePicker.value = selectedDate;
-                }
-
-                // 更新标题显示周期
-                const periodNames = { day: '日', week: '周', month: '月' };
-                const titleSuffix = periodNames[currentPeriod] || '日';
-                // 在页面标题中显示，但不覆盖主标题
-                document.querySelector('.app-header .header-row h1').textContent = '深莞 · 销售智脑';
+                datePicker.value = baseDate;
 
                 renderPage(currentPage);
 
@@ -1255,33 +1208,18 @@
         }
 
         // ============================================================
-        // 8. 日期选择器事件
+        // 8. 日期选择器事件（锁定日期）
         // ============================================================
         datePicker.addEventListener('change', function() {
             const val = this.value;
             if (val) {
                 selectedDate = val;
-                // 不改变 currentPeriod，保持当前视图
                 refreshData();
             }
         });
 
         // ============================================================
-        // 9. "今日"按钮
-        // ============================================================
-        todayBtn.addEventListener('click', function() {
-            const today = getToday();
-            selectedDate = today;
-            datePicker.value = today;
-            // 切换到"日"视图
-            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-            document.querySelector('.tab-item[data-period="day"]')?.classList.add('active');
-            currentPeriod = 'day';
-            refreshData();
-        });
-
-        // ============================================================
-        // 10. CRUD
+        // 9. CRUD
         // ============================================================
         async function addProduct(name, category, price, qty) {
             if (!name || !category || !price || !qty) { alert('请填写完整信息'); return false; }
@@ -1313,7 +1251,7 @@
         }
 
         // ============================================================
-        // 11. 弹窗
+        // 10. 弹窗
         // ============================================================
         function openAddModal() { document.getElementById('addModal').style.display = 'flex'; }
 
@@ -1340,7 +1278,7 @@
         window.deleteProduct = deleteProduct;
 
         // ============================================================
-        // 12. 搜索
+        // 11. 搜索
         // ============================================================
         function performSearch() {
             const keyword = searchInput.value.trim();
@@ -1366,7 +1304,7 @@
         });
 
         // ============================================================
-        // 13. 构建展示数据
+        // 12. 构建展示数据
         // ============================================================
         function buildTurnoverData() {
             if (!currentReport) return null;
@@ -1461,7 +1399,7 @@
         }
 
         // ============================================================
-        // 14. 渲染核心
+        // 13. 渲染核心
         // ============================================================
         function renderPage(pageKey) {
             if (pageKey === 'ai') { renderAIPage(); return; }
@@ -1588,7 +1526,7 @@
         }
 
         // ============================================================
-        // 15. 商品管理
+        // 14. 商品管理
         // ============================================================
         function renderManagePage() {
             pageTitle.textContent = '✏️ 商品管理';
@@ -1641,7 +1579,7 @@
         }
 
         // ============================================================
-        // 16. AI（保留完整功能）
+        // 15. AI（保留完整功能）
         // ============================================================
         function renderAIPage() {
             pageTitle.textContent = '🧠 AI 智能复盘';
@@ -1734,7 +1672,7 @@
         }
 
         // ============================================================
-        // 17. 页面切换
+        // 16. 页面切换（互不干扰）
         // ============================================================
         function switchPage(pageKey) {
             if (currentPage === pageKey) return;
@@ -1761,7 +1699,7 @@
             switchPage('manage'); });
 
         // ============================================================
-        // 18. 日/周/月 切换
+        // 17. 日/周/月 切换（基于锁定日期）
         // ============================================================
         document.querySelectorAll('.tab-item').forEach(tab => {
             tab.addEventListener('click', function() {
@@ -1773,7 +1711,7 @@
         });
 
         // ============================================================
-        // 19. 启动
+        // 18. 启动
         // ============================================================
         async function init() {
             const today = getToday();
