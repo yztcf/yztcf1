@@ -1,0 +1,759 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>留言 · 叶志挺</title>
+  <meta name="description" content="给叶志挺 (YEZHITING) 留言。无需登录，先审后发。">
+  <link rel="canonical" href="https://apodfg.com/contact/">
+  <meta name="robots" content="index, follow">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://apodfg.com/contact/">
+  <meta property="og:title" content="留言 · 叶志挺">
+  <meta property="og:description" content="给叶志挺 (YEZHITING) 留言。无需登录，先审后发。">
+  <meta property="og:image" content="https://apodfg.com/favicon.svg">
+  <meta name="twitter:card" content="summary">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="static/css/style.css">
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <script>
+    (() => {
+      const t = localStorage.getItem('theme');
+      const dark = t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+      const l = localStorage.getItem('lang');
+      const lang = (l === 'en' || l === 'zh') ? l : 'zh';
+      document.documentElement.dataset.lang = lang;
+      document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+    })();
+  </script>
+  <style>
+    .form { display: flex; flex-direction: column; gap: 12px; margin: 0 0 48px; }
+    .form .row { display: flex; flex-direction: column; gap: 6px; }
+    .form label { font-size: 13px; color: var(--fg-muted); }
+    .form input, .form textarea {
+      font: inherit; color: var(--fg); background: var(--chip-bg);
+      border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px;
+      outline: none; transition: border-color .15s ease;
+    }
+    .form input:focus, .form textarea:focus { border-color: var(--fg); }
+    .form textarea { min-height: 120px; resize: vertical; line-height: 1.6; }
+    .form .hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+    .form .submit-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .form button[type="submit"] {
+      padding: 9px 18px; border: 1px solid var(--fg); border-radius: 8px;
+      background: var(--fg); color: var(--bg); font-weight: 600;
+      transition: opacity .15s ease;
+      cursor: pointer;
+    }
+    .form button[type="submit"]:hover { opacity: .85; }
+    .form button[type="submit"]:disabled { opacity: .5; cursor: progress; }
+    .form .hint { font-size: 13px; color: var(--fg-muted); }
+    .form .status { font-size: 14px; min-height: 1.5em; }
+    .form .status.ok { color: var(--fg); }
+    .form .status.error { color: #d32f2f; }
+
+    /* ===== 图片上传 - 手机电脑通用 ===== */
+    .upload-area {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .upload-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border: 2px dashed var(--border);
+      border-radius: 10px;
+      background: var(--chip-bg);
+      color: var(--fg-muted);
+      cursor: pointer;
+      transition: all .2s ease;
+      font-size: 14px;
+      font-weight: 500;
+      min-height: 48px;
+      min-width: 120px;
+      justify-content: center;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .upload-btn:hover {
+      border-color: var(--fg);
+      color: var(--fg);
+    }
+    .upload-btn:active {
+      transform: scale(0.97);
+    }
+    .upload-btn.has-file {
+      border-color: #2e7d32;
+      color: #2e7d32;
+      background: rgba(46, 125, 50, 0.05);
+    }
+    .upload-btn input[type="file"] {
+      display: none;
+    }
+    .upload-preview {
+      display: none;
+      position: relative;
+      width: 56px;
+      height: 56px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .upload-preview.show {
+      display: block;
+    }
+    .upload-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .upload-preview .remove-btn {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #d32f2f;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .upload-name {
+      font-size: 13px;
+      color: var(--fg-muted);
+      max-width: 140px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .upload-hint {
+      font-size: 12px;
+      color: var(--fg-muted);
+      display: block;
+      margin-top: 4px;
+    }
+
+    .section-title { font-size: 18px; font-weight: 600; margin: 0 0 16px; }
+    
+    .filter-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .filter-bar button {
+      padding: 6px 16px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: transparent;
+      color: var(--fg-muted);
+      cursor: pointer;
+      transition: all .15s ease;
+      font-size: 13px;
+    }
+    .filter-bar button:hover {
+      border-color: var(--fg);
+      color: var(--fg);
+    }
+    .filter-bar button.active {
+      background: var(--fg);
+      color: var(--bg);
+      border-color: var(--fg);
+    }
+    
+    .msg-list { display: flex; flex-direction: column; gap: 12px; }
+    .msg {
+      border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px;
+      background: var(--chip-bg);
+    }
+    .msg.featured {
+      border-color: #f9a825;
+      background: linear-gradient(to right, var(--chip-bg), rgba(249, 168, 37, 0.06));
+    }
+    .msg .head {
+      display: flex; justify-content: space-between; align-items: baseline;
+      gap: 12px; margin-bottom: 6px;
+      flex-wrap: wrap;
+    }
+    .msg .nick { font-weight: 600; color: var(--fg); }
+    .msg .region { font-size: 12px; color: var(--fg-muted); margin-left: 8px; font-weight: 400; }
+    .msg .when { font-size: 12px; color: var(--fg-muted); font-variant-numeric: tabular-nums; }
+    .msg .body { white-space: pre-wrap; word-break: break-word; color: var(--fg); }
+    .msg .image-wrapper {
+      margin-top: 8px;
+      max-width: 250px;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .msg .image-wrapper img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 8px;
+    }
+    .msg .reply {
+      margin-top: 10px; padding: 10px 12px;
+      border-left: 2px solid var(--fg); background: var(--chip-bg);
+      border-radius: 0 8px 8px 0;
+    }
+    .msg .reply-label { font-size: 12px; color: var(--fg-muted); margin-bottom: 4px; }
+    .msg .reply-body  { white-space: pre-wrap; word-break: break-word; color: var(--fg); }
+    .empty { color: var(--fg-muted); text-align: center; padding: 32px 0; font-size: 14px; }
+    .more { text-align: center; margin-top: 18px; }
+    .more button {
+      padding: 8px 18px; border: 1px solid var(--border); border-radius: 8px;
+      color: var(--fg-muted); transition: color .15s, border-color .15s;
+      cursor: pointer;
+      background: transparent;
+    }
+    .more button:hover { color: var(--fg); border-color: var(--fg); }
+    
+    .featured-badge {
+      display: inline-block;
+      font-size: 11px;
+      background: #f9a825;
+      color: #fff;
+      padding: 1px 10px;
+      border-radius: 12px;
+      margin-left: 6px;
+      font-weight: 600;
+    }
+
+    /* 手机优化 */
+    @media (max-width: 600px) {
+      .upload-btn {
+        min-height: 52px;
+        padding: 12px 18px;
+        font-size: 15px;
+        width: 100%;
+        justify-content: center;
+      }
+      .upload-area {
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+      .upload-name {
+        max-width: 100px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <div class="brand">
+        <a href="index.html" class="brand-name">Zhiting</a>
+      </div>
+      <nav class="site-nav" aria-label="主导航">
+        <a href="https://yztcf.de5.net">首页</a>
+        <a href="https://blog4.yztcf.de5.net" target="_blank" rel="noopener noreferrer">博客</a>
+        <button id="lang-toggle" class="theme-toggle lang-toggle" type="button" aria-label="切换语言">
+          <span>EN</span>
+        </button>
+        <button id="theme-toggle" class="theme-toggle" type="button" aria-label="切换主题">
+          <svg class="icon icon-sun" viewbox="0 0 24 24" aria-hidden="true" width="20" height="20">
+            <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"></circle>
+            <g stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"></path>
+            </g>
+          </svg>
+          <svg class="icon icon-moon" viewbox="0 0 24 24" aria-hidden="true" width="20" height="20">
+            <path d="M20 14.5A8 8 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"></path>
+          </svg>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container is-flow">
+    <section class="hero">
+      <h1 class="hero-title">✉️ 留言</h1>
+      <p class="hero-desc">想说点什么都可以，有些留言会展示。</p>
+    </section>
+
+    <!-- ===== 表单 ===== -->
+    <form class="form" id="msg-form" autocomplete="off" novalidate>
+      <div class="row">
+        <label for="nickname">昵称</label>
+        <input id="nickname" name="nickname" type="text" maxlength="32" required placeholder="你的昵称">
+      </div>
+      <div class="row">
+        <label for="body">内容</label>
+        <textarea id="body" name="body" maxlength="500" required placeholder="想说什么？"></textarea>
+        <span class="hint" id="counter">0 / 500</span>
+      </div>
+      
+      <!-- ===== 图片上传（手机电脑通用） ===== -->
+      <div class="row">
+        <label>图片（可选）</label>
+        <div class="upload-area">
+          <label class="upload-btn" id="uploadBtn">
+            📷 选择照片
+            <input type="file" id="fileInput" accept="image/*" capture="environment">
+          </label>
+          <div class="upload-preview" id="uploadPreview">
+            <img id="previewImg" src="" alt="预览">
+            <button class="remove-btn" id="removeBtn" type="button">×</button>
+          </div>
+          <span class="upload-name" id="fileName"></span>
+        </div>
+        <span class="upload-hint">支持 JPG、PNG、GIF · 最大 2MB</span>
+      </div>
+      
+      <input class="hp" name="website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <div class="submit-row">
+        <button type="submit" id="submit-btn">提交留言</button>
+        <span class="status" id="status" role="status" aria-live="polite"></span>
+      </div>
+    </form>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+      <h2 class="section-title" style="margin:0;">展示的留言</h2>
+      <div class="filter-bar">
+       
+        <button data-filter="all">全部</button>
+         <button class="active" data-filter="featured">⭐ 精选</button>
+      </div>
+    </div>
+    <div class="msg-list" id="list">
+      <p class="empty" id="empty">加载中…</p>
+    </div>
+    <div class="more" id="more" hidden>
+      <button type="button" id="more-btn">加载更多</button>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <small>2026 © LIXUWEI</small>
+    <small style="display:block;font-style:normal;"><a href="https://beian.miit.gov.cn" target="_blank" rel="noopener noreferrer">闽ICP备2026017342号-1</a></small>
+  </footer>
+
+  <script src="static/js/script.js" defer></script>
+  <script>
+    // ============================================================
+    // Supabase 配置
+    // ============================================================
+    const supabaseUrl = "https://pmqkockdjvaoiuoxvigl.supabase.co"
+    const supabaseKey = "sb_publishable_Q5w_4CffRHSvpNYsnhXsAw_X_-TZpKb"
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+      
+      const form = document.getElementById('msg-form');
+      const nick = document.getElementById('nickname');
+      const body = document.getElementById('body');
+      const counter = document.getElementById('counter');
+      const submitBtn = document.getElementById('submit-btn');
+      const statusEl = document.getElementById('status');
+      const listEl = document.getElementById('list');
+      const moreWrap = document.getElementById('more');
+      const moreBtn = document.getElementById('more-btn');
+      const filterBtns = document.querySelectorAll('.filter-bar button');
+      
+      // ===== 图片上传元素 =====
+      const fileInput = document.getElementById('fileInput');
+      const uploadBtn = document.getElementById('uploadBtn');
+      const uploadPreview = document.getElementById('uploadPreview');
+      const previewImg = document.getElementById('previewImg');
+      const fileName = document.getElementById('fileName');
+      const removeBtn = document.getElementById('removeBtn');
+      let selectedFile = null;
+
+      let currentFilter = 'featured';
+      let lastId = null;
+      let isLoading = false;
+      let hasMore = true;
+
+      // ============================================================
+      // 文件上传处理
+      // ============================================================
+      fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        if (file.size > 2 * 1024 * 1024) {
+          setStatus('图片不能超过 2MB', 'error');
+          fileInput.value = '';
+          return;
+        }
+        
+        if (!file.type.startsWith('image/')) {
+          setStatus('请上传图片文件', 'error');
+          fileInput.value = '';
+          return;
+        }
+        
+        selectedFile = file;
+        uploadBtn.classList.add('has-file');
+        uploadBtn.innerHTML = '📷 已选择';
+        // 重新添加 input（保持功能）
+        const newInput = document.createElement('input');
+        newInput.type = 'file';
+        newInput.id = 'fileInput';
+        newInput.accept = 'image/*';
+        newInput.capture = 'environment';
+        newInput.style.display = 'none';
+        newInput.addEventListener('change', fileInput._listener || fileInput.onchange);
+        fileInput.replaceWith(newInput);
+        // 更新引用
+        // 但我们用更简单的方式：保留原有 input，只改显示
+        
+        fileName.textContent = file.name.length > 20 ? file.name.substring(0, 18) + '…' : file.name;
+        
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          previewImg.src = ev.target.result;
+          uploadPreview.classList.add('show');
+        };
+        reader.readAsDataURL(file);
+      });
+
+      // 重新绑定（因为上面可能会替换）
+      // 使用更稳定的方式：直接监听
+      const fileInputRef = document.getElementById('fileInput');
+      if (fileInputRef) {
+        fileInputRef.addEventListener('change', function(e) {
+          const file = e.target.files[0];
+          if (!file) return;
+          
+          if (file.size > 2 * 1024 * 1024) {
+            setStatus('图片不能超过 2MB', 'error');
+            this.value = '';
+            return;
+          }
+          
+          if (!file.type.startsWith('image/')) {
+            setStatus('请上传图片文件', 'error');
+            this.value = '';
+            return;
+          }
+          
+          selectedFile = file;
+          uploadBtn.classList.add('has-file');
+          uploadBtn.innerHTML = '📷 已选择';
+          
+          fileName.textContent = file.name.length > 20 ? file.name.substring(0, 18) + '…' : file.name;
+          
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            previewImg.src = ev.target.result;
+            uploadPreview.classList.add('show');
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      removeBtn.addEventListener('click', () => {
+        selectedFile = null;
+        const input = document.getElementById('fileInput');
+        if (input) input.value = '';
+        uploadBtn.classList.remove('has-file');
+        uploadBtn.innerHTML = '📷 选择照片';
+        fileName.textContent = '';
+        uploadPreview.classList.remove('show');
+        previewImg.src = '';
+      });
+
+      // ============================================================
+      // 工具函数
+      // ============================================================
+      function fmt(ts) {
+        if (!ts) return '';
+        const d = new Date(ts);
+        const pad = n => String(n).padStart(2, '0');
+        return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+      }
+
+      function setStatus(msg, type = '') {
+        statusEl.textContent = msg;
+        statusEl.className = 'status' + (type ? ' ' + type : '');
+      }
+
+      function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      function buildCard(m) {
+        const card = document.createElement('div');
+        card.className = 'msg' + (m.is_featured ? ' featured' : '');
+        card.dataset.id = String(m.id);
+        card.__data = m;
+        
+        let html = `
+          <div class="head">
+            <span>
+              <span class="nick">${escapeHtml(m.nickname || '匿名')}</span>
+              ${m.is_featured ? '<span class="featured-badge">⭐ 精选</span>' : ''}
+              <span class="region">${m.region ? '· ' + escapeHtml(m.region) : ''}</span>
+            </span>
+            <span class="when">${fmt(m.created_at)}</span>
+          </div>
+          <div class="body">${escapeHtml(m.body || '')}</div>
+        `;
+        
+        if (m.image_url) {
+          html += `
+            <div class="image-wrapper">
+              <img src="${escapeHtml(m.image_url)}" alt="留言图片" loading="lazy">
+            </div>
+          `;
+        }
+        
+        if (m.reply_body) {
+          html += `
+            <div class="reply">
+              <div class="reply-label">站长回复 · ${fmt(m.reply_at)}</div>
+              <div class="reply-body">${escapeHtml(m.reply_body)}</div>
+            </div>
+          `;
+        }
+        
+        card.innerHTML = html;
+        return card;
+      }
+
+      // ============================================================
+      // 上传图片到 Supabase Storage
+      // ============================================================
+      async function uploadImage(file) {
+        if (!file) return null;
+        
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}.${fileExt}`;
+        const filePath = `messages/${fileName}`;
+        
+        try {
+          const { data, error } = await supabase.storage
+            .from('message-images')
+            .upload(filePath, file, {
+              cacheControl: '3600',
+              upsert: false
+            });
+          
+          if (error) {
+            console.error('上传失败:', error);
+            if (error.message.includes('bucket not found')) {
+              setStatus('存储桶未创建，请先在 Supabase 创建 message-images bucket', 'error');
+              return null;
+            }
+            throw error;
+          }
+          
+          const { data: urlData } = supabase.storage
+            .from('message-images')
+            .getPublicUrl(filePath);
+          
+          return urlData.publicUrl;
+        } catch (err) {
+          console.error('上传图片失败:', err);
+          setStatus('图片上传失败: ' + err.message, 'error');
+          return null;
+        }
+      }
+
+      // ============================================================
+      // 加载留言
+      // ============================================================
+      async function loadMessages(append = false) {
+        if (isLoading) return;
+        if (!append) {
+          lastId = null;
+          hasMore = true;
+          listEl.innerHTML = '';
+        }
+        if (!hasMore && append) return;
+
+        isLoading = true;
+        if (!append) {
+          const loadingEl = document.createElement('p');
+          loadingEl.className = 'empty';
+          loadingEl.id = 'empty';
+          loadingEl.textContent = '加载中…';
+          listEl.appendChild(loadingEl);
+        }
+
+        try {
+          let query = supabase
+            .from('messages')
+            .select('*')
+            .order('created_at', { ascending: false })
+            .limit(20);
+
+          if (currentFilter === 'featured') {
+            query = query.eq('is_featured', true);
+          }
+
+          if (lastId && append) {
+            query = query.lt('id', lastId);
+          }
+
+          const { data, error } = await query;
+          
+          if (error) {
+            console.error('Supabase 错误:', error);
+            throw new Error(error.message || '查询失败');
+          }
+
+          const existingEmpty = document.getElementById('empty');
+          if (existingEmpty) existingEmpty.remove();
+
+          if (!data || data.length === 0) {
+            if (!append) {
+              const emptyMsg = document.createElement('p');
+              emptyMsg.className = 'empty';
+              emptyMsg.id = 'empty';
+              emptyMsg.textContent = currentFilter === 'featured' 
+                ? '还没有精选留言 🤔' 
+                : '还没有留言，快来抢沙发！';
+              listEl.appendChild(emptyMsg);
+            }
+            hasMore = false;
+            moreWrap.hidden = true;
+            return;
+          }
+
+          if (data.length > 0) {
+            lastId = data[data.length - 1].id;
+          }
+
+          if (!append) {
+            listEl.innerHTML = '';
+          }
+          data.forEach(msg => {
+            listEl.appendChild(buildCard(msg));
+          });
+
+          hasMore = data.length === 20;
+          moreWrap.hidden = !hasMore;
+
+        } catch (err) {
+          console.error('加载留言失败:', err);
+          const existingEmpty = document.getElementById('empty');
+          if (existingEmpty) existingEmpty.remove();
+          
+          const emptyMsg = document.createElement('p');
+          emptyMsg.className = 'empty';
+          emptyMsg.id = 'empty';
+          emptyMsg.textContent = '加载失败: ' + (err.message || '未知错误');
+          listEl.appendChild(emptyMsg);
+          moreWrap.hidden = true;
+        } finally {
+          isLoading = false;
+        }
+      }
+
+      // ============================================================
+      // 提交留言
+      // ============================================================
+      async function submitMessage(e) {
+        e.preventDefault();
+        
+        const nickname = nick.value.trim();
+        const content = body.value.trim();
+        
+        if (!nickname || !content) {
+          setStatus('请填写昵称和内容', 'error');
+          return;
+        }
+        if (content.length < 2) {
+          setStatus('内容至少 2 个字符', 'error');
+          return;
+        }
+
+        setStatus('提交中…', '');
+        submitBtn.disabled = true;
+
+        try {
+          let imageUrl = null;
+          if (selectedFile) {
+            imageUrl = await uploadImage(selectedFile);
+          }
+          
+          const { data, error } = await supabase
+            .from('messages')
+            .insert([
+              {
+                nickname: nickname,
+                body: content,
+                region: null,
+                is_featured: false,
+                image_url: imageUrl,
+              }
+            ])
+            .select();
+
+          if (error) {
+            console.error('提交错误:', error);
+            throw new Error(error.message || '提交失败');
+          }
+
+          setStatus('✅ 留言提交成功！', 'ok');
+          form.reset();
+          counter.textContent = '0 / 500';
+          
+          // 重置文件
+          selectedFile = null;
+          const input = document.getElementById('fileInput');
+          if (input) input.value = '';
+          uploadBtn.classList.remove('has-file');
+          uploadBtn.innerHTML = '📷 选择照片';
+          fileName.textContent = '';
+          uploadPreview.classList.remove('show');
+          previewImg.src = '';
+          
+          await loadMessages(false);
+          
+        } catch (err) {
+          console.error('提交失败:', err);
+          setStatus('提交失败: ' + (err.message || '未知错误'), 'error');
+        } finally {
+          submitBtn.disabled = false;
+        }
+      }
+
+      // ============================================================
+      // 事件绑定
+      // ============================================================
+      body.addEventListener('input', () => {
+        counter.textContent = body.value.length + ' / 500';
+      });
+
+      form.addEventListener('submit', submitMessage);
+
+      moreBtn.addEventListener('click', () => {
+        loadMessages(true);
+      });
+
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          filterBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentFilter = btn.dataset.filter;
+          loadMessages(false);
+        });
+      });
+
+      // ============================================================
+      // 初始化
+      // ============================================================
+      loadMessages();
+      console.log('✅ 留言板已接入 Supabase（支持图片上传）');
+    });
+  </script>
+</body>
+</html>
