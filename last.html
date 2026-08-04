@@ -4,10 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>深莞 · 销售智脑</title>
-    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
     </script>
-    <!-- Supabase 客户端 -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
     </script>
     <style>
@@ -17,21 +15,18 @@
             box-sizing: border-box;
             font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif;
         }
-
         html,
         body {
             height: 100%;
             overflow: hidden;
             background: #f0f2f7;
         }
-
         body {
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 10px;
         }
-
         .app {
             max-width: 480px;
             width: 100%;
@@ -45,14 +40,12 @@
             box-shadow: 0 8px 40px rgba(0, 10, 30, 0.10);
             position: relative;
         }
-
         .app-header {
             flex-shrink: 0;
             padding: 14px 16px 6px;
             background: #f0f2f7;
             z-index: 10;
         }
-
         .header-row {
             display: flex;
             align-items: center;
@@ -65,7 +58,6 @@
             color: #0b1b33;
             flex-shrink: 0;
         }
-
         .icon-switch {
             display: flex;
             background: #ffffff;
@@ -73,6 +65,7 @@
             padding: 3px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
             flex-shrink: 0;
+            gap: 1px;
         }
         .icon-btn {
             width: 34px;
@@ -95,7 +88,6 @@
         .icon-btn:active {
             transform: scale(0.92);
         }
-
         .header-row .date-selector {
             display: flex;
             align-items: center;
@@ -111,7 +103,6 @@
             flex-shrink: 0;
             box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
         }
-
         .stats-section {
             flex-shrink: 0;
             padding: 0 0 4px;
@@ -168,7 +159,6 @@
         .stat-item .trend-down {
             color: #ffb0a0;
         }
-
         .search-section {
             flex-shrink: 0;
             padding: 0 0 4px;
@@ -213,7 +203,6 @@
             color: white;
             font-weight: 600;
         }
-
         .scroll-content {
             flex: 1;
             overflow-y: auto;
@@ -227,7 +216,6 @@
             background: #c0c8d8;
             border-radius: 10px;
         }
-
         .row-two {
             display: flex;
             gap: 8px;
@@ -258,7 +246,6 @@
             border-radius: 4px;
             margin-right: 5px;
         }
-
         .info-line {
             display: flex;
             justify-content: space-between;
@@ -315,7 +302,6 @@
             color: #0b1b33;
             font-size: 12px;
         }
-
         .pie-box {
             height: 78px;
             width: 100%;
@@ -337,7 +323,6 @@
             margin-right: 3px;
             vertical-align: middle;
         }
-
         .rank-wrap {
             background: #ffffff;
             border-radius: 16px;
@@ -384,10 +369,9 @@
         .filter-btn:active {
             transform: scale(0.94);
         }
-
         .rank-header {
             display: grid;
-            grid-template-columns: 20px 1fr 38px 34px 34px;
+            grid-template-columns: 20px 1fr 38px 34px 30px;
             font-size: 9px;
             color: #697f9e;
             padding: 2px 0 5px;
@@ -395,7 +379,7 @@
         }
         .rank-item {
             display: grid;
-            grid-template-columns: 20px 1fr 38px 34px 34px;
+            grid-template-columns: 20px 1fr 38px 34px 30px;
             padding: 5px 0;
             align-items: center;
             border-bottom: 1px solid #f2f6fd;
@@ -489,7 +473,6 @@
             margin: 6px 0;
             font-size: 12px;
         }
-
         .ai-input-row {
             display: flex;
             gap: 8px;
@@ -525,7 +508,6 @@
             opacity: 0.5;
             cursor: not-allowed;
         }
-
         .ai-response {
             background: #f8faff;
             border-radius: 12px;
@@ -559,7 +541,6 @@
                 transform: rotate(360deg);
             }
         }
-
         .quick-actions {
             display: flex;
             gap: 6px;
@@ -578,7 +559,6 @@
         .quick-actions button:active {
             transform: scale(0.94);
         }
-
         .page {
             display: none;
         }
@@ -586,41 +566,100 @@
             display: block;
         }
 
-        .key-setup {
+        /* ===== 商品管理 ===== */
+        .action-bar {
             display: flex;
-            gap: 6px;
-            align-items: center;
-            margin-top: 4px;
-            padding: 4px 8px;
-            background: #fff8e6;
+            gap: 8px;
+            margin: 6px 0 4px;
+            flex-wrap: wrap;
+        }
+        .action-btn {
+            padding: 4px 12px;
             border-radius: 30px;
-            border: 1px solid #f0dca0;
-        }
-        .key-setup input {
-            flex: 1;
             border: none;
-            background: transparent;
-            font-size: 10px;
-            color: #6a5d3a;
-            outline: none;
-            padding: 4px 0;
-        }
-        .key-setup input::placeholder {
-            color: #b8a87a;
-        }
-        .key-setup button {
-            background: #b8782a;
-            border: none;
-            color: white;
-            padding: 2px 12px;
-            border-radius: 30px;
-            font-size: 10px;
+            font-size: 11px;
             font-weight: 600;
             cursor: pointer;
+            background: #1a3a6b;
+            color: white;
         }
-        .key-setup .status {
-            font-size: 9px;
-            color: #0f7b4a;
+        .action-btn:active {
+            transform: scale(0.95);
+        }
+        .action-btn.danger {
+            background: #c94038;
+        }
+        .action-btn.success {
+            background: #0f7b4a;
+        }
+        .action-btn.gold {
+            background: #b8782a;
+        }
+
+        .modal-mask {
+            position: fixed;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-content {
+            background: #fff;
+            border-radius: 20px;
+            padding: 24px;
+            max-width: 400px;
+            width: 100%;
+        }
+        .modal-content h3 {
+            margin-bottom: 16px;
+            font-size: 16px;
+        }
+        .modal-content input,
+        .modal-content select {
+            width: 100%;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #dde4f0;
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+        .modal-content .btn-row {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+        .modal-content .btn-row button {
+            padding: 8px 20px;
+            border-radius: 30px;
+            border: none;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .modal-content .btn-row .cancel {
+            background: #eef2f9;
+            color: #4b6589;
+        }
+        .modal-content .btn-row .confirm {
+            background: #1a3a6b;
+            color: white;
+        }
+        .rank-item .del-btn {
+            background: none;
+            border: none;
+            color: #c94038;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 0 4px;
+        }
+        .rank-item .del-btn:active {
+            transform: scale(0.85);
         }
 
         .loading-text {
@@ -767,15 +806,9 @@
                     <button class="icon-btn active" data-page="page-turnover" id="iconMoney">💰</button>
                     <button class="icon-btn" data-page="page-sale" id="iconBox">📦</button>
                     <button class="icon-btn" data-page="page-ai" id="iconAI">🧠</button>
+                    <button class="icon-btn" data-page="page-manage" id="iconManage">✏️</button>
                 </div>
                 <div class="date-selector">📅 2026/08/03</div>
-            </div>
-
-            <div class="key-setup" id="keySetup">
-                <span style="font-size:10px;">🔑</span>
-                <input type="password" id="apiKeyInput" placeholder="输入 DeepSeek API Key..." value="sk-d3c3759509594ada95fd20dc57066670">
-                <button id="saveKeyBtn">保存</button>
-                <span class="status" id="keyStatus">⚪ 未配置</span>
             </div>
 
             <div class="stats-section" id="statsContainer">
@@ -798,12 +831,28 @@
 
     </div>
 
+    <!-- ===== 新增商品弹窗 ===== -->
+    <div class="modal-mask" id="addModal">
+        <div class="modal-content">
+            <h3>➕ 新增商品</h3>
+            <input id="newName" placeholder="商品名称（如：农村土鸡蛋）" />
+            <input id="newCategory" placeholder="分类（如：日用品）" />
+            <input id="newPrice" type="number" step="0.01" placeholder="单价（元）" />
+            <input id="newQty" type="number" step="1" placeholder="数量（件）" />
+            <div class="btn-row">
+                <button class="cancel" onclick="closeAddModal()">取消</button>
+                <button class="confirm" onclick="confirmAdd()">确认添加</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ============================================================
         // 0. Supabase 配置
         // ============================================================
         const SUPABASE_URL = 'https://pmqkockdjvaoiuoxvigl.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_Q5w_4CffRHSvpNYsnhXsAw_X_-TZpKb';
+        const REPORT_DATE = '2026-08-01';
 
         const { createClient } = supabase;
         const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -812,8 +861,9 @@
         // 1. 全局状态
         // ============================================================
         let currentPage = 'turnover';
+        let dbData = null;
+        let products = [];
         let isAILoading = false;
-        let dbData = null; // 缓存数据库数据
 
         // ============================================================
         // 2. DOM 引用
@@ -824,59 +874,252 @@
         const iconMoney = document.getElementById('iconMoney');
         const iconBox = document.getElementById('iconBox');
         const iconAI = document.getElementById('iconAI');
-        const apiKeyInput = document.getElementById('apiKeyInput');
-        const saveKeyBtn = document.getElementById('saveKeyBtn');
-        const keyStatus = document.getElementById('keyStatus');
+        const iconManage = document.getElementById('iconManage');
 
         // ============================================================
-        // 3. 密钥管理
+        // 3. 数据加载
         // ============================================================
-        let apiKey = localStorage.getItem('deepseek_api_key') || 'sk-d3c3759509594ada95fd20dc57066670';
-        if (apiKey) {
-            apiKeyInput.value = apiKey;
-            keyStatus.textContent = '✅ 已配置';
-            keyStatus.style.color = '#0f7b4a';
+        async function loadProducts() {
+            const { data, error } = await supabaseClient
+                .from('products')
+                .select('*')
+                .eq('report_date', REPORT_DATE)
+                .order('id');
+
+            if (error) {
+                console.error('加载商品失败:', error);
+                return [];
+            }
+            return data || [];
         }
 
-        saveKeyBtn.addEventListener('click', function() {
-            const key = apiKeyInput.value.trim();
-            if (key) {
-                localStorage.setItem('deepseek_api_key', key);
-                apiKey = key;
-                keyStatus.textContent = '✅ 已保存';
-                keyStatus.style.color = '#0f7b4a';
-            } else {
-                localStorage.removeItem('deepseek_api_key');
-                apiKey = '';
-                keyStatus.textContent = '⚪ 未配置';
-                keyStatus.style.color = '#6a7f9e';
+        async function loadData() {
+            products = await loadProducts();
+            // 从商品数据中计算汇总（不依赖monthly_reports表）
+            dbData = calculateReport(products);
+            return { products, report: dbData };
+        }
+
+        // ============================================================
+        // 4. 前端实时计算（不依赖数据库函数）
+        // ============================================================
+        function calculateReport(productList) {
+            if (!productList || productList.length === 0) {
+                return {
+                    total_revenue: 0,
+                    total_orders: 0,
+                    total_products: 0,
+                    avg_price: 0,
+                    visitor_count: 311,
+                    category_data: {},
+                    rank_data: []
+                };
             }
-        });
+
+            // 计算总营业额和总件数
+            let totalRevenue = 0;
+            let totalQty = 0;
+            const catMap = {};
+
+            productList.forEach(p => {
+                const rev = p.price * p.qty;
+                totalRevenue += rev;
+                totalQty += p.qty;
+                catMap[p.category] = (catMap[p.category] || 0) + rev;
+            });
+
+            // 计算分类占比
+            const categoryData = {};
+            Object.keys(catMap).forEach(cat => {
+                categoryData[cat] = totalRevenue > 0 ? Math.round((catMap[cat] / totalRevenue) * 100) : 0;
+            });
+
+            // 计算排行榜
+            const sorted = [...productList].sort((a, b) => (b.price * b.qty) - (a.price * a.qty));
+            const rankData = sorted.map((p, i) => ({
+                rank: i + 1,
+                name: p.name,
+                category: p.category,
+                revenue: Math.round(p.price * p.qty * 100) / 100,
+                qty: p.qty
+            }));
+
+            return {
+                total_revenue: Math.round(totalRevenue * 100) / 100,
+                total_orders: totalQty,
+                total_products: productList.length,
+                avg_price: totalQty > 0 ? Math.round((totalRevenue / totalQty) * 100) / 100 : 0,
+                visitor_count: 311,
+                category_data: categoryData,
+                rank_data: rankData
+            };
+        }
 
         // ============================================================
-        // 4. 从 Supabase 加载数据
+        // 5. CRUD 操作
         // ============================================================
-        async function loadDataFromSupabase() {
-            try {
-                const { data, error } = await supabaseClient
-                    .from('monthly_reports')
-                    .select('*')
-                    .eq('report_date', '2026-08-01')
-                    .limit(1);
+        async function addProduct(name, category, price, qty) {
+            if (!name || !category || !price || !qty) {
+                alert('请填写完整信息');
+                return false;
+            }
+            const { error } = await supabaseClient
+                .from('products')
+                .insert([{ name, category, price: parseFloat(price), qty: parseInt(qty), report_date: REPORT_DATE }]);
+            if (error) {
+                alert('添加失败: ' + error.message);
+                return false;
+            }
+            await refreshAll();
+            return true;
+        }
 
-                if (error) {
-                    console.error('Supabase 查询错误:', error);
-                    return null;
+        async function deleteProduct(id) {
+            if (!confirm('确定要删除该商品吗？所有数据将自动重新计算。')) return;
+            const { error } = await supabaseClient
+                .from('products')
+                .delete()
+                .eq('id', id);
+            if (error) {
+                alert('删除失败: ' + error.message);
+                return;
+            }
+            await refreshAll();
+        }
+
+        async function refreshAll() {
+            await loadData();
+            renderPage(currentPage);
+        }
+
+        // ============================================================
+        // 6. 弹窗控制
+        // ============================================================
+        function openAddModal() {
+            document.getElementById('addModal').style.display = 'flex';
+        }
+
+        function closeAddModal() {
+            document.getElementById('addModal').style.display = 'none';
+            document.getElementById('newName').value = '';
+            document.getElementById('newCategory').value = '';
+            document.getElementById('newPrice').value = '';
+            document.getElementById('newQty').value = '';
+        }
+
+        async function confirmAdd() {
+            const name = document.getElementById('newName').value.trim();
+            const category = document.getElementById('newCategory').value.trim();
+            const price = document.getElementById('newPrice').value;
+            const qty = document.getElementById('newQty').value;
+
+            const success = await addProduct(name, category, price, qty);
+            if (success) {
+                closeAddModal();
+            }
+        }
+
+        // 暴露到全局
+        window.openAddModal = openAddModal;
+        window.closeAddModal = closeAddModal;
+        window.confirmAdd = confirmAdd;
+        window.deleteProduct = deleteProduct;
+
+        // ============================================================
+        // 7. 构建展示数据
+        // ============================================================
+        function buildDataFromDB(report, productList) {
+            if (!report) return null;
+
+            const catData = report.category_data || {};
+            const catLabels = Object.keys(catData);
+            const catValues = Object.values(catData).map(v => parseFloat(v));
+            const colors = ['#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6', '#95a5a6'];
+
+            const rankList = report.rank_data || [];
+
+            return {
+                turnover: {
+                    title: '💰 营业额',
+                    stats: [
+                        { label: '本月营业额', value: `¥${report.total_revenue || 0}` },
+                        { label: '本月累计', value: `¥${report.total_revenue || 0}` },
+                        { label: '较昨日', value: '-¥71', cls: 'trend-down' },
+                        { label: '客单价', value: `¥${Math.round(report.avg_price || 0)}` }
+                    ],
+                    infoLines: [
+                        { icon: '★', iconCls: 'icon-star', label: '成交商品', value: `${report.total_products || 0}种` },
+                        { icon: '¥', iconCls: 'icon-yen', label: '客单价', value: `¥${Math.round(report.avg_price || 0)}` },
+                        { icon: '👤', iconCls: 'icon-people', label: '到店人数', value: `${report.visitor_count || 0}人` }
+                    ],
+                    pieData: catValues.length ? catValues : [36, 26, 16, 9, 8, 4],
+                    pieLabels: catLabels.length ? catLabels : ['烟草', '饮料', '日用品', '零食', '槟榔', '其他'],
+                    pieColors: colors.slice(0, catLabels.length || 6),
+                    pieLegend: (catLabels.length ? catLabels : ['烟草', '饮料', '日用品', '零食', '槟榔', '其他']).map((label, i) => ({
+                        label: label,
+                        pct: `${catValues[i] || 0}%`,
+                        color: colors[i % colors.length]
+                    })),
+                    rankTitle: '商品营业额排行',
+                    rankCount: `共${productList.length}种`,
+                    filters: ['全部 264', '烟草 31', '饮料 90', '日用品 28', '零食 83'],
+                    headers: ['排名', '商品名称', '金额', '件数', ''],
+                    rows: rankList.map(r => ({
+                        rank: r.rank,
+                        rankCls: r.rank === 1 ? 'gold' : r.rank === 2 ? 'silver' : r.rank === 3 ? 'bronze' : 'default',
+                        name: r.name,
+                        cat: r.category,
+                        col1: `¥${r.revenue}`,
+                        col2: `${r.qty}件`,
+                        id: productList.find(p => p.name === r.name && p.category === r.category)?.id || null
+                    })),
+                    hasCol4: false,
+                    products: productList
+                },
+                sale: {
+                    title: '📦 售出商品数',
+                    stats: [
+                        { label: '本月售出', value: `${report.total_orders || 0}件` },
+                        { label: '本月累计', value: `${report.total_orders || 0}件` },
+                        { label: '较昨日', value: '+41', cls: 'trend-up' },
+                        { label: '本月日均', value: `${Math.round((report.total_orders || 0) / 3)}件` }
+                    ],
+                    infoLines: [
+                        { icon: '★', iconCls: 'icon-star', label: '畅销商品', value: `${Math.min(3, productList.length)}种` },
+                        { icon: '↑', iconCls: 'icon-up', label: '销量上涨', value: '264' },
+                        { icon: '↓', iconCls: 'icon-down', label: '销量下降', value: '0' }
+                    ],
+                    pieData: catValues.length ? catValues.map(v => Math.round(v * 0.8)) : [34, 26, 14, 13, 8, 3],
+                    pieLabels: catLabels.length ? catLabels : ['饮料', '零食', '日用品', '烟草', '冰淇淋', '槟榔'],
+                    pieColors: ['#3498db', '#f39c12', '#2ecc71', '#e74c3c', '#9b59b6', '#1abc9c'],
+                    pieLegend: (catLabels.length ? catLabels : ['饮料', '零食', '日用品', '烟草', '冰淇淋', '槟榔']).map((label, i) => ({
+                        label: label,
+                        pct: `${Math.round((catValues[i] || 0) * 0.8)}%`,
+                        color: ['#3498db', '#f39c12', '#2ecc71', '#e74c3c', '#9b59b6', '#1abc9c'][i % 6]
+                    })),
+                    rankTitle: '商品销量排行',
+                    rankCount: `共${productList.length}种`,
+                    filters: ['全部 264', '饮料 90', '零食 83', '日用品 28', '烟草 31'],
+                    headers: ['排名', '商品名称', '当月', '本月', '变化'],
+                    rows: rankList.slice(0, 4).map(r => ({
+                        rank: r.rank,
+                        rankCls: r.rank === 1 ? 'gold' : r.rank === 2 ? 'silver' : r.rank === 3 ? 'bronze' : 'default',
+                        name: r.name,
+                        cat: r.category,
+                        col1: r.qty,
+                        col2: r.qty,
+                        col3: '新增',
+                        col3Cls: 'text-new'
+                    })),
+                    hasCol4: true
                 }
-                return data?.[0] || null;
-            } catch (err) {
-                console.error('加载数据失败:', err);
-                return null;
-            }
+            };
         }
 
+        let data = null;
+
         // ============================================================
-        // 5. 渲染函数
+        // 8. 渲染函数
         // ============================================================
         function renderPage(pageKey) {
             if (pageKey === 'ai') {
@@ -884,17 +1127,16 @@
                 return;
             }
 
-            if (!dbData) {
-                statsContainer.innerHTML = `
-                    <div class="loading-text">
-                        <span class="spinner"></span>加载数据中...
-                    </div>
-                `;
-                scrollContent.innerHTML = `
-                    <div class="loading-text">
-                        <span class="spinner"></span>加载数据中...
-                    </div>
-                `;
+            if (pageKey === 'manage') {
+                renderManagePage();
+                return;
+            }
+
+            if (!dbData || !data) {
+                statsContainer.innerHTML =
+                `<div class="loading-text"><span class="spinner"></span>加载数据中...</div>`;
+                scrollContent.innerHTML =
+                `<div class="loading-text"><span class="spinner"></span>加载数据中...</div>`;
                 return;
             }
 
@@ -905,6 +1147,7 @@
             iconMoney.classList.toggle('active', pageKey === 'turnover');
             iconBox.classList.toggle('active', pageKey === 'sale');
             iconAI.classList.remove('active');
+            iconManage.classList.remove('active');
 
             // 统计卡片
             statsContainer.innerHTML = `
@@ -941,7 +1184,7 @@
                 ` : `
                     <span class="fw-600">${r.col1}</span>
                     <span class="text-muted">${r.col2}</span>
-                    <span></span>
+                    ${r.id ? `<button class="del-btn" onclick="deleteProduct(${r.id})">✕</button>` : '<span></span>'}
                 `;
                 return `
                     <div class="rank-item">
@@ -952,8 +1195,10 @@
                 `;
             }).join('');
 
-            const filterHtml = d.filters.map(f =>
-                `<button class="filter-btn ${f === d.filters[0] ? 'active' : ''}">${f}</button>`
+            // 过滤按钮（从实际商品分类生成）
+            const catSet = new Set(products.map(p => p.category));
+            const filterBtns = ['全部', ...catSet].map(cat =>
+                `<button class="filter-btn ${cat === '全部' ? 'active' : ''}" data-cat="${cat}">${cat}</button>`
             ).join('');
 
             scrollContent.innerHTML = `
@@ -971,8 +1216,9 @@
                 <div class="rank-wrap">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <div class="mod-title" style="margin-bottom:0;">${d.rankTitle} <span>${d.rankCount}</span></div>
+                        <button class="action-btn success" onclick="openAddModal()">➕ 新增</button>
                     </div>
-                    <div class="filter-group">${filterHtml}</div>
+                    <div class="filter-group">${filterBtns}</div>
                     <div class="rank-header">${d.headers.map(h => `<span>${h}</span>`).join('')}</div>
                     ${rankRowsHtml}
                 </div>
@@ -1011,118 +1257,99 @@
             // 筛选按钮
             document.querySelectorAll('.filter-group .filter-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
-                    this.closest('.filter-group').querySelectorAll('.filter-btn')
-                        .forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.filter-group .filter-btn').forEach(b => b.classList.remove(
+                    'active'));
                     this.classList.add('active');
+                    const cat = this.dataset.cat;
+                    filterRankItems(cat);
                 });
             });
         }
 
-        // ============================================================
-        // 6. 数据构建（从 Supabase 数据构造）
-        // ============================================================
-        function buildDataFromDB(dbData) {
-            if (!dbData) return null;
-
-            const catData = dbData.category_data || {};
-            const catLabels = Object.keys(catData);
-            const catValues = Object.values(catData);
-            const colors = ['#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6', '#95a5a6'];
-
-            const rankList = dbData.rank_data || [];
-
-            return {
-                turnover: {
-                    title: '💰 营业额',
-                    stats: [
-                        { label: '本月营业额', value: `¥${dbData.total_revenue || 0}` },
-                        { label: '本月累计', value: `¥${dbData.total_revenue || 0}` },
-                        { label: '较昨日', value: '-¥71', cls: 'trend-down' },
-                        { label: '客单价', value: `¥${dbData.avg_price || 0}` }
-                    ],
-                    infoLines: [
-                        { icon: '★', iconCls: 'icon-star', label: '成交商品', value: `${dbData.total_orders || 0}种` },
-                        { icon: '¥', iconCls: 'icon-yen', label: '客单价', value: `¥${(dbData.avg_price || 0) + 1}` },
-                        { icon: '👤', iconCls: 'icon-people', label: '到店人数', value: `${dbData.visitor_count || 0}人` }
-                    ],
-                    pieData: catValues.length ? catValues : [36, 26, 16, 9, 8, 4],
-                    pieLabels: catLabels.length ? catLabels : ['烟草', '饮料', '日用品', '零食', '槟榔', '其他'],
-                    pieColors: colors.slice(0, catLabels.length || 6),
-                    pieLegend: (catLabels.length ? catLabels : ['烟草', '饮料', '日用品', '零食', '槟榔', '其他']).map((label, i) => ({
-                        label: label,
-                        pct: `${catValues[i] || 0}%`,
-                        color: colors[i % colors.length]
-                    })),
-                    rankTitle: '商品营业额排行',
-                    rankCount: `共${dbData.total_orders || 0}种`,
-                    filters: ['全部 264', '烟草 31', '饮料 90', '日用品 28', '零食 83'],
-                    headers: ['排名', '商品名称', '金额', '件数', ''],
-                    rows: rankList.length ? rankList : [
-                        { rank: '1', rankCls: 'gold', name: '农村土鸡蛋（斤）', cat: '日用品', col1: '¥254', col2: '26件' },
-                        { rank: '2', rankCls: 'silver', name: '振南晚香优米', cat: '日用品', col1: '¥220', col2: '2件' },
-                        { rank: '3', rankCls: 'bronze', name: '黄鹤楼（硬峡谷柔情）', cat: '烟草', col1: '¥210', col2: '6件' }
-                    ],
-                    hasCol4: false
-                },
-                sale: {
-                    title: '📦 售出商品数',
-                    stats: [
-                        { label: '本月售出', value: `${dbData.total_orders || 0}件` },
-                        { label: '本月累计', value: `${dbData.total_orders || 0}件` },
-                        { label: '较昨日', value: '+41', cls: 'trend-up' },
-                        { label: '本月日均', value: `${Math.round((dbData.total_orders || 0) / 3)}件` }
-                    ],
-                    infoLines: [
-                        { icon: '★', iconCls: 'icon-star', label: '畅销商品', value: '3种' },
-                        { icon: '↑', iconCls: 'icon-up', label: '销量上涨', value: '264' },
-                        { icon: '↓', iconCls: 'icon-down', label: '销量下降', value: '0' }
-                    ],
-                    pieData: catValues.length ? catValues.map(v => Math.round(v * 0.8)) : [34, 26, 14, 13, 8, 3],
-                    pieLabels: catLabels.length ? catLabels : ['饮料', '零食', '日用品', '烟草', '冰淇淋', '槟榔'],
-                    pieColors: ['#3498db', '#f39c12', '#2ecc71', '#e74c3c', '#9b59b6', '#1abc9c'],
-                    pieLegend: (catLabels.length ? catLabels : ['饮料', '零食', '日用品', '烟草', '冰淇淋', '槟榔']).map((label, i) => ({
-                        label: label,
-                        pct: `${Math.round((catValues[i] || 0) * 0.8)}%`,
-                        color: ['#3498db', '#f39c12', '#2ecc71', '#e74c3c', '#9b59b6', '#1abc9c'][i % 6]
-                    })),
-                    rankTitle: '商品销量排行',
-                    rankCount: '共264种',
-                    filters: ['全部 264', '饮料 90', '零食 83', '日用品 28', '烟草 31'],
-                    headers: ['排名', '商品名称', '当月', '本月', '变化'],
-                    rows: [
-                        { rank: '1', rankCls: 'gold', name: '打印（黑）', cat: '日用品', col1: '31', col2: '31', col3: '新增',
-                            col3Cls: 'text-new' },
-                        { rank: '2', rankCls: 'silver', name: '农村土鸡蛋（斤）', cat: '日用品', col1: '26', col2: '26',
-                            col3: '新增', col3Cls: 'text-new' },
-                        { rank: '3', rankCls: 'bronze', name: '东鹏500ml维生素功能饮（商）', cat: '饮料', col1: '16', col2: '16',
-                            col3: '新增', col3Cls: 'text-new' },
-                        { rank: '4', rankCls: 'silver', name: '雪花清爽啤酒', cat: '饮料', col1: '13', col2: '13', col3: '新增',
-                            col3Cls: 'text-new' }
-                    ],
-                    hasCol4: true
+        // 筛选排行榜
+        function filterRankItems(category) {
+            const items = document.querySelectorAll('.rank-item');
+            items.forEach(item => {
+                const catTag = item.querySelector('.cate-tag');
+                if (!catTag) return;
+                const cat = catTag.textContent;
+                if (category === '全部' || cat === category) {
+                    item.style.display = 'grid';
+                } else {
+                    item.style.display = 'none';
                 }
-            };
+            });
         }
 
-        // 全局 data 对象（会被 buildDataFromDB 填充）
-        let data = null;
+        // ============================================================
+        // 9. 商品管理页面
+        // ============================================================
+        function renderManagePage() {
+            pageTitle.textContent = '✏️ 商品管理';
+            iconMoney.classList.remove('active');
+            iconBox.classList.remove('active');
+            iconAI.classList.remove('active');
+            iconManage.classList.add('active');
+
+            statsContainer.innerHTML = `
+                <div class="stats-grid">
+                    <div class="stat-item"><span class="label">商品总数</span><span class="value">${products.length}种</span></div>
+                    <div class="stat-item"><span class="label">总营业额</span><span class="value">¥${dbData?.total_revenue || 0}</span></div>
+                    <div class="stat-item"><span class="label">总件数</span><span class="value">${dbData?.total_orders || 0}件</span></div>
+                    <div class="stat-item"><span class="label">客单价</span><span class="value">¥${Math.round(dbData?.avg_price || 0)}</span></div>
+                </div>
+            `;
+
+            const listHtml = products.map(p => `
+                <div class="info-line" style="margin-bottom:4px;">
+                    <span style="font-weight:600;font-size:12px;">${p.name}</span>
+                    <span style="font-size:11px;color:#6a7f9e;">${p.category}</span>
+                    <span style="font-size:12px;">¥${p.price} × ${p.qty}</span>
+                    <button class="del-btn" onclick="deleteProduct(${p.id})" style="font-size:16px;">✕</button>
+                </div>
+            `).join('');
+
+            scrollContent.innerHTML = `
+                <div class="ai-card">
+                    <h3>📦 商品列表 <span class="badge">${products.length}种</span></h3>
+                    <div style="margin-bottom:12px;">
+                        <button class="action-btn success" onclick="openAddModal()">➕ 新增商品</button>
+                        <button class="action-btn gold" onclick="refreshAll()">🔄 刷新数据</button>
+                    </div>
+                    <div style="max-height:400px;overflow-y:auto;">
+                        ${listHtml || '<p style="color:#6a7f9e;font-size:12px;">暂无商品，点击上方添加</p>'}
+                    </div>
+                </div>
+                <div class="ai-card">
+                    <h3>📊 实时汇总</h3>
+                    <div class="info-line"><span>总营业额</span><span class="fw-600">¥${dbData?.total_revenue || 0}</span></div>
+                    <div class="info-line"><span>总件数</span><span class="fw-600">${dbData?.total_orders || 0}件</span></div>
+                    <div class="info-line"><span>商品种类</span><span class="fw-600">${dbData?.total_products || 0}种</span></div>
+                    <div class="info-line"><span>客单价</span><span class="fw-600">¥${Math.round(dbData?.avg_price || 0)}</span></div>
+                    <div style="margin-top:8px;font-size:11px;color:#6a7f9e;">
+                        分类占比：${Object.entries(dbData?.category_data || {}).map(([k,v]) => `${k} ${v}%`).join(' · ')}
+                    </div>
+                </div>
+            `;
+        }
 
         // ============================================================
-        // 7. AI 复盘页面
+        // 10. AI 复盘页面
         // ============================================================
         function renderAIPage() {
             pageTitle.textContent = '🧠 AI 智能复盘';
             iconMoney.classList.remove('active');
             iconBox.classList.remove('active');
             iconAI.classList.add('active');
+            iconManage.classList.remove('active');
 
             const db = dbData || {};
             statsContainer.innerHTML = `
                 <div class="stats-grid">
-                    <div class="stat-item"><span class="label">本月营业额</span><span class="value">¥${db.total_revenue || 4566}</span></div>
-                    <div class="stat-item"><span class="label">成交商品</span><span class="value">${db.total_orders || 264}种</span></div>
-                    <div class="stat-item"><span class="label">到店人数</span><span class="value">${db.visitor_count || 311}人</span></div>
-                    <div class="stat-item"><span class="label">客单价</span><span class="value">¥${db.avg_price || 14}</span></div>
+                    <div class="stat-item"><span class="label">本月营业额</span><span class="value">¥${db.total_revenue || 0}</span></div>
+                    <div class="stat-item"><span class="label">成交商品</span><span class="value">${db.total_products || 0}种</span></div>
+                    <div class="stat-item"><span class="label">到店人数</span><span class="value">${db.visitor_count || 0}人</span></div>
+                    <div class="stat-item"><span class="label">客单价</span><span class="value">¥${Math.round(db.avg_price || 0)}</span></div>
                 </div>
             `;
 
@@ -1156,10 +1383,6 @@
             document.getElementById('askBtn').addEventListener('click', function() {
                 const q = document.getElementById('aiQuestion').value.trim();
                 if (!q) return;
-                if (!apiKey) {
-                    document.getElementById('qaResponse').innerHTML = '⚠️ 请先配置 API 密钥';
-                    return;
-                }
                 askAI(q, 'qaResponse');
             });
             document.getElementById('aiQuestion').addEventListener('keydown', function(e) {
@@ -1167,17 +1390,13 @@
             });
 
             window.triggerAI = function(type) {
-                if (!apiKey) {
-                    document.getElementById('aiResponse').innerHTML = '⚠️ 请先配置 API 密钥';
-                    return;
-                }
                 const db = dbData || {};
                 const prompts = {
-                    summary: `基于以下销售数据，写一份本月销售表现总结（100字以内）：营业额¥${db.total_revenue || 4566}，成交商品${db.total_orders || 264}种，到店人数${db.visitor_count || 311}人，客单价¥${db.avg_price || 14}。分类占比：${JSON.stringify(db.category_data || {})}。`,
+                    summary: `基于以下销售数据，写一份本月销售表现总结（100字以内）：营业额¥${db.total_revenue || 0}，成交商品${db.total_products || 0}种，到店人数${db.visitor_count || 0}人，客单价¥${Math.round(db.avg_price || 0)}。分类占比：${JSON.stringify(db.category_data || {})}。`,
                     lost: '基于以下数据，分析丢单主要原因（80字以内）：63%丢单客户实际表达的是"你不懂我"，39%说"价格不行"。老客户推荐转化率47%但团队80%精力在新客户。',
                     advice: '基于销售数据，给出3条具体可执行的改进建议（每条15字以内）。',
                     trend: '基于当前数据，预测下月营业额趋势和风险提示（60字以内）。',
-                    full: `请基于以下数据，生成一份完整的销售复盘报告（300字以内），包含：1.本月表现总结 2.丢单归因分析 3.改进建议 4.下月趋势预测。数据：营业额¥${db.total_revenue || 4566}，成交${db.total_orders || 264}种，到店${db.visitor_count || 311}人，客单价¥${db.avg_price || 14}。分类占比：${JSON.stringify(db.category_data || {})}。丢单分析：63%客户实际表达"你不懂我"，39%说"价格不行"。老客户推荐转化率47%，但80%精力在新客户。签约客户平均跟进7次，丢单客户平均跟进3次。`
+                    full: `请基于以下数据，生成一份完整的销售复盘报告（300字以内），包含：1.本月表现总结 2.丢单归因分析 3.改进建议 4.下月趋势预测。数据：营业额¥${db.total_revenue || 0}，成交${db.total_products || 0}种，到店${db.visitor_count || 0}人，客单价¥${Math.round(db.avg_price || 0)}。分类占比：${JSON.stringify(db.category_data || {})}。丢单分析：63%客户实际表达"你不懂我"，39%说"价格不行"。老客户推荐转化率47%，但80%精力在新客户。签约客户平均跟进7次，丢单客户平均跟进3次。`
                 };
                 const prompt = prompts[type] || prompts.full;
                 askAI(prompt, 'aiResponse');
@@ -1185,14 +1404,14 @@
         }
 
         // ============================================================
-        // 8. AI 调用核心 (DeepSeek)
+        // 11. AI 调用核心 (DeepSeek)
         // ============================================================
         async function askAI(prompt, targetId) {
             const el = document.getElementById(targetId);
             if (!el) return;
             if (isAILoading) return;
 
-            const key = apiKey || 'sk-d3c3759509594ada95fd20dc57066670';
+            const key = localStorage.getItem('deepseek_api_key') || 'sk-d3c3759509594ada95fd20dc57066670';
             if (!key) {
                 el.innerHTML = '⚠️ 请先配置 API 密钥';
                 return;
@@ -1236,15 +1455,11 @@
         }
 
         // ============================================================
-        // 9. 页面切换
+        // 12. 页面切换
         // ============================================================
         function switchPage(pageKey) {
             currentPage = pageKey;
-            if (pageKey === 'ai') {
-                renderAIPage();
-            } else {
-                renderPage(pageKey);
-            }
+            renderPage(pageKey);
             setTimeout(() => {
                 if (window._pieChartInstance) window._pieChartInstance.resize();
             }, 100);
@@ -1253,51 +1468,29 @@
         iconMoney.addEventListener('click', () => { if (currentPage !== 'turnover') switchPage('turnover'); });
         iconBox.addEventListener('click', () => { if (currentPage !== 'sale') switchPage('sale'); });
         iconAI.addEventListener('click', () => { if (currentPage !== 'ai') switchPage('ai'); });
-
-        document.addEventListener('click', function(e) {
-            const tab = e.target.closest('.tab-item');
-            if (tab) {
-                tab.closest('.tab-group').querySelectorAll('.tab-item')
-                    .forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-            }
-        });
+        iconManage.addEventListener('click', () => { if (currentPage !== 'manage') switchPage('manage'); });
 
         // ============================================================
-        // 10. 启动 - 从 Supabase 加载数据
+        // 13. 启动
         // ============================================================
         async function init() {
-            // 加载数据
-            dbData = await loadDataFromSupabase();
-
-            if (!dbData) {
+            await loadData();
+            const built = buildDataFromDB(dbData, products);
+            if (built) {
+                data = built;
+                renderPage('turnover');
+            } else {
                 statsContainer.innerHTML = `
                     <div style="text-align:center;padding:20px;color:#e74c3c;font-size:13px;">
                         ⚠️ 数据加载失败<br>
-                        <span style="font-size:11px;color:#6a7f9e;">请检查 Supabase 配置或数据表是否已创建</span>
+                        <span style="font-size:11px;color:#6a7f9e;">请检查 Supabase 配置</span>
                     </div>
                 `;
-                scrollContent.innerHTML = `
-                    <div style="text-align:center;padding:40px 20px;color:#6a7f9e;font-size:13px;">
-                        暂无数据，请先在 Supabase 中插入数据
-                    </div>
-                `;
-                return;
-            }
-
-            // 构建 data 对象
-            const built = buildDataFromDB(dbData);
-            if (built) {
-                data = built;
-                // 渲染默认页面
-                renderPage('turnover');
             }
         }
 
-        // 执行初始化
         init();
 
-        // 窗口自适应
         let resizeTimer;
         window.addEventListener('resize', function() {
             clearTimeout(resizeTimer);
