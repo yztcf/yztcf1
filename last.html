@@ -89,6 +89,7 @@
             transform: scale(0.92);
         }
         .header-row .date-selector {
+            position: relative;
             display: flex;
             align-items: center;
             gap: 2px;
@@ -101,6 +102,7 @@
             border: 1px solid #e6eaf2;
             margin-left: auto;
             flex-shrink: 0;
+            cursor: pointer;
         }
         .header-row .date-selector input[type="date"] {
             border: none;
@@ -116,6 +118,26 @@
         .header-row .date-selector input[type="date"]::-webkit-calendar-picker-indicator {
             opacity: 0.5;
             cursor: pointer;
+        }
+        /* 自定义日历标记 */
+        .date-selector .dot-marker {
+            position: absolute;
+            bottom: 2px;
+            right: 6px;
+            display: flex;
+            gap: 2px;
+        }
+        .date-selector .dot-marker span {
+            display: inline-block;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #1a3a6b;
+            opacity: 0.4;
+        }
+        .date-selector .dot-marker span.has-data {
+            opacity: 1;
+            background: #1a3a6b;
         }
         .stats-section {
             flex-shrink: 0;
@@ -465,7 +487,6 @@
         .fw-600 {
             font-weight: 600;
         }
-
         .action-bar {
             display: flex;
             gap: 5px;
@@ -494,7 +515,6 @@
         .action-btn.gold {
             background: #b8782a;
         }
-
         .modal-mask {
             position: fixed;
             left: 0;
@@ -581,7 +601,6 @@
                 transform: rotate(360deg);
             }
         }
-
         .manage-table {
             display: table;
             width: 100%;
@@ -631,7 +650,6 @@
         .manage-cell.del button:active {
             transform: scale(0.85);
         }
-
         .ai-card {
             background: #ffffff;
             border-radius: 14px;
@@ -746,7 +764,6 @@
             border-radius: 50%;
             animation: spin 0.7s linear infinite;
         }
-
         @media (max-width: 420px) {
             body {
                 padding: 4px;
@@ -902,9 +919,10 @@
                     <button class="icon-btn" data-page="page-ai" id="iconAI">🧠</button>
                     <button class="icon-btn" data-page="page-manage" id="iconManage">✏️</button>
                 </div>
-                <div class="date-selector">
+                <div class="date-selector" id="dateSelector">
                     📅
                     <input type="date" id="datePicker">
+                    <span class="dot-marker" id="dotMarker"></span>
                 </div>
             </div>
 
@@ -967,6 +985,7 @@
         let currentProducts = [];
         let currentReport = null;
         let isSearchMode = false;
+        let datesWithData = [];
 
         // ============================================================
         // 2. DOM 引用
@@ -981,6 +1000,7 @@
         const datePicker = document.getElementById('datePicker');
         const searchInput = document.getElementById('searchInput');
         const searchBtn = document.getElementById('searchBtn');
+        const dotMarker = document.getElementById('dotMarker');
 
         // ============================================================
         // 3. 工具函数
@@ -1094,10 +1114,17 @@
         }
 
         // ============================================================
-        // 6. 数据刷新（按本日/本周/本月/自定义日期）
+        // 6. 数据刷新
         // ============================================================
         async function refreshData() {
             allProducts = await loadAllProducts();
+
+            // 获取有数据的日期列表
+            const dateSet = new Set(allProducts.map(p => p.report_date));
+            datesWithData = Array.from(dateSet).sort();
+
+            // 更新日期标记
+            updateDotMarker();
 
             let filtered = [];
             let queryDate = '';
@@ -1142,7 +1169,33 @@
         }
 
         // ============================================================
-        // 7. CRUD
+        // 7. 日期标记
+        // ============================================================
+        function updateDotMarker() {
+            const val = datePicker.value;
+            if (!val) return;
+            const hasData = datesWithData.includes(val);
+            dotMarker.innerHTML = hasData ? '<span class="has-data"></span>' : '<span></span>';
+        }
+
+        // 监听日期变化，更新标记
+        datePicker.addEventListener('change', function() {
+            selectedDate = this.value;
+            updateDotMarker();
+            if (selectedDate) {
+                document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+                currentPeriod = 'custom';
+                refreshData();
+            } else {
+                selectedDate = '';
+                document.querySelector('.tab-item[data-period="today"]')?.classList.add('active');
+                currentPeriod = 'today';
+                refreshData();
+            }
+        });
+
+        // ============================================================
+        // 8. CRUD
         // ============================================================
         async function addProduct(name, category, price, qty) {
             if (!name || !category || !price || !qty) {
@@ -1177,7 +1230,7 @@
         }
 
         // ============================================================
-        // 8. 弹窗
+        // 9. 弹窗
         // ============================================================
         function openAddModal() { document.getElementById('addModal').style.display = 'flex'; }
 
@@ -1204,7 +1257,7 @@
         window.deleteProduct = deleteProduct;
 
         // ============================================================
-        // 9. 搜索
+        // 10. 搜索
         // ============================================================
         function performSearch() {
             const keyword = searchInput.value.trim();
@@ -1232,7 +1285,7 @@
         }
 
         // ============================================================
-        // 10. 构建展示数据
+        // 11. 构建展示数据
         // ============================================================
         function buildTurnoverData() {
             if (!currentReport) return null;
@@ -1290,8 +1343,8 @@
             return {
                 title: '📦 售出商品数',
                 stats: [
-                    { label: '本月售出', value: `${r.total_orders || 0}件` },
-                    { label: '本月累计', value: `${r.total_orders || 0}件` },
+                    { label: '本月售出', value: `¥${r.total_revenue || 0}` },
+                    { label: '本月累计', value: `¥${r.total_revenue || 0}` },
                     { label: '较昨日', value: '+41', cls: 'trend-up' },
                     { label: '本月日均', value: `${Math.round((r.total_orders || 0) / 3)}件` }
                 ],
@@ -1327,7 +1380,7 @@
         }
 
         // ============================================================
-        // 11. 渲染核心
+        // 12. 渲染核心
         // ============================================================
         function renderPage(pageKey) {
             if (pageKey === 'ai') { renderAIPage(); return; }
@@ -1474,7 +1527,7 @@
         }
 
         // ============================================================
-        // 12. 商品管理
+        // 13. 商品管理
         // ============================================================
         function renderManagePage() {
             pageTitle.textContent = '✏️ 商品管理';
@@ -1527,7 +1580,7 @@
         }
 
         // ============================================================
-        // 13. AI
+        // 14. AI
         // ============================================================
         function renderAIPage() {
             pageTitle.textContent = '🧠 AI 智能复盘';
@@ -1627,13 +1680,11 @@
         }
 
         // ============================================================
-        // 14. 切换页面（修复）
+        // 15. 切换页面
         // ============================================================
         function switchPage(pageKey) {
             currentPage = pageKey;
-            // 清除所有 active
             document.querySelectorAll('.icon-btn').forEach(b => b.classList.remove('active'));
-            // 激活当前按钮
             const btnMap = {
                 'page-turnover': iconMoney,
                 'page-sale': iconBox,
@@ -1651,23 +1702,6 @@
         iconBox.addEventListener('click', () => switchPage('page-sale'));
         iconAI.addEventListener('click', () => switchPage('page-ai'));
         iconManage.addEventListener('click', () => switchPage('page-manage'));
-
-        // ============================================================
-        // 15. 日期选择
-        // ============================================================
-        datePicker.addEventListener('change', function() {
-            selectedDate = this.value;
-            if (selectedDate) {
-                document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-                currentPeriod = 'custom';
-                refreshData();
-            } else {
-                selectedDate = '';
-                document.querySelector('.tab-item[data-period="today"]')?.classList.add('active');
-                currentPeriod = 'today';
-                refreshData();
-            }
-        });
 
         // ============================================================
         // 16. 本日/本周/本月
