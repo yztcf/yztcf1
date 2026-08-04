@@ -582,7 +582,6 @@
             }
         }
 
-        /* ===== 商品管理 - 表格对齐 ===== */
         .manage-table {
             display: table;
             width: 100%;
@@ -897,7 +896,7 @@
         <div class="app-header">
             <div class="header-row">
                 <h1 id="pageTitle">深莞 · 销售智脑</h1>
-                <div class="icon-switch">
+                <div class="icon-switch" id="iconSwitch">
                     <button class="icon-btn active" data-page="page-turnover" id="iconMoney">💰</button>
                     <button class="icon-btn" data-page="page-sale" id="iconBox">📦</button>
                     <button class="icon-btn" data-page="page-ai" id="iconAI">🧠</button>
@@ -920,8 +919,8 @@
                     <button class="search-btn" id="searchBtn">▶</button>
                 </div>
                 <div class="tab-group" id="timeTabs">
-                    <button class="tab-item active" data-period="today">今日</button>
-                    <button class="tab-item" data-period="week">周期</button>
+                    <button class="tab-item active" data-period="today">本日</button>
+                    <button class="tab-item" data-period="week">本周</button>
                     <button class="tab-item" data-period="month">本月</button>
                 </div>
             </div>
@@ -984,7 +983,7 @@
         const searchBtn = document.getElementById('searchBtn');
 
         // ============================================================
-        // 3. 日期工具
+        // 3. 工具函数
         // ============================================================
         function getToday() {
             const d = new Date();
@@ -1003,12 +1002,6 @@
             const d = new Date();
             d.setDate(1);
             return d.toISOString().split('T')[0];
-        }
-
-        function formatDateDisplay(dateStr) {
-            if (!dateStr) return '';
-            const d = new Date(dateStr + 'T00:00:00');
-            return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
         }
 
         // ============================================================
@@ -1033,6 +1026,9 @@
             return data?.[0] || null;
         }
 
+        // ============================================================
+        // 5. 核心计算（按商品名称合并）
+        // ============================================================
         function calculateReport(products, report) {
             if (!products || products.length === 0) {
                 return {
@@ -1046,15 +1042,27 @@
                 };
             }
 
+            // 按商品名称合并
+            const productMap = {};
+            products.forEach(p => {
+                const key = p.name;
+                if (!productMap[key]) {
+                    productMap[key] = { name: p.name, category: p.category, totalRevenue: 0, totalQty: 0, ids: [] };
+                }
+                productMap[key].totalRevenue += p.price * p.qty;
+                productMap[key].totalQty += p.qty;
+                productMap[key].ids.push(p.id);
+            });
+
+            const aggregated = Object.values(productMap);
+
             let totalRevenue = 0,
                 totalQty = 0;
             const catMap = {};
-
-            products.forEach(p => {
-                const rev = p.price * p.qty;
-                totalRevenue += rev;
-                totalQty += p.qty;
-                catMap[p.category] = (catMap[p.category] || 0) + rev;
+            aggregated.forEach(p => {
+                totalRevenue += p.totalRevenue;
+                totalQty += p.totalQty;
+                catMap[p.category] = (catMap[p.category] || 0) + p.totalRevenue;
             });
 
             const categoryData = {};
@@ -1062,14 +1070,14 @@
                 categoryData[cat] = totalRevenue > 0 ? Math.round((catMap[cat] / totalRevenue) * 100) : 0;
             });
 
-            const sorted = [...products].sort((a, b) => (b.price * b.qty) - (a.price * a.qty));
+            const sorted = [...aggregated].sort((a, b) => b.totalRevenue - a.totalRevenue);
             const rankData = sorted.map((p, i) => ({
                 rank: i + 1,
                 name: p.name,
                 category: p.category,
-                revenue: Math.round(p.price * p.qty * 100) / 100,
-                qty: p.qty,
-                id: p.id
+                revenue: Math.round(p.totalRevenue * 100) / 100,
+                qty: p.totalQty,
+                id: p.ids[0]
             }));
 
             const avgPrice = totalQty > 0 ? Math.round((totalRevenue / totalQty) * 100) / 100 : 0;
@@ -1077,7 +1085,7 @@
             return {
                 total_revenue: Math.round(totalRevenue * 100) / 100,
                 total_orders: totalQty,
-                total_products: products.length,
+                total_products: aggregated.length,
                 avg_price: avgPrice,
                 visitor_count: report?.visitor_count || 0,
                 category_data: categoryData,
@@ -1086,20 +1094,18 @@
         }
 
         // ============================================================
-        // 5. 数据刷新（关键：根据当前选中的日期/周期过滤）
+        // 6. 数据刷新（按本日/本周/本月/自定义日期）
         // ============================================================
         async function refreshData() {
             allProducts = await loadAllProducts();
 
-            let queryDate = '';
             let filtered = [];
+            let queryDate = '';
 
             if (selectedDate) {
-                // 用户选了具体日期
                 queryDate = selectedDate;
                 filtered = allProducts.filter(p => p.report_date === queryDate);
             } else {
-                // 根据 currentPeriod 过滤
                 const today = getToday();
                 const weekStart = getWeekStart();
                 const monthStart = getMonthStart();
@@ -1124,14 +1130,10 @@
             }
 
             currentProducts = filtered;
-
-            // 加载该日期的报表（visitor_count）
             const reportDate = selectedDate || getToday();
             const report = await loadReport(reportDate);
-
             currentReport = calculateReport(currentProducts, report);
 
-            // 更新日期选择器
             if (!selectedDate) {
                 datePicker.value = getToday();
             }
@@ -1140,32 +1142,25 @@
         }
 
         // ============================================================
-        // 6. CRUD 操作
+        // 7. CRUD
         // ============================================================
         async function addProduct(name, category, price, qty) {
             if (!name || !category || !price || !qty) {
                 alert('请填写完整信息');
                 return false;
             }
-
             const today = getToday();
-
             const { error: insertError } = await supabaseClient
                 .from('products')
                 .insert([{ name, category, price: parseFloat(price), qty: parseInt(qty), report_date: today }]);
-
             if (insertError) { alert('添加失败: ' + insertError.message); return false; }
 
-            // 更新 visitor_count +1
             const { data: existing } = await supabaseClient
                 .from('monthly_reports')
                 .select('visitor_count')
                 .eq('report_date', today)
                 .limit(1);
-
-            const currentCount = existing?.[0]?.visitor_count || 0;
-            const newCount = currentCount + 1;
-
+            const newCount = (existing?.[0]?.visitor_count || 0) + 1;
             await supabaseClient
                 .from('monthly_reports')
                 .upsert({ report_date: today, visitor_count: newCount }, { onConflict: 'report_date' });
@@ -1182,7 +1177,7 @@
         }
 
         // ============================================================
-        // 7. 弹窗控制
+        // 8. 弹窗
         // ============================================================
         function openAddModal() { document.getElementById('addModal').style.display = 'flex'; }
 
@@ -1209,15 +1204,12 @@
         window.deleteProduct = deleteProduct;
 
         // ============================================================
-        // 8. 搜索功能（完整版）
+        // 9. 搜索
         // ============================================================
         function performSearch() {
             const keyword = searchInput.value.trim();
-            if (!keyword) {
-                isSearchMode = false;
-                refreshData();
-                return;
-            }
+            if (!keyword) { isSearchMode = false;
+                refreshData(); return; }
 
             const results = allProducts.filter(p =>
                 p.name.includes(keyword) ||
@@ -1240,7 +1232,7 @@
         }
 
         // ============================================================
-        // 9. 构建展示数据
+        // 10. 构建展示数据
         // ============================================================
         function buildTurnoverData() {
             if (!currentReport) return null;
@@ -1335,7 +1327,7 @@
         }
 
         // ============================================================
-        // 10. 渲染核心
+        // 11. 渲染核心
         // ============================================================
         function renderPage(pageKey) {
             if (pageKey === 'ai') { renderAIPage(); return; }
@@ -1353,7 +1345,7 @@
                 scrollContent.innerHTML = `
                     <div style="text-align:center;padding:30px 16px;color:#6a7f9e;font-size:12px;">
                         📭 当前时间段暂无数据<br>
-                        <span style="font-size:10px;">请切换"今日/周期/本月"或添加商品</span>
+                        <span style="font-size:10px;">请切换"本日/本周/本月"或添加商品</span>
                     </div>
                 `;
                 return;
@@ -1471,23 +1463,18 @@
                     document.querySelectorAll('.filter-group .filter-btn').forEach(b => b.classList.remove('active'));
                     this.classList.add('active');
                     const cat = this.dataset.cat;
-                    const items = document.querySelectorAll('.rank-item');
-                    items.forEach(item => {
+                    document.querySelectorAll('.rank-item').forEach(item => {
                         const catTag = item.querySelector('.cate-tag');
                         if (!catTag) return;
                         const c = catTag.textContent;
-                        if (cat === '全部' || c === cat) {
-                            item.style.display = 'grid';
-                        } else {
-                            item.style.display = 'none';
-                        }
+                        item.style.display = (cat === '全部' || c === cat) ? 'grid' : 'none';
                     });
                 });
             });
         }
 
         // ============================================================
-        // 11. 商品管理（对齐版）
+        // 12. 商品管理
         // ============================================================
         function renderManagePage() {
             pageTitle.textContent = '✏️ 商品管理';
@@ -1540,7 +1527,7 @@
         }
 
         // ============================================================
-        // 12. AI 页面
+        // 13. AI
         // ============================================================
         function renderAIPage() {
             pageTitle.textContent = '🧠 AI 智能复盘';
@@ -1640,27 +1627,33 @@
         }
 
         // ============================================================
-        // 13. 页面切换
+        // 14. 切换页面（修复）
         // ============================================================
         function switchPage(pageKey) {
             currentPage = pageKey;
-            if (pageKey === 'manage' || pageKey === 'ai') {
-                isSearchMode = false;
-                searchInput.value = '';
-                refreshData();
-                return;
-            }
-            renderPage(pageKey);
-            setTimeout(() => { if (window._pieChartInstance) window._pieChartInstance.resize(); }, 100);
+            // 清除所有 active
+            document.querySelectorAll('.icon-btn').forEach(b => b.classList.remove('active'));
+            // 激活当前按钮
+            const btnMap = {
+                'page-turnover': iconMoney,
+                'page-sale': iconBox,
+                'page-ai': iconAI,
+                'page-manage': iconManage
+            };
+            if (btnMap[pageKey]) btnMap[pageKey].classList.add('active');
+
+            isSearchMode = false;
+            searchInput.value = '';
+            refreshData();
         }
 
-        iconMoney.addEventListener('click', () => { if (currentPage !== 'turnover') switchPage('turnover'); });
-        iconBox.addEventListener('click', () => { if (currentPage !== 'sale') switchPage('sale'); });
-        iconAI.addEventListener('click', () => { if (currentPage !== 'ai') switchPage('ai'); });
-        iconManage.addEventListener('click', () => { if (currentPage !== 'manage') switchPage('manage'); });
+        iconMoney.addEventListener('click', () => switchPage('page-turnover'));
+        iconBox.addEventListener('click', () => switchPage('page-sale'));
+        iconAI.addEventListener('click', () => switchPage('page-ai'));
+        iconManage.addEventListener('click', () => switchPage('page-manage'));
 
         // ============================================================
-        // 14. 日期选择器
+        // 15. 日期选择
         // ============================================================
         datePicker.addEventListener('change', function() {
             selectedDate = this.value;
@@ -1677,7 +1670,7 @@
         });
 
         // ============================================================
-        // 15. 时间Tab切换
+        // 16. 本日/本周/本月
         // ============================================================
         document.querySelectorAll('.tab-item').forEach(tab => {
             tab.addEventListener('click', function() {
@@ -1693,7 +1686,7 @@
         });
 
         // ============================================================
-        // 16. 搜索事件
+        // 17. 搜索
         // ============================================================
         searchBtn.addEventListener('click', performSearch);
         searchInput.addEventListener('keydown', function(e) {
@@ -1702,11 +1695,10 @@
         });
 
         // ============================================================
-        // 17. 启动
+        // 18. 启动
         // ============================================================
         async function init() {
-            const today = getToday();
-            datePicker.value = today;
+            datePicker.value = getToday();
             await refreshData();
         }
         init();
