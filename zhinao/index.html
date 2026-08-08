@@ -1327,7 +1327,7 @@
             const colors = ['#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6', '#95a5a6'];
 
             return {
-                title: '💰 营业额',
+                title: '💰 营业总额',
                 stats: [
                     { label: '本月营业额', value: `¥${r.total_revenue || 0}` },
                     { label: '本月累计', value: `¥${r.total_revenue || 0}` },
@@ -1378,7 +1378,7 @@
             const uniqueProducts = new Set(currentProducts.map(p => p.name)).size;
 
             return {
-                title: '📦 售出商品数',
+                title: '📦 售出总数',
                 stats: [
                     { label: '本月售出', value: `¥${r.total_revenue || 0}` },
                     { label: '商品总数', value: `${uniqueProducts}种` },
@@ -1600,7 +1600,7 @@
         // 15. AI
         // ============================================================
         function renderAIPage() {
-            pageTitle.textContent = '🧠 AI 智能复盘';
+            pageTitle.textContent = '🧠 AI 复盘';
             iconMoney.classList.remove('active');
             iconBox.classList.remove('active');
             iconAI.classList.add('active');
