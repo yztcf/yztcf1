@@ -48,43 +48,46 @@
 
     .toast{position:fixed;left:50%;top:24px;z-index:40;transform:translate(-50%,-20px);background:var(--ink);color:var(--paper);padding:11px 18px;border-radius:999px;font-size:12px;font-weight:700;opacity:0;transition:.25s;pointer-events:none}.toast.show{opacity:1;transform:translate(-50%,0)}
     .webgl-fallback{position:fixed;inset:0;z-index:50;display:none;place-items:center;padding:30px;background:var(--paper);text-align:center}.webgl-fallback.show{display:grid}
-    @media(max-width:1180px){.hud{grid-template-columns:1fr auto;grid-template-rows:auto 1fr auto}.brand{grid-column:1}.score-panel{grid-column:1;max-width:275px}.log-panel{display:none}.turn-dock{grid-column:1/3;min-width:0;width:100%;justify-content:center}.turn-copy{min-width:0;flex:1}.setup-grid{grid-template-columns:1fr}.characters{grid-template-columns:repeat(3,1fr)}}
     
-    /* ===== 手机端（竖屏）全面缩小 ===== */
+    /* ===== 平板/中等屏幕 ===== */
+    @media(max-width:1180px){
+      .hud{grid-template-columns:1fr auto;grid-template-rows:auto 1fr auto}
+      .brand{grid-column:1}
+      .score-panel{grid-column:1;max-width:275px}
+      .log-panel{display:none}
+      .turn-dock{grid-column:1/3;min-width:0;width:100%;justify-content:center}
+      .turn-copy{min-width:0;flex:1}
+      .setup-grid{grid-template-columns:1fr}
+      .characters{grid-template-columns:repeat(3,1fr)}
+    }
+    
+    /* ===== 手机竖屏 ===== */
     @media(max-width:620px){
-      :root {
-        --shadow:0 8px 28px rgba(15,45,38,.18);
-      }
+      :root{--shadow:0 8px 28px rgba(15,45,38,.18)}
       .hud{padding:6px;gap:4px;grid-template-columns:1fr;grid-template-rows:auto auto 1fr auto auto}
       .brand{grid-column:1;grid-row:1;padding:6px 10px;border-radius:12px;gap:8px}
       .brand-mark{width:28px;height:28px;border-radius:10px;font-size:14px}
       .brand h1{font-size:13px;letter-spacing:.04em}
       .brand p{display:none}
-      
       .score-panel{grid-column:1;grid-row:2;padding:6px 8px;border-radius:12px;max-width:none;width:100%}
       .panel-title{font-size:9px;margin-bottom:4px}
       .panel-title .stage-chip{font-size:8px;padding:2px 6px}
-      
       #players{display:grid;grid-template-columns:1fr 1fr;gap:3px}
       .player-row{grid-template-columns:22px 1fr auto;gap:4px;padding:4px 6px;border-radius:8px}
       .avatar{width:22px;height:22px;border-radius:6px}
       .player-name{font-size:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
       .player-meta{display:none}
       .money{font-size:8px;line-height:1}
-      
       .cell-card{grid-column:1;grid-row:3;position:fixed;left:6px;right:6px;bottom:62px;min-width:0;max-width:none;padding:5px 10px;gap:6px;border-radius:12px}
       .cell-seal{width:22px;height:22px;border-radius:8px;font-size:11px}
       .cell-kicker{font-size:6px}
       .cell-name{font-size:11px;font-weight:700}
       .cell-detail{font-size:8px;margin-top:1px}
-      
       .turn-dock{grid-column:1;grid-row:5;position:fixed;left:6px;right:6px;bottom:max(6px,env(safe-area-inset-bottom));width:auto;min-width:0;padding:4px 6px;border-radius:14px;gap:4px;justify-content:space-between;flex-wrap:nowrap}
       .turn-copy{padding:0 2px;min-width:0;flex:1}
       .turn-kicker{display:none}
       .turn-name{font-size:9px;font-weight:700;margin-top:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-      
       .dice-readout{width:28px;height:28px;border-radius:8px;font-size:14px;flex:0 0 28px}
-      
       .action{padding:5px 6px;font-size:8px;border-radius:10px}
       .action:hover:not(:disabled){transform:none}
       #helpBtn{display:none}
@@ -94,10 +97,8 @@
       #cameraBtn::after{content:'全';font-size:9px;font-weight:900}
       #rollBtn{padding:5px 8px;flex:0 0 44px;font-size:8px}
       #endBtn{padding:5px 8px;flex:0 0 44px;font-size:8px;display:inline-flex!important}
-      
       .log-panel{display:none}
       .camera-help{display:none}
-      
       .start-card{padding:16px 14px;border-radius:20px}
       .start-card h2{font-size:clamp(22px,6vw,32px)}
       .start-card h2 span{display:block}
@@ -112,29 +113,85 @@
       .field select{padding:6px 8px;font-size:11px}
       .launch{padding:10px 14px;font-size:13px}
       .license-note{font-size:8px}
-      
       .modal{padding:16px;border-radius:18px}
       .modal h3{font-size:18px}
       .modal p{font-size:12px;line-height:1.6}
       .modal .action{padding:8px 14px;font-size:11px}
-      
       .toast{top:10px;padding:6px 12px;font-size:10px}
     }
     
-    /* ===== 横屏手机/小平板 ===== */
-    @media(max-width:820px) and (orientation:landscape){
-      .hud{grid-template-columns:1fr 1fr;grid-template-rows:auto 1fr auto}
-      .brand{grid-column:1;padding:8px 14px}
-      .brand h1{font-size:16px}
-      .brand p{font-size:9px}
-      .score-panel{grid-column:1;grid-row:2;padding:8px}
-      #players{grid-template-columns:1fr 1fr;gap:3px}
-      .player-row{grid-template-columns:28px 1fr auto;padding:4px 6px}
-      .avatar{width:28px;height:28px}
-      .player-name{font-size:9px}
-      .turn-dock{grid-column:2;grid-row:3;padding:6px 10px;min-width:0}
-      .cell-card{grid-column:2;grid-row:2;padding:8px 12px;min-width:0}
+    /* ===== 手机横屏 - 核心优化 ===== */
+    @media(max-width:900px) and (orientation:landscape){
+      /* 隐藏标题 */
+      .brand h1{display:none}
+      .brand p{display:none}
+      .brand{grid-column:1;padding:4px 8px;border-radius:10px;gap:4px}
+      .brand-mark{width:20px;height:20px;border-radius:6px;font-size:10px}
+      
+      /* 整体布局改为右侧操作区 */
+      .hud{grid-template-columns:1fr auto;grid-template-rows:auto 1fr auto;gap:4px;padding:4px}
+      
+      /* 玩家面板缩小 */
+      .score-panel{grid-column:1;grid-row:1/3;padding:4px 6px;border-radius:10px;max-width:none}
+      .panel-title{font-size:7px;margin-bottom:2px}
+      .panel-title .stage-chip{font-size:6px;padding:1px 4px}
+      #players{grid-template-columns:1fr;gap:2px}
+      .player-row{grid-template-columns:16px 1fr auto;gap:3px;padding:2px 4px;border-radius:5px}
+      .avatar{width:16px;height:16px;border-radius:4px}
+      .player-name{font-size:7px}
+      .player-meta{display:none}
+      .money{font-size:7px}
+      
+      /* 顶部节点卡片移到左下 */
+      .cell-card{grid-column:1;grid-row:3;position:fixed;left:4px;bottom:52px;right:auto;min-width:0;max-width:180px;padding:3px 6px;gap:4px;border-radius:8px}
+      .cell-seal{width:16px;height:16px;border-radius:5px;font-size:8px}
+      .cell-kicker{font-size:5px}
+      .cell-name{font-size:9px;font-weight:700}
+      .cell-detail{font-size:6px;margin-top:0}
+      
+      /* 右侧操作栏 - 竖排小按钮 */
+      .turn-dock{grid-column:2;grid-row:1/4;position:fixed;right:4px;top:50%;transform:translateY(-50%);left:auto;bottom:auto;width:auto;min-width:0;padding:4px 3px;border-radius:12px;flex-direction:column;gap:3px;justify-content:center;align-items:center;background:rgba(255,244,216,.88)}
+      .turn-copy{display:none}
+      .turn-kicker{display:none}
+      .turn-name{display:none}
+      .dice-readout{width:22px;height:22px;border-radius:6px;font-size:11px;flex:0 0 22px}
+      
+      .action{padding:3px 4px;font-size:6px;border-radius:6px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;flex:0 0 28px}
+      .action:hover:not(:disabled){transform:none}
+      
+      #helpBtn{display:none}
+      #assetsBtn,#skillBtn,#cameraBtn{width:28px;height:28px;padding:0;font-size:0;flex:0 0 28px;border-radius:6px}
+      #assetsBtn::after{content:'资';font-size:8px;font-weight:900}
+      #skillBtn::after{content:'技';font-size:8px;font-weight:900}
+      #cameraBtn::after{content:'全';font-size:8px;font-weight:900}
+      #rollBtn{width:28px;height:28px;flex:0 0 28px;padding:0;font-size:0;border-radius:6px}
+      #rollBtn::after{content:'掷';font-size:8px;font-weight:900}
+      #endBtn{width:28px;height:28px;flex:0 0 28px;padding:0;font-size:0;border-radius:6px;display:flex!important}
+      #endBtn::after{content:'结';font-size:8px;font-weight:900}
+      
       .log-panel{display:none}
+      .camera-help{display:none}
+    }
+    
+    /* ===== 手机横屏 - 启动页面缩小到一页 ===== */
+    @media(max-width:900px) and (orientation:landscape){
+      .start-screen{padding:6px}
+      .start-card{padding:8px 10px;border-radius:14px;max-height:98vh;width:min(600px,98vw)}
+      .start-card h2{font-size:clamp(16px,3vw,24px);margin:4px 0 6px}
+      .start-card h2 span{display:inline}
+      .setup-grid{grid-template-columns:1fr 1.2fr;gap:8px}
+      .label{font-size:8px;margin-bottom:2px}
+      .characters{grid-template-columns:repeat(3,1fr);gap:3px}
+      .character{padding:3px 4px;border-radius:8px}
+      .character img{height:24px}
+      .character strong{font-size:8px}
+      .character small{font-size:6px;margin-top:0}
+      .setup-side{gap:6px}
+      .field{padding:4px 6px;border-radius:8px}
+      .field select{padding:3px 5px;font-size:9px}
+      .launch{padding:5px 10px;font-size:11px}
+      .license-note{font-size:6px}
+      .start-card:before{inset:6px;border-radius:12px}
     }
     
     @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
@@ -147,52 +204,59 @@
   <canvas id="gameCanvas" aria-label="LLM‑Agent仿真沙盒"></canvas><div class="grain"></div>
   <section class="start-screen" id="startScreen">
     <div class="start-card">
-      <h2>LLM‑Agent 分层架构验证原型 <span>3D仿真沙盒</span></h2>
+      <h2>LLM‑Agent <span>3D仿真沙盒</span></h2>
       <div class="setup-grid">
-        <div><div class="label">选择智能体实例</div><div class="characters" id="characterGrid"></div></div>
+        <div><div class="label">选择智能体</div><div class="characters" id="characterGrid"></div></div>
         <div class="setup-side">
-          <div class="field" style="display:none"><div class="label">运行模式</div><select id="gameMode"><option value="ai" selected>本机对抗规则Agent</option><option value="local">多实例手动调度</option></select></div>
-          <div class="field" style="display:none"><div class="label" id="playerCountLabel">仿真对手实例</div><select id="aiCount"><option value="1">1 个 · 简易</option><option value="2" selected>2 个 · 标准</option><option value="3">3 个 · 复杂博弈</option></select></div>
-          <div class="field" id="difficultyField" style="display:none"><div class="label">Agent策略等级</div><select id="aiDifficulty"><option value="easy">保守</option><option value="normal" selected>均衡</option><option value="hard">激进</option></select></div>
-          <div class="field" style="display:none"><div class="label">渲染画质</div><select id="quality"><option value="auto" selected>自动侦测</option><option value="high">高画质</option><option value="low">效能优先</option></select></div>
-          <div class="field" style="display:none"><div class="label">仿真速度</div><select id="speed"><option value="1" selected>标准</option><option value="1.6">快速</option><option value="2.2">极速</option></select></div>
-          <div class="field" style="display:none"><div class="label">音效音量</div><input id="volume" type="range" min="0" max="100" value="55" aria-label="音效音量"></div>
-          <div class="field" style="display:none"><div class="label">目标资源阈值</div><select id="winGoal"><option value="1500">1500 · 短仿真</option><option value="2500" selected>2500 · 标准仿真</option><option value="4000">4000 · 长仿真</option><option value="6000">6000 · 马拉松仿真</option></select><div class="license-note">实例总资源率先到达阈值即判定完成；资源耗尽实例自动终止。</div></div>
-          <button class="action primary launch" id="startBtn">启动仿真沙盒</button>
-          <button class="action secondary launch" id="continueBtn" hidden>恢复仿真快照</button>
+          <div class="field" style="display:none"><div class="label">模式</div><select id="gameMode"><option value="ai" selected>规则Agent</option><option value="local">手动调度</option></select></div>
+          <div class="field" style="display:none"><div class="label" id="playerCountLabel">对手</div><select id="aiCount"><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option></select></div>
+          <div class="field" id="difficultyField" style="display:none"><div class="label">策略</div><select id="aiDifficulty"><option value="easy">保守</option><option value="normal" selected>均衡</option><option value="hard">激进</option></select></div>
+          <div class="field" style="display:none"><div class="label">画质</div><select id="quality"><option value="auto" selected>自动</option><option value="high">高</option><option value="low">效能</option></select></div>
+          <div class="field" style="display:none"><div class="label">速度</div><select id="speed"><option value="1" selected>标准</option><option value="1.6">快速</option><option value="2.2">极速</option></select></div>
+          <div class="field" style="display:none"><div class="label">音量</div><input id="volume" type="range" min="0" max="100" value="55"></div>
+          <div class="field" style="display:none"><div class="label">阈值</div><select id="winGoal"><option value="1500">1500</option><option value="2500" selected>2500</option><option value="4000">4000</option><option value="6000">6000</option></select></div>
+          <button class="action primary launch" id="startBtn">启动</button>
+          <button class="action secondary launch" id="continueBtn" hidden>恢复</button>
         </div>
       </div>
     </div>
   </section>
   <main class="hud" id="hud" hidden>
     <header class="brand"><div class="brand-mark">hi</div><div><h1>Agent 3D仿真沙盒</h1><p>博弈环境 · 分层架构原型</p></div></header>
-    <aside class="panel score-panel"  style="display:none">
-	    <div class="panel-title" style="display:none"><span>实例资源面板</span>
-	     <span class="stage-chip" id="winChip">$2,500 目标阈值</span></div>
-		 <div id="players"></div></aside>
-		 
     <aside class="panel score-panel" style="display:none">
-	     <div class="panel-title">
-		 <span>实例资源面板</span><span class="stage-chip" id="winChip">$2,500 目标阈值</span>
-		 </div><div id="players"></div></aside>
+      <div class="panel-title" style="display:none"><span>实例资源面板</span><span class="stage-chip" id="winChip">$2,500 目标阈值</span></div>
+      <div id="players"></div>
+    </aside>
+    <aside class="panel score-panel" style="display:none">
+      <div class="panel-title"><span>实例资源面板</span><span class="stage-chip" id="winChip">$2,500 目标阈值</span></div>
+      <div id="players"></div>
+    </aside>
     <aside class="cell-card" id="cellCard" aria-live="polite" style="display:none">
-	<div class="cell-seal" style="display:none" >港</div>
-	    <div>
-		<div class="cell-kicker" id="cellKicker"  style="display:none">环境巡回起点</div>
-	   <div class="cell-name" id="cellName" style="display:none">起点节点</div>
-	   <div class="cell-detail" id="cellDetail" style="display:none">经过起点可获取资源</div></div></aside>
-    <aside class="panel log-panel" style="display:none"><div class="panel-title"><span>仿真事件日志</span><span>LIVE</span></div><div class="log-list" id="logList"></div><div class="camera-help">拖曳旋转视角 · 滚轮或双指缩放<br>按 R 执行位移采样 · 按 E 结束实例回合 · 按 C 回到全景</div></aside>
+      <div class="cell-seal" style="display:none">港</div>
+      <div>
+        <div class="cell-kicker" id="cellKicker" style="display:none">环境巡回起点</div>
+        <div class="cell-name" id="cellName" style="display:none">起点节点</div>
+        <div class="cell-detail" id="cellDetail" style="display:none">经过起点可获取资源</div>
+      </div>
+    </aside>
+    <aside class="panel log-panel" style="display:none">
+      <div class="panel-title"><span>仿真事件日志</span><span>LIVE</span></div>
+      <div class="log-list" id="logList"></div>
+      <div class="camera-help">拖曳旋转 · 滚轮缩放<br>R 位移 · E 结束 · C 全景</div>
+    </aside>
     <section class="turn-dock">
-	    <div class="dice-readout" id="diceReadout" style="display:none">—</div><div class="turn-copy">
-	    <div class="turn-kicker" style="display:none">CURRENT TURN</div>
-	<div class="turn-name" id="turnName">等待实例调度</div></div>
-	
-	<button class="action ghost" id="helpBtn" >说明</button>
-	<button class="action ghost" id="assetsBtn">资源</button>
-	<button class="action ghost" id="skillBtn">技能</button>
-	<button class="action primary" id="rollBtn">位移采样</button>
-	<button class="action secondary " id="endBtn" disabled style="display:none" >结束回合</button>
-	<button class="action ghost" id="cameraBtn" aria-label="回到仿真环境全景">全景</button></section>
+      <div class="dice-readout" id="diceReadout" style="display:none">—</div>
+      <div class="turn-copy">
+        <div class="turn-kicker" style="display:none">CURRENT TURN</div>
+        <div class="turn-name" id="turnName">等待实例调度</div>
+      </div>
+      <button class="action ghost" id="helpBtn">说明</button>
+      <button class="action ghost" id="assetsBtn">资源</button>
+      <button class="action ghost" id="skillBtn">技能</button>
+      <button class="action primary" id="rollBtn">位移</button>
+      <button class="action secondary" id="endBtn" disabled style="display:none">结束</button>
+      <button class="action ghost" id="cameraBtn" aria-label="全景">全景</button>
+    </section>
   </main>
   <div class="modal-layer" id="modalLayer" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal"><div class="modal-tag" id="modalTag">仿真事件</div><h3 id="modalTitle"></h3><p id="modalText"></p><div class="modal-actions" id="modalActions"></div></div></div>
   <div class="toast" id="toast"></div><div class="webgl-fallback" id="fallback"><div><h2>此设备无法启动3D仿真沙盒</h2><p>请改用最新版 Chrome、Safari 或 Edge，并确认浏览器已开启硬件加速。</p></div></div>
@@ -226,11 +290,6 @@
     const SAVE_KEY='agent-sim-save-v1';let saveTimer=null,audioContext=null,nextTurnTimer=null;
     let cameraTween=null,followCamera=false;
 
-    /**
-     * 智能体头顶观测气泡
-     * @param {THREE.Group} pieceGroup 实例模型
-     * @param {string} text 观测输出文本
-     */
     function showBubble(pieceGroup, text) {
       const bubble = textSprite(text, {
         size:36,
@@ -502,7 +561,6 @@ if(!window._boardClickSetup){
       model.userData.moving=false;
       model.userData.baseY=.33;
 
-      //智能体观测气泡输出
       const c = BOARD[p.pos];
       let tipText="";
       if(p.ai){
@@ -697,11 +755,10 @@ renderPlayers();
   const to=from+Math.PI*8+pick*Math.PI/3;
   sound('roll');
 
-  // 修复转盘动画：使用await循环，逐帧等待
   const steps=90;
   for(let f=0;f<=steps;f++){
     const k=f/steps;
-    const e=1-Math.pow(1-k,3); //缓动
+    const e=1-Math.pow(1-k,3);
     wheel.rotation.y = from + (to-from)*e;
     await wait(22);
   }
