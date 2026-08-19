@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#14372f">
+  <meta name="description" content="LLM‑Agent 分层架构验证原型｜3D博弈仿真沙盒">
+  <title>LLM‑Agent 分层架构验证原型</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=Noto+Serif+SC:wght@700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink:#14372f; --ink-2:#1e4a3f; --paper:#fff4d8; --paper-2:#f7dfac;
+      --lacquer:#d94b39; --jade:#2d806b; --gold:#f4c65e; --river:#74bfd0;
+      --white:#fffdf5; --shadow:0 18px 60px rgba(15,45,38,.24);
+    }
+    *{box-sizing:border-box} html,body{width:100%;height:100%;margin:0;overflow:hidden}
+    body{font-family:"Noto Sans TC",sans-serif;color:var(--ink);background:#b9e3df}
+    button,select{font:inherit} button{cursor:pointer}
+    button:focus-visible,select:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+    #gameCanvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+    .grain{position:fixed;inset:0;pointer-events:none;opacity:.08;mix-blend-mode:multiply;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E")}
+    .hud{position:fixed;inset:0;pointer-events:none;padding:max(18px,env(safe-area-inset-top)) max(18px,env(safe-area-inset-right)) max(18px,env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left));display:grid;grid-template-columns:minmax(240px,310px) 1fr minmax(230px,290px);grid-template-rows:auto 1fr auto;gap:16px}
+    .brand,.panel,.turn-dock{pointer-events:auto;background:rgba(255,244,216,.92);border:1px solid rgba(20,55,47,.16);box-shadow:var(--shadow);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+    .brand{grid-column:1;grid-row:1;border-radius:20px;padding:14px 18px;display:flex;align-items:center;gap:12px}
+    .brand-mark{width:48px;height:48px;border-radius:15px;display:grid;place-items:center;background:var(--ink);color:var(--gold);font:900 24px "Noto Serif TC";box-shadow:inset 0 0 0 2px rgba(244,198,94,.35)}
+    .brand h1{font:900 22px/1 "Noto Serif TC";margin:0;letter-spacing:.08em}.brand p{margin:5px 0 0;font-size:11px;letter-spacing:.18em;color:#55746b}
+    .panel,.cell-card{border-radius:20px;padding:16px}.score-panel{grid-column:1;grid-row:2;align-self:start}.log-panel{grid-column:3;grid-row:1/3;align-self:start;max-height:min(62vh,570px)}
+    .panel-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-weight:900;font-size:13px;letter-spacing:.12em}.stage-chip{font-size:11px;background:var(--ink);color:var(--paper);padding:5px 9px;border-radius:999px}
+    #players{display:grid;gap:9px}.player-row{display:grid;grid-template-columns:42px 1fr auto;gap:10px;align-items:center;padding:9px;border-radius:14px;background:rgba(255,255,255,.52);border:1px solid transparent;transition:.25s}.player-row.active{border-color:var(--lacquer);transform:translateX(4px);box-shadow:0 6px 20px rgba(217,75,57,.14)}.player-row.bankrupt{opacity:.45;filter:grayscale(1)}
+    .avatar{width:42px;height:42px;object-fit:contain;border-radius:11px;background:#fff}.player-name{font-weight:900;font-size:13px}.player-meta{font-size:11px;color:#668078;margin-top:2px}.money{font-weight:900;color:#a33a2c}
+    .log-list{display:flex;flex-direction:column;gap:8px;max-height:45vh;overflow:auto;padding-right:3px}.log-entry{font-size:12px;line-height:1.5;padding:9px 10px;border-left:3px solid var(--jade);background:rgba(255,255,255,.46);border-radius:0 10px 10px 0}.log-entry.hot{border-color:var(--lacquer)}
+    .camera-help{margin-top:12px;padding-top:12px;border-top:1px solid rgba(20,55,47,.14);font-size:11px;line-height:1.7;color:#58736a}
+    .cell-card{pointer-events:none;grid-column:2;grid-row:1;justify-self:center;align-self:start;min-width:260px;max-width:360px;background:rgba(255,244,216,.9);border:1px solid rgba(20,55,47,.16);box-shadow:var(--shadow);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center}.cell-seal{width:35px;height:35px;border-radius:12px;display:grid;place-items:center;background:var(--ink);color:var(--gold);font:900 17px "Noto Serif TC"}.cell-kicker{font-size:9px;letter-spacing:.17em;font-weight:900;color:var(--lacquer)}.cell-name{font:900 17px/1.25 "Noto Serif TC"}.cell-detail{font-size:11px;color:#58736a;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .turn-dock{grid-column:2;grid-row:3;justify-self:center;align-self:end;border-radius:24px;padding:12px;display:flex;gap:10px;align-items:center;min-width:min(640px,90vw)}
+    .turn-copy{padding:0 12px;min-width:180px}.turn-kicker{font-size:10px;letter-spacing:.16em;color:#688077}.turn-name{font:900 17px "Noto Serif TC";margin-top:2px}
+    .action{border:0;border-radius:15px;padding:13px 20px;font-weight:900;transition:transform .2s,filter .2s;white-space:nowrap}.action:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.05)}.action:disabled{opacity:.38;cursor:not-allowed}.primary{background:var(--lacquer);color:white;box-shadow:0 8px 20px rgba(217,75,57,.28)}.secondary{background:var(--ink);color:var(--paper)}.ghost{background:rgba(20,55,47,.08);color:var(--ink)}
+    .dice-readout{width:50px;height:50px;border-radius:14px;background:var(--white);display:grid;place-items:center;font-size:24px;font-weight:900;border:1px solid rgba(20,55,47,.15)}
+    .start-screen{position:fixed;inset:0;z-index:20;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 50% 35%,rgba(255,249,224,.3),rgba(20,55,47,.82));transition:.6s}.start-screen.hidden{opacity:0;visibility:hidden;transform:scale(1.03)}
+    .start-card{width:min(940px,96vw);max-height:92vh;overflow:auto;background:linear-gradient(135deg,rgba(255,249,229,.98),rgba(246,220,166,.96));border-radius:32px;padding:clamp(24px,4vw,46px);box-shadow:0 35px 100px rgba(8,35,29,.45);border:1px solid rgba(255,255,255,.7);position:relative}.start-card:before{content:"";position:absolute;inset:12px;border:1px solid rgba(20,55,47,.13);border-radius:23px;pointer-events:none}
+    .eyebrow{font-size:11px;font-weight:900;letter-spacing:.28em;color:var(--lacquer)}.start-card h2{font:900 clamp(40px,7vw,78px)/.96 "Noto Serif TC";margin:14px 0 10px;letter-spacing:.04em}.start-card h2 span{color:var(--lacquer)}.lead{max-width:660px;color:#4d6b62;line-height:1.8;margin:0 0 24px}
+    .setup-grid{display:grid;grid-template-columns:1.7fr .8fr;gap:24px}.label{font-size:12px;font-weight:900;letter-spacing:.12em;margin-bottom:10px}.characters{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.character{border:2px solid transparent;background:rgba(255,255,255,.56);border-radius:18px;padding:10px;text-align:left;color:var(--ink);transition:.2s}.character:hover{transform:translateY(-2px)}.character.selected{border-color:var(--lacquer);background:#fff}.character img{display:block;width:100%;height:78px;object-fit:contain}.character strong{font-size:13px}.character small{display:block;font-size:10px;color:#688077;margin-top:3px}
+    .setup-side{display:flex;flex-direction:column;gap:14px}.field{background:rgba(255,255,255,.48);padding:14px;border-radius:16px}.field select{width:100%;border:1px solid rgba(20,55,47,.2);border-radius:11px;background:white;padding:11px;color:var(--ink)}.launch{margin-top:auto;padding:16px 22px;font-size:16px}.license-note{font-size:10px;color:#6d8079;line-height:1.6}
+    .modal-layer{position:fixed;inset:0;z-index:30;display:grid;place-items:center;padding:24px;background:rgba(10,35,29,.48);backdrop-filter:blur(9px);opacity:0;visibility:hidden;transition:.25s}.modal-layer.open{opacity:1;visibility:visible}
+
+.modal{width:min(820px,94vw);max-height:85vh;background:var(--paper);border-radius:26px;padding:26px;box-shadow:0 25px 80px rgba(8,30,25,.4);border:1px solid rgba(255,255,255,.7);transform:translateY(18px);transition:.25s;display:flex;flex-direction:column;gap:10px;}#modalText{flex:1;overflow-y:auto;max-height:62vh;line-height:1.75;padding-right:6px;}#modalText::-webkit-scrollbar{width:7px}#modalText::-webkit-scrollbar-track{background:rgba(0,0,0,.06);border-radius:4px}#modalText::-webkit-scrollbar-thumb{background:rgba(0,0,0,.22);border-radius:4px}.modal-actions{flex-shrink:0;display:flex;justify-content:flex-end;gap:9px;margin-top:10px;flex-wrap:wrap;}.modal-layer.open .modal{transform:none}.modal-tag{font-size:10px;font-weight:900;letter-spacing:.2em;color:var(--lacquer)}.modal h3{font:900 26px "Noto Serif TC";margin:8px 0 10px}.modal p{line-height:1.8;color:#4d675f;white-space:pre-line}.modal-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:20px;flex-wrap:wrap}
+
+    .toast{position:fixed;left:50%;top:24px;z-index:40;transform:translate(-50%,-20px);background:var(--ink);color:var(--paper);padding:11px 18px;border-radius:999px;font-size:12px;font-weight:700;opacity:0;transition:.25s;pointer-events:none}.toast.show{opacity:1;transform:translate(-50%,0)}
+    .webgl-fallback{position:fixed;inset:0;z-index:50;display:none;place-items:center;padding:30px;background:var(--paper);text-align:center}.webgl-fallback.show{display:grid}
+    @media(max-width:1180px){.hud{grid-template-columns:1fr auto;grid-template-rows:auto 1fr auto}.brand{grid-column:1}.score-panel{grid-column:1;max-width:275px}.log-panel{display:none}.turn-dock{grid-column:1/3;min-width:0;width:100%;justify-content:center}.turn-copy{min-width:0;flex:1}.setup-grid{grid-template-columns:1fr}.characters{grid-template-columns:repeat(3,1fr)}}
+    @media(max-width:620px){.hud{padding:10px;gap:9px}.brand{padding:9px 11px;border-radius:15px}.brand-mark{width:38px;height:38px}.brand h1{font-size:17px}.brand p{display:none}.score-panel{grid-column:1/3;grid-row:2;padding:8px;max-width:none;width:100%}.panel-title{margin-bottom:6px;font-size:11px}.stage-chip{font-size:10px;padding:4px 7px}#players{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}.player-row{grid-template-columns:28px minmax(0,1fr);gap:5px;padding:5px}.avatar{width:28px;height:28px}.player-name{font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.player-meta{display:none}.money{grid-column:2;font-size:10px;line-height:1}.cell-card{position:fixed;left:10px;right:10px;bottom:88px;min-width:0;max-width:none;padding:9px 12px;gap:8px}.cell-seal{width:30px;height:30px;border-radius:10px;font-size:15px}.cell-kicker{font-size:8px}.cell-name{font-size:14px}.cell-detail{font-size:10px}.turn-dock{position:fixed;left:10px;right:10px;bottom:max(10px,env(safe-area-inset-bottom));width:auto;min-width:0;padding:8px;border-radius:18px;gap:5px}.turn-copy{padding:0 3px;min-width:0;flex:1}.turn-kicker{display:none}.turn-name{font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.action{padding:10px 8px;font-size:11px}.dice-readout{width:36px;height:36px;border-radius:12px;font-size:18px;flex:0 0 36px}#helpBtn{display:none}#assetsBtn,#skillBtn,#cameraBtn{width:29px;height:36px;padding:0;font-size:0;flex:0 0 29px}#assetsBtn::after{content:'资';font-size:11px}#skillBtn::after{content:'技';font-size:11px}#cameraBtn::after{content:'全';font-size:11px}#rollBtn,#endBtn{padding:10px 7px;flex:0 0 56px}.start-card{padding:26px 20px}.characters{grid-template-columns:repeat(2,1fr)}.character img{height:64px}}
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+  </style>
+  <script type="importmap">
+  {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.182.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.182.0/examples/jsm/"}}
+  </script>
+</head>
+<body>
+  <canvas id="gameCanvas" aria-label="LLM‑Agent仿真沙盒"></canvas><div class="grain"></div>
+  <section class="start-screen" id="startScreen">
+    <div class="start-card">
+      <h2>LLM‑Agent 分层架构验证原型 <span>3D仿真沙盒</span></h2>
+      <div class="setup-grid">
+        <div><div class="label">选择智能体实例</div><div class="characters" id="characterGrid"></div></div>
+        <div class="setup-side">
+          <div class="field" style="display:none"><div class="label">运行模式</div><select id="gameMode"><option value="ai" selected>本机对抗规则Agent</option><option value="local">多实例手动调度</option></select></div>
+          <div class="field" style="display:none"><div class="label" id="playerCountLabel">仿真对手实例</div><select id="aiCount"><option value="1">1 个 · 简易</option><option value="2" selected>2 个 · 标准</option><option value="3">3 个 · 复杂博弈</option></select></div>
+          <div class="field" id="difficultyField" style="display:none"><div class="label">Agent策略等级</div><select id="aiDifficulty"><option value="easy">保守</option><option value="normal" selected>均衡</option><option value="hard">激进</option></select></div>
+          <div class="field" style="display:none"><div class="label">渲染画质</div><select id="quality"><option value="auto" selected>自动侦测</option><option value="high">高画质</option><option value="low">效能优先</option></select></div>
+          <div class="field" style="display:none"><div class="label">仿真速度</div><select id="speed"><option value="1" selected>标准</option><option value="1.6">快速</option><option value="2.2">极速</option></select></div>
+          <div class="field" style="display:none"><div class="label">音效音量</div><input id="volume" type="range" min="0" max="100" value="55" aria-label="音效音量"></div>
+          <div class="field" style="display:none"><div class="label">目标资源阈值</div><select id="winGoal"><option value="1500">1500 · 短仿真</option><option value="2500" selected>2500 · 标准仿真</option><option value="4000">4000 · 长仿真</option><option value="6000">6000 · 马拉松仿真</option></select><div class="license-note">实例总资源率先到达阈值即判定完成；资源耗尽实例自动终止。</div></div>
+          <button class="action primary launch" id="startBtn">启动仿真沙盒</button>
+          <button class="action secondary launch" id="continueBtn" hidden>恢复仿真快照</button>
+        </div>
+      </div>
+    </div>
+  </section>
+  <main class="hud" id="hud" hidden>
+    <header class="brand"><div class="brand-mark">hi</div><div><h1>Agent 3D仿真沙盒</h1><p>博弈环境 · 分层架构原型</p></div></header>
+    <aside class="panel score-panel"  style="display:none">
+	    <div class="panel-title" style="display:none"><span>实例资源面板</span>
+	     <span class="stage-chip" id="winChip">$2,500 目标阈值</span></div>
+		 <div id="players"></div></aside>
+		 
+    <aside class="panel score-panel" style="display:none">
+	     <div class="panel-title">
+		 <span>实例资源面板</span><span class="stage-chip" id="winChip">$2,500 目标阈值</span>
+		 </div><div id="players"></div></aside>
+    <aside class="cell-card" id="cellCard" aria-live="polite" style="display:none">
+	<div class="cell-seal" style="display:none" >港</div>
+	    <div>
+		<div class="cell-kicker" id="cellKicker"  style="display:none">环境巡回起点</div>
+	   <div class="cell-name" id="cellName" style="display:none">起点节点</div>
+	   <div class="cell-detail" id="cellDetail" style="display:none">经过起点可获取资源</div></div></aside>
+    <aside class="panel log-panel" style="display:none"><div class="panel-title"><span>仿真事件日志</span><span>LIVE</span></div><div class="log-list" id="logList"></div><div class="camera-help">拖曳旋转视角 · 滚轮或双指缩放<br>按 R 执行位移采样 · 按 E 结束实例回合 · 按 C 回到全景</div></aside>
+    <section class="turn-dock">
+	    <div class="dice-readout" id="diceReadout" style="display:none">—</div><div class="turn-copy">
+	    <div class="turn-kicker" style="display:none">CURRENT TURN</div>
+	<div class="turn-name" id="turnName">等待实例调度</div></div>
+	
+	<button class="action ghost" id="helpBtn" >说明</button>
+	<button class="action ghost" id="assetsBtn">资源</button>
+	<button class="action ghost" id="skillBtn">技能</button>
+	<button class="action primary" id="rollBtn">位移采样</button>
+	<button class="action secondary " id="endBtn" disabled style="display:none" >结束回合</button>
+	<button class="action ghost" id="cameraBtn" aria-label="回到仿真环境全景">全景</button></section>
+  </main>
+  <div class="modal-layer" id="modalLayer" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal"><div class="modal-tag" id="modalTag">仿真事件</div><h3 id="modalTitle"></h3><p id="modalText"></p><div class="modal-actions" id="modalActions"></div></div></div>
+  <div class="toast" id="toast"></div><div class="webgl-fallback" id="fallback"><div><h2>此设备无法启动3D仿真沙盒</h2><p>请改用最新版 Chrome、Safari 或 Edge，并确认浏览器已开启硬件加速。</p></div></div>
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+    import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+    import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+    import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+    import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+    const $=s=>document.querySelector(s), delay=ms=>new Promise(r=>setTimeout(r,ms));
+    const COLORS={ink:0x14372f,paper:0xe7c980,lacquer:0xd94b39,jade:0x2d806b,gold:0xf4c65e,river:0x74bfd0,wood:0x85512d,grass:0x6a9e58};
+    const CHARS={
+      sugar:{name:'糖心粽',color:0xe96d70,img:'./char_sugar.png',skill:'转盘奖励 +$50',active:'甜转再来：下次骰子 +2'},
+      egg:{name:'咸蛋粽',color:0xf1ad3d,img:'./char_egg.png',skill:'买地与升级省 $10',active:'熟成折扣：下次买地再省 $30'},
+      black:{name:'黑米粽',color:0x564365,img:'./char_black.png',skill:'每次收租多 $5',active:'浓香加租：下次租金 +$20'},
+      green:{name:'绿豆粽',color:0x5eaa63,img:'./char_green.png',skill:'正面粽运奖励 +$30',active:'双抽好运：下次正面粽运 +$80'},
+      taro:{name:'芋香粽',color:0xa780bd,img:'./char_taro.png',skill:'免疫一笔负面事件',active:'香包护航：获得一次免疫'},
+      mixed:{name:'双拼粽',color:0x3f8c8a,img:'./char_mixed.png',skill:'经过起点多领 $50',active:'龙舟冲刺：下次过起点再多 $100'}
+    };
+    const BOARD=[
+      ['起点','start'],['甜粽社区','property',80,12],['粽运卡','fortune'],['红枣街','property',100,16],['材料补给站','gain',80],['咸粽大道','property',130,20],['河港转盘','wheel'],
+      ['蛋黄路','property',150,24],['凉亭休息区','rest'],['粽运卡','fortune'],['粽香中街','property',170,28],['综合广场','property',190,32],['粽子市集','gain',120],['粽运卡','fortune'],
+      ['粽王商圈','property',230,38],['建筑税','tax',25],['黄金路','property',260,44],['河港转盘','wheel'],['粽运卡','fortune'],['豆沙巷','property',280,48],['五香街','property',300,52],
+      ['材料补给站','gain',100],['芋泥路','property',320,56],['粽运卡','fortune'],['皇家大道','property',350,62],['河港转盘','wheel'],['龙舟广场','property',400,70],['粽运卡','fortune']
+    ].map((d,i)=>({i,name:d[0],type:d[1],price:d[2],rent:d[3]||0,owner:null,level:0}));
+    const state={players:[],current:0,busy:false,rolled:false,running:false,selected:'sugar',quality:'auto',speed:1,volume:.55,mode:'ai',difficulty:'normal',winGoal:2500};
+    let scene,camera,renderer,composer,controls,clock,dice,wheel,boat,water,cellPositions=[],cellGroups=[],pieceGroups=[],effects=[];
+    const textures={},overviewPosition=new THREE.Vector3(15,17,19),overviewTarget=new THREE.Vector3(0,0,0);
+    const SAVE_KEY='agent-sim-save-v1';let saveTimer=null,audioContext=null,nextTurnTimer=null;
+    let cameraTween=null,followCamera=false;
+
+    /**
+     * 智能体头顶观测气泡
+     * @param {THREE.Group} pieceGroup 实例模型
+     * @param {string} text 观测输出文本
+     */
+    function showBubble(pieceGroup, text) {
+      const bubble = textSprite(text, {
+        size:36,
+        color:"#14372f",
+        bg:"rgba(255,255,255,0.88)",
+        scale:0.6
+      });
+      bubble.position.set(0, 2.8, 0);
+      pieceGroup.add(bubble);
+      effects.push({
+        object: bubble,
+        life:2.2,
+        update(dt, life){
+          bubble.position.y += dt * 0.7;
+          const alpha = Math.min(1, life / 1.2);
+          bubble.material.opacity = alpha;
+          bubble.material.transparent = true;
+        },
+        keep:false
+      });
+    }
+
+    function characterPicker(){
+      $('#characterGrid').innerHTML=Object.entries(CHARS).map(([key,c])=>`<button class="character ${key===state.selected?'selected':''}" data-char="${key}"><img src="${c.img}" alt="${c.name}"><strong>${c.name}</strong><small>${c.skill}</small></button>`).join('');
+      document.querySelectorAll('.character').forEach(b=>b.onclick=()=>{state.selected=b.dataset.char;characterPicker()});
+    }
+    characterPicker();
+    function updateMode(){const local=$('#gameMode').value==='local';$('#playerCountLabel').textContent=local?'本机实例数':'仿真对手实例';$('#difficultyField').hidden=local;const labels=local?['2 实例','3 实例','4 实例']:['1 个 · 简易','2 个 · 标准','3 个 · 复杂博弈'];[...$('#aiCount').options].forEach((option,i)=>option.textContent=labels[i])}
+    function getSave(){try{const saved=JSON.parse(localStorage.getItem(SAVE_KEY));return saved?.version===1&&Array.isArray(saved.players)&&saved.players.length?saved:null}catch{return null}}
+    function updateContinue(){const saved=getSave();$('#continueBtn').hidden=!saved;if(saved?.quality)$('#quality').value=saved.quality;if(saved?.speed)$('#speed').value=saved.speed;if(saved?.volume!==undefined)$('#volume').value=Math.round(saved.volume*100);if(saved?.mode){$('#gameMode').value=saved.mode;updateMode()}if(saved?.difficulty)$('#aiDifficulty').value=saved.difficulty;if(saved?.winGoal)$('#winGoal').value=saved.winGoal}
+    function persist(){if(!state.running||state.busy)return;clearTimeout(saveTimer);saveTimer=setTimeout(()=>{try{localStorage.setItem(SAVE_KEY,JSON.stringify({version:1,selected:state.selected,quality:state.quality,speed:state.speed,volume:state.volume,mode:state.mode,difficulty:state.difficulty,winGoal:state.winGoal,current:state.current,rolled:state.rolled,players:state.players,board:BOARD.map(c=>({owner:c.owner,level:c.level}))}))}catch{}},180)}
+    function clearSave(){try{localStorage.removeItem(SAVE_KEY)}catch{}}
+    const wait=ms=>delay(ms/state.speed);
+    function sound(kind='tap'){if(!state.volume)return;try{audioContext||=new AudioContext();const osc=audioContext.createOscillator(),gain=audioContext.createGain(),tones={tap:[440,.06,'sine'],roll:[170,.12,'triangle'],coin:[880,.11,'sine'],win:[660,.26,'triangle'],bad:[170,.18,'sawtooth']},[frequency,length,type]=tones[kind]||tones.tap;osc.type=type;osc.frequency.setValueAtTime(frequency,audioContext.currentTime);if(kind==='coin'||kind==='win')osc.frequency.exponentialRampToValueAtTime(frequency*1.5,audioContext.currentTime+length);gain.gain.setValueAtTime(state.volume*.1,audioContext.currentTime);gain.gain.exponentialRampToValueAtTime(.001,audioContext.currentTime+length);osc.connect(gain).connect(audioContext.destination);osc.start();osc.stop(audioContext.currentTime+length)}catch{}}
+    $('#gameMode').onchange=updateMode;updateMode();updateContinue();
+    function makeTexture(kind){
+      const c=document.createElement('canvas'),x=c.getContext('2d');c.width=c.height=256;
+      const base={leaf:'#7f9f62',wood:'#936339',stone:'#ead6a2',grass:'#719a58',paper:'#e7c980'}[kind]||'#ffffff';x.fillStyle=base;x.fillRect(0,0,256,256);
+      const seed=(n)=>Math.abs(Math.sin(n*941.31))*1;
+      for(let i=0;i<900;i++){const px=seed(i)*256,py=seed(i+87)*256,a=.025+seed(i+31)*.09;x.fillStyle=`rgba(${kind==='wood'?'62,34,15':'20,55,47'},${a})`;x.fillRect(px,py,1+seed(i+3)*3,1+seed(i+9)*3)}
+      if(kind==='leaf'){x.strokeStyle='rgba(239,232,167,.28)';x.lineWidth=2;for(let i=-256;i<512;i+=22){x.beginPath();x.moveTo(i,0);x.lineTo(i+256,256);x.stroke()}}
+      if(kind==='wood'){x.strokeStyle='rgba(61,31,12,.24)';for(let y=12;y<256;y+=28){x.beginPath();x.moveTo(0,y);x.bezierCurveTo(70,y+8,150,y-8,256,y+3);x.stroke()}}
+      if(kind==='stone'){x.strokeStyle='rgba(102,76,38,.12)';for(let i=0;i<9;i++){x.beginPath();x.arc(seed(i+70)*256,seed(i+80)*256,10+seed(i+90)*32,0,Math.PI*2);x.stroke()}}
+      const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=8;return t;
+    }
+    function initTextures(){['leaf','wood','stone','grass','paper'].forEach(k=>textures[k]=makeTexture(k));textures.grass.repeat.set(5,5);textures.wood.repeat.set(2,2);textures.leaf.repeat.set(1.5,1.5);Object.values(textures).forEach(t=>t.anisotropy=Math.min(12,renderer.capabilities.getMaxAnisotropy()))}
+    function mat(color,rough=.72,metal=.02,texture=null){const m=new THREE.MeshStandardMaterial({color,roughness:rough,metalness:metal,envMapIntensity:metal>.1?1.15:.34});if(texture&&textures[texture]){m.map=textures[texture];m.bumpMap=textures[texture];m.bumpScale=texture==='stone'?.055:texture==='leaf'?.035:.025;m.roughnessMap=textures[texture]}return m}
+    function mesh(geo,material,shadow=true){const m=new THREE.Mesh(geo,material);m.castShadow=shadow;m.receiveShadow=shadow;return m}
+    function roundedBox(w,h,d,r,color,texture=null){return mesh(new RoundedBoxGeometry(w,h,d,5,r),mat(color,.72,.02,texture))}
+    function textSprite(text,{size=48,color='#14372f',bg='rgba(255,244,216,.92)',scale=1.45}={}){
+      const c=document.createElement('canvas'),x=c.getContext('2d');c.width=1024;c.height=256;x.fillStyle=bg;x.beginPath();x.roundRect(12,12,1000,232,38);x.fill();x.strokeStyle='rgba(20,55,47,.2)';x.lineWidth=4;x.stroke();x.font=`900 ${size*2}px "Noto Sans TC"`;x.textAlign='center';x.textBaseline='middle';x.fillStyle=color;x.fillText(text,512,132);
+      const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;const s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,transparent:true,depthTest:false}));s.scale.set(3.4*scale,.85*scale,1);return s;
+    }
+    function createZongzi(color){
+      const g=new THREE.Group(),leafMaterial=mat(color,.79,.01,'leaf'),lightLeaf=mat(new THREE.Color(color).lerp(new THREE.Color(0xffffff),.18).getHex(),.7,.01,'leaf');g.userData.baseY=.33;g.userData.arms=[];
+      [-.18,0,.18].forEach((x,i)=>{const leaf=mesh(new THREE.ConeGeometry(.53,1.4,4,8),i===1?lightLeaf:leafMaterial);leaf.position.set(x,.79,i===1?.11:-.02);leaf.rotation.set(0,Math.PI/4+i*.14,i===0?.08:-.08);leaf.scale.set(1,.98,1.08);g.add(leaf)});
+      [-.2,.2].forEach(x=>{const vein=new THREE.Mesh(new THREE.TubeGeometry(new THREE.QuadraticBezierCurve3(new THREE.Vector3(x,.3,.5),new THREE.Vector3(x*.5,.92,.59),new THREE.Vector3(x*.25,1.42,.16)),12,.012,5,false),mat(0xd7d58b,.58),false);g.add(vein)});
+      const band=mesh(new THREE.TorusGeometry(.46,.046,10,40),mat(COLORS.paper,.56),false);band.rotation.x=Math.PI/2;band.position.y=.67;g.add(band);
+      [-.16,.18].forEach((tilt,i)=>{const cord=mesh(new THREE.TorusGeometry(.39,.022,8,32),mat(0xd8b06b,.63),false);cord.rotation.set(Math.PI/2,tilt,.08);cord.position.y=.78+i*.22;g.add(cord)});
+      [-.2,.2].forEach(x=>{const white=mesh(new THREE.SphereGeometry(.102,16,12),mat(0xfffbef,.35),false);white.position.set(x,1.01,.52);white.scale.y=1.16;g.add(white);const eye=mesh(new THREE.SphereGeometry(.05,12,10),mat(0x172420,.28),false);eye.position.set(x,1.01,.6);g.add(eye);const brow=mesh(new THREE.CapsuleGeometry(.012,.1,3,6),mat(0x31503e,.7),false);brow.position.set(x,1.17,.59);brow.rotation.z=x<0?.18:-.18;g.add(brow)});
+      const smile=new THREE.Mesh(new THREE.TorusGeometry(.13,.018,6,18,Math.PI),mat(0x6e3028,.5));smile.position.set(0,.82,.61);smile.rotation.z=Math.PI;g.add(smile);
+      [-1,1].forEach(side=>{const arm=mesh(new THREE.CapsuleGeometry(.048,.34,5,10),leafMaterial);arm.position.set(side*.62,.67,.02);arm.rotation.z=side*.72;g.add(arm);g.userData.arms.push(arm);const hand=mesh(new THREE.SphereGeometry(.075,10,8),mat(0xd7b183,.68),false);hand.position.set(side*.75,.48,.04);g.add(hand);const foot=mesh(new THREE.CapsuleGeometry(.085,.21,5,10),mat(0x5b3926,.76));foot.position.set(side*.23,.12,.05);foot.rotation.z=Math.PI/2;g.add(foot)});
+      const shadow=mesh(new THREE.CircleGeometry(.6,32),new THREE.MeshBasicMaterial({color:0x14372f,transparent:true,opacity:.15,depthWrite:false}),false);shadow.rotation.x=-Math.PI/2;shadow.position.y=.015;g.add(shadow);return g;
+    }
+    function makeBuilding(color,level=0){
+      const g=new THREE.Group(),floors=1+level;for(let i=0;i<floors;i++){const w=.56-i*.06,h=.32;const floor=roundedBox(w,h,w,.05,color,'stone');floor.position.y=.16+i*.29;g.add(floor);const ledge=mesh(new THREE.BoxGeometry(w+.06,.035,w+.06),mat(COLORS.wood,.66,.01,'wood'));ledge.position.y=.32+i*.29;g.add(ledge);[-1,1].forEach(side=>{const win=mesh(new THREE.BoxGeometry(.1,.1,.018),new THREE.MeshStandardMaterial({color:0xffd46b,emissive:0xf1a63a,emissiveIntensity:.8}),false);win.position.set(side*.17,.2+i*.29,w/2+.012);g.add(win)})}
+      const roofY=.36+(floors-1)*.29,roof=mesh(new THREE.ConeGeometry(.47,.25,4),mat(COLORS.lacquer,.52,.04,'wood'));roof.position.y=roofY;roof.rotation.y=Math.PI/4;roof.scale.z=.82;g.add(roof);const finial=mesh(new THREE.SphereGeometry(.055,10,8),mat(COLORS.gold,.3,.38),false);finial.position.y=roofY+.28;g.add(finial);
+      const sign=roundedBox(.34,.14,.06,.025,COLORS.wood,'wood');sign.position.set(0,.19,.34);g.add(sign);return g
+    }
+    function pathPositions(){const p=[];for(let x=-7;x<=7;x+=2)p.push(new THREE.Vector3(x,0,7));for(let z=5;z>=-7;z-=2)p.push(new THREE.Vector3(7,0,z));for(let x=5;x>=-7;x-=2)p.push(new THREE.Vector3(x,0,-7));for(let z=-5;z<=5;z+=2)p.push(new THREE.Vector3(-7,0,z));return p}
+    function cellColor(t){return {start:COLORS.gold,property:COLORS.paper,fortune:0xe85c6a,gain:0x62a870,wheel:0x3b7f97,tax:0x9a5b55,rest:0x8bc4a3}[t]||COLORS.paper}
+    function buildBoard(){
+      cellPositions=pathPositions();
+      const island=mesh(new THREE.CylinderGeometry(10.2,10.7,.52,64),mat(0xd9c58d,.88,.01,'stone'));island.position.y=-.35;scene.add(island);
+      const turf=mesh(new THREE.CylinderGeometry(9.65,10.05,.24,64),mat(0x739b5b,.94,.01,'grass'));turf.position.y=-.03;scene.add(turf);
+      BOARD.forEach((c,i)=>{const g=new THREE.Group();g.position.copy(cellPositions[i]);const tile=roundedBox(1.65,.3,1.65,.12,cellColor(c.type),c.type==='property'?'paper':'stone');tile.position.y=.15;tile.userData.cell=i;g.add(tile);const inset=roundedBox(1.42,.035,1.42,.08,new THREE.Color(cellColor(c.type)).lerp(new THREE.Color(0xffffff),.16).getHex());inset.position.y=.32;g.add(inset);const label=textSprite(c.name,{size:c.name.length>5?30:37,scale:.48});label.position.set(0,1.55,0);g.add(label);if(c.type==='property'){const lot=new THREE.Group();lot.name='building';lot.position.y=.34;g.add(lot)}if(c.type==='fortune'){const card=roundedBox(.7,.12,.92,.07,COLORS.lacquer,'paper');card.position.y=.55;card.rotation.y=-.25;g.add(card);const knot=mesh(new THREE.TorusGeometry(.15,.025,8,24),mat(COLORS.gold,.42,.25),false);knot.position.set(0,.64,0);knot.rotation.x=Math.PI/2;g.add(knot)}if(c.type==='gain'){const box=roundedBox(.66,.56,.66,.07,COLORS.wood,'wood');box.position.y=.58;g.add(box);const strap=mesh(new THREE.BoxGeometry(.71,.08,.12),mat(COLORS.gold,.5,.25));strap.position.y=.62;g.add(strap)}if(c.type==='tax'){const coin=mesh(new THREE.CylinderGeometry(.37,.37,.12,32),mat(COLORS.gold,.28,.55));coin.rotation.x=Math.PI/2;coin.position.y=.66;g.add(coin)}scene.add(g);cellGroups.push(g)});
+      
+	  
+   createCenterFestival();createScenery();
+//=========外部项目展板保留 =========
+const siteList = [
+    {title:"ZT 小站",url:"https://example1.com",img:"https://picsum.photos/id/1036/1200/720"},
+    {title:"作品集 vlog",url:"https://example2.com",img:"https://picsum.photos/id/1015/1200/720"},
+    {title:"我的 OS",url:"https://example3.com",img:"https://picsum.photos/id/1043/1200/720"},
+    {title:"博客",url:"https://example4.com",img:"https://picsum.photos/id/1068/1200/720"}
+];
+const boardDataList = [];
+const boardRadius=17.0;
+const angles=[0,Math.PI * 0.5,Math.PI,Math.PI * 1.5];
+const texLoader=new THREE.TextureLoader();
+siteList.forEach((item,i)=>{
+  const angle=angles[i];
+  const worldX = Math.cos(angle)*boardRadius;
+  const worldZ = Math.sin(angle)*boardRadius;
+  const g = new THREE.Group();
+  g.position.set(worldX,0,worldZ);
+  scene.add(g);
+  const baseMesh = mesh(new THREE.BoxGeometry(4.6,0.7,0.5),mat(COLORS.wood,.8,.1,'wood'));
+  baseMesh.position.set(0,0.35,0);
+  g.add(baseMesh);
+  g.add(mesh(new THREE.BoxGeometry(5.8,0.25,0.22),mat(0xffffff,.85,0.05)).position.set(0,4.475,0));
+  g.add(mesh(new THREE.BoxGeometry(5.8,0.25,0.22),mat(0xffffff,.85,0.05)).position.set(0,0.125,0));
+  g.add(mesh(new THREE.BoxGeometry(0.25,4.6,0.22),mat(0xffffff,.85,0.05)).position.set(-2.775,2.3,0));
+  g.add(mesh(new THREE.BoxGeometry(0.25,4.6,0.22),mat(0xffffff,.85,0.05)).position.set(2.775,2.3,0));
+  const frame = mesh(new THREE.BoxGeometry(6.0,4.8,0.12),mat(0x333333,.65,0.02));
+  frame.position.set(0,2.3,-0.08);
+  g.add(frame);
+  const picGeo = new THREE.PlaneGeometry(5.3,3.7);
+  const picMat = new THREE.MeshStandardMaterial({transparent:true});
+  texLoader.load(item.img,tex=>{
+    tex.colorSpace=THREE.SRGBColorSpace;
+    picMat.map = tex;
+    picMat.needsUpdate = true;
+    const picFront = new THREE.Mesh(picGeo, picMat);
+    picFront.position.set(0,2.3,0.18);
+    g.add(picFront);
+    const picBack = new THREE.Mesh(picGeo, picMat);
+    picBack.position.set(0,2.3,-0.18);
+    picBack.rotation.y = Math.PI;
+    g.add(picBack);
+  });
+  const titleSpr=textSprite(item.title,{size:84,bg:'rgba(20,55,47,0.75)',color:'#ffffff',scale:1.1});
+  titleSpr.position.set(0,4.9,0.20);
+  g.add(titleSpr);
+  g.lookAt(0,2.3,0);
+  boardDataList.push({
+    group: g,
+    url: item.url,
+    localPos: new THREE.Vector3(0,4.9,0.20)
+  });
+});
+if(!window._boardClickSetup){
+    window._boardClickSetup=true;
+    const canvasDom = renderer.domElement;
+    canvasDom.addEventListener('click', function(ev){
+        if(!state.running) return;
+        const rect = canvasDom.getBoundingClientRect();
+        const clickX = ev.clientX;
+        const clickY = ev.clientY;
+        const hitRange = 130;
+        for(let d of boardDataList){
+            const worldPos = d.group.localToWorld( d.localPos.clone() );
+            worldPos.project(camera);
+            const screenX = (worldPos.x * 0.5 + 0.5) * rect.width + rect.left;
+            const screenY = (-worldPos.y *0.5 +0.5) * rect.height + rect.top;
+            if( Math.abs(clickX - screenX) < hitRange && Math.abs(clickY - screenY) < hitRange ){
+                window.open(d.url,"_blank");
+                if(typeof sound==='function') sound('tap');
+                break;
+            }
+        }
+    });
+}
+  
+    }
+    function createCenterFestival(){
+      const plaza=mesh(new THREE.CylinderGeometry(3.25,3.5,.35,48),mat(0xe8d39c,.84,.02,'stone'));plaza.position.y=.08;scene.add(plaza);const trim=mesh(new THREE.TorusGeometry(3.26,.08,10,64),mat(COLORS.lacquer,.5,.06));trim.rotation.x=Math.PI/2;trim.position.y=.28;scene.add(trim);
+      wheel=new THREE.Group();const wheelColors=[0xe55343,0xf4c65e,0x2d806b,0x5b89a5,0x9c6fa5,0xe58a43];for(let i=0;i<6;i++){const seg=mesh(new THREE.CylinderGeometry(1.55,1.55,.12,32,1,false,i*Math.PI/3,Math.PI/3-.015),mat(wheelColors[i],.38,.18));seg.position.y=1.18;wheel.add(seg);const dot=mesh(new THREE.SphereGeometry(.08,10,8),new THREE.MeshStandardMaterial({color:0xfff1bd,emissive:0xf4c65e,emissiveIntensity:1}),false);dot.position.set(Math.cos(i*Math.PI/3+.52)*1.15,1.34,Math.sin(i*Math.PI/3+.52)*1.15);wheel.add(dot)}const hub=mesh(new THREE.CylinderGeometry(.24,.24,.28,20),mat(COLORS.ink,.3,.45));hub.position.y=1.28;wheel.add(hub);wheel.position.set(0,0,0);scene.add(wheel);
+      const mast=mesh(new THREE.CylinderGeometry(.075,.11,2.7,12),mat(COLORS.wood,.75,.01,'wood'));mast.position.y=1.2;scene.add(mast);const pointer=mesh(new THREE.ConeGeometry(.15,.45,4),mat(COLORS.lacquer,.42,.15));pointer.position.set(0,1.58,-1.55);pointer.rotation.x=Math.PI/2;scene.add(pointer);
+      boat=new THREE.Group();const hull=mesh(new THREE.CapsuleGeometry(.36,2.55,6,16),mat(COLORS.lacquer,.48,.05,'wood'));hull.rotation.z=Math.PI/2;hull.scale.y=.45;boat.add(hull);const rail=mesh(new THREE.CapsuleGeometry(.28,2.35,5,14),mat(0x772d24,.62,.03,'wood'));rail.rotation.z=Math.PI/2;rail.position.y=.12;rail.scale.y=.25;boat.add(rail);const head=mesh(new THREE.SphereGeometry(.4,20,14),mat(COLORS.gold,.46,.12));head.position.x=1.42;boat.add(head);const snout=mesh(new THREE.ConeGeometry(.19,.48,6),mat(COLORS.lacquer,.55));snout.rotation.z=-Math.PI/2;snout.position.set(1.76,-.02,0);boat.add(snout);[-.14,.14].forEach(z=>{const eye=mesh(new THREE.SphereGeometry(.06,10,8),mat(0x152721,.28),false);eye.position.set(1.68,.18,z);boat.add(eye)});for(let i=-2;i<=2;i++){const seat=roundedBox(.12,.08,.56,.02,COLORS.gold,'wood');seat.position.set(i*.43,.18,0);boat.add(seat);const oar=mesh(new THREE.CylinderGeometry(.025,.025,1.45,8),mat(COLORS.wood,.72,.01,'wood'),false);oar.rotation.z=Math.PI/2;oar.rotation.x=.55;oar.position.x=i*.43;boat.add(oar)}boat.position.set(0,.42,-3.8);scene.add(boat);
+    }
+    function createScenery(){
+      const waterMaterial=new THREE.ShaderMaterial({transparent:true,side:THREE.DoubleSide,uniforms:{uTime:{value:0},uDeep:{value:new THREE.Color(0x277b91)},uShallow:{value:new THREE.Color(0xa9e4dc)},uSun:{value:new THREE.Color(0xffe2a2)}},vertexShader:`uniform float uTime;varying vec2 vUv;varying float vWave;varying vec3 vWorld;void main(){vUv=uv;vec3 p=position;float w=sin(p.x*.7+uTime)*.08+cos(p.y*.55-uTime*.8)*.06+sin((p.x+p.y)*1.7-uTime*1.4)*.025;p.z+=w;vWave=w;vWorld=(modelMatrix*vec4(p,1.)).xyz;gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.);}`,fragmentShader:`uniform vec3 uDeep;uniform vec3 uShallow;uniform vec3 uSun;uniform float uTime;varying vec2 vUv;varying float vWave;varying vec3 vWorld;void main(){float bands=.5+.5*sin((vUv.x+vUv.y)*90.+uTime*1.8);float shore=smoothstep(.15,.95,1.-length(vUv-.5)*1.45);vec3 c=mix(uDeep,uShallow,.38+vWave*2.+shore*.18);float shimmer=pow(max(0.,sin(vWorld.x*.75+vWorld.z*.48+uTime*2.)),18.)*.22;c+=bands*.035+uSun*shimmer;gl_FragColor=vec4(c,.92);}`});
+      water=mesh(new THREE.CircleGeometry(31,128),waterMaterial,false);water.rotation.x=-Math.PI/2;water.position.y=-.62;scene.add(water);
+      for(let i=0;i<22;i++){const a=i/22*Math.PI*2,r=11.5+Math.sin(i*4)*1.8;const g=new THREE.Group();const trunk=mesh(new THREE.CylinderGeometry(.08,.13,.72,8),mat(COLORS.wood,.78,.01,'wood'));trunk.position.y=.32;g.add(trunk);for(let j=0;j<2+(i%2);j++){const crown=mesh(new THREE.ConeGeometry(.42-j*.07,.85,9),mat(i%3?COLORS.grass:COLORS.jade,.86,.01,'leaf'));crown.position.y=.82+j*.43;g.add(crown)}g.position.set(Math.cos(a)*r,-.05,Math.sin(a)*r);scene.add(g)}
+      for(let i=0;i<14;i++){const a=i/14*Math.PI*2,pole=mesh(new THREE.CylinderGeometry(.025,.035,1.05,8),mat(COLORS.wood,.72,.01,'wood'));pole.position.set(Math.cos(a)*8.8,.5,Math.sin(a)*8.8);scene.add(pole);const lantern=mesh(new THREE.SphereGeometry(.13,14,10),new THREE.MeshStandardMaterial({color:0xff8d55,emissive:0xff8d55,emissiveIntensity:1.8}),false);lantern.scale.y=1.35;lantern.position.set(Math.cos(a)*8.8,1.05,Math.sin(a)*8.8);scene.add(lantern)}
+      for(let i=0;i<11;i++){const a=i/11*Math.PI*2+.22,r=12.6+(i%3)*.55;const lotus=new THREE.Group();const pad=mesh(new THREE.CircleGeometry(.27,18),mat(0x3f8d62,.76,.01,'leaf'));pad.rotation.x=-Math.PI/2;lotus.add(pad);const bud=mesh(new THREE.ConeGeometry(.1,.24,8),mat(i%2?0xf19aae:0xffd4a5,.48,.03));bud.position.y=.13;lotus.add(bud);lotus.position.set(Math.cos(a)*r,-.54,Math.sin(a)*r);lotus.rotation.y=a;scene.add(lotus)}
+    }
+    function createDice(){dice=roundedBox(1.08,1.08,1.08,.2,0xfff9e9,'paper');dice.position.set(3.2,1.25,0);scene.add(dice);const pip=(x,y,z,rx=0,ry=0)=>{const p=mesh(new THREE.CylinderGeometry(.07,.07,.018,16),mat(COLORS.ink,.28),false);p.position.set(x,y,z);p.rotation.set(rx,ry,0);dice.add(p)};pip(0,0,.55,Math.PI/2);pip(0,0,-.55,Math.PI/2);[[-.23,.23],[.23,-.23]].forEach(([x,y])=>pip(x,y,.55,Math.PI/2));[[-.23,.23],[.23,-.23],[-.23,-.23],[.23,.23]].forEach(([x,y])=>pip(x,y,-.55,Math.PI/2));const n=textSprite('?',{size:70,bg:'rgba(0,0,0,0)',scale:.28});n.name='number';n.position.set(0,0,.58);dice.add(n)}
+    function init3D(){
+      try{renderer=new THREE.WebGLRenderer({canvas:$('#gameCanvas'),antialias:true,alpha:false,powerPreference:'high-performance'})}catch(e){$('#fallback').classList.add('show');throw e}
+      state.quality=$('#quality').value==='auto'?(innerWidth<700?'low':'high'):$('#quality').value;const lowQuality=state.quality==='low',pixelRatio=Math.min(devicePixelRatio,lowQuality?1.25:2),shadowSize=lowQuality?1024:4096;
+      renderer.setPixelRatio(pixelRatio);renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=!lowQuality;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=.68;
+      scene=new THREE.Scene();scene.background=new THREE.Color(0xbfe4de);scene.fog=new THREE.FogExp2(0xbfe4de,.014);const env=new RoomEnvironment();const pmrem=new THREE.PMREMGenerator(renderer);scene.environment=pmrem.fromScene(env,.04).texture;env.dispose();pmrem.dispose();camera=new THREE.PerspectiveCamera(42,innerWidth/innerHeight,.1,100);camera.position.copy(overviewPosition);initTextures();
+      controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=.06;controls.minDistance=10;controls.maxDistance=34;controls.maxPolarAngle=Math.PI*.47;controls.target.set(0,0,0);
+      scene.add(new THREE.HemisphereLight(0xfff5d5,0x315b54,1.15));const sun=new THREE.DirectionalLight(0xffddb1,2.1);sun.position.set(-9,18,8);sun.castShadow=!lowQuality;sun.shadow.mapSize.set(shadowSize,shadowSize);sun.shadow.camera.left=-13;sun.shadow.camera.right=13;sun.shadow.camera.top=13;sun.shadow.camera.bottom=-13;sun.shadow.camera.near=1;sun.shadow.camera.far=35;sun.shadow.bias=-.00025;sun.shadow.normalBias=.018;scene.add(sun);const rim=new THREE.DirectionalLight(0x79bfd6,.55);rim.position.set(12,8,-12);scene.add(rim);const fill=new THREE.PointLight(0xffbd70,4,14,2);fill.position.set(0,5,-2);scene.add(fill);
+      buildBoard();createDice();composer=null;if(!lowQuality){composer=new EffectComposer(renderer);composer.addPass(new RenderPass(scene,camera));const bloom=new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight),.035,.3,.95);composer.addPass(bloom)}clock=new THREE.Clock();addEventListener('resize',resize);renderer.setAnimationLoop(render);
+    }
+    function resize(){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);composer?.setSize(innerWidth,innerHeight)}
+    function disposeObject(object){object.traverse?.(o=>{o.geometry?.dispose();if(o.material){const materials=Array.isArray(o.material)?o.material:[o.material];materials.forEach(m=>m.dispose())}})}
+    function render(){const dt=Math.min(clock.getDelta(),.05),t=clock.elapsedTime;if(water)water.material.uniforms.uTime.value=t;if(cameraTween){cameraTween.elapsed+=dt;const k=Math.min(1,cameraTween.elapsed/cameraTween.duration),e=1-Math.pow(1-k,3);camera.position.lerpVectors(cameraTween.fromPos,cameraTween.toPos,e);controls.target.lerpVectors(cameraTween.fromTarget,cameraTween.toTarget,e);if(k>=1)cameraTween=null}controls.update();if(boat){boat.position.x=Math.sin(t*.32)*3.2;boat.position.z=-3.9+Math.cos(t*.32)*.5;boat.rotation.y=Math.sin(t*.32)*.12}pieceGroups.forEach((p,i)=>{if(p.visible&&!p.userData.moving){p.position.y=(p.userData.baseY||.33)+Math.sin(t*2.4+i)*.05;p.rotation.z=Math.sin(t*2.4+i)*.035;p.userData.arms?.forEach((arm,n)=>arm.rotation.z=(n?-.72:.72)+Math.sin(t*2.4+i)*.12)}});effects=effects.filter(e=>{e.life-=dt;e.update(dt,e.life);if(e.life<=0){if(!e.keep){scene.remove(e.object);disposeObject(e.object)}return false}return true});
+    (composer||renderer).render()
+    }
+    function cameraTo(target,kind='follow'){
+      const t=target.clone(),offset=kind==='event'?new THREE.Vector3(4.4,4.6,5.2):kind==='dice'?new THREE.Vector3(4.2,3.4,4.2):new THREE.Vector3(5.8,6.8,7.2);
+      cameraTween={fromPos:camera.position.clone(),toPos:t.clone().add(offset),fromTarget:controls.target.clone(),toTarget:t.clone().setY(.65),elapsed:0,duration:kind==='event'?.72:.9};
+    }
+    function sparkleBurst(position,color=COLORS.gold,count=12){
+      for(let i=0;i<count;i++){const coin=mesh(new THREE.CylinderGeometry(.055,.055,.025,10),mat(color,.25,.55),false);coin.position.copy(position).add(new THREE.Vector3(0,.8,0));scene.add(coin);const v=new THREE.Vector3((Math.random()-.5)*2.4,1.2+Math.random()*1.8,(Math.random()-.5)*2.4);effects.push({object:coin,life:1.2,update(dt,life){v.y-=3.2*dt;coin.position.addScaledVector(v,dt);coin.rotation.x+=dt*9;coin.rotation.z+=dt*7;coin.material.opacity=Math.min(1,life*2);coin.material.transparent=true}})}
+    }
+	function celebrate(position){for(let i=0;i<42;i++){const p=mesh(new THREE.BoxGeometry(.05,.05,.02),new THREE.MeshBasicMaterial({color:[COLORS.gold,COLORS.lacquer,COLORS.jade,0xffffff][i%4]}),false);p.position.copy(position).add(new THREE.Vector3((Math.random()-.5)*2,2+Math.random()*2,(Math.random()-.5)*2));scene.add(p);const v=new THREE.Vector3((Math.random()-.5)*4,1+Math.random()*3,(Math.random()-.5)*4);effects.push({object:p,life:2.4,update(dt,life){v.y-=2.4*dt;p.position.addScaledVector(v,dt);p.rotation.x+=dt*7;p.rotation.y+=dt*9;p.material.opacity=Math.min(1,life);p.material.transparent=true}})}}
+    function setupPlayers(){
+      const keys=Object.keys(CHARS),count=Number($('#aiCount').value),chosen=state.selected,others=keys.filter(k=>k!==chosen).sort(()=>Math.random()-.5).slice(0,count),local=state.mode==='local';
+      state.players=[chosen,...others].map((char,id)=>({id,char,name:local?`实例 ${id+1}`:id?`规则Agent ${id}`:'操作员实例',money:1200,pos:0,props:[],bankrupt:false,immune:false,skillUsed:false,ai:!local&&id>0}));
+      buildPlayerModels();renderPlayers();renderCellCard(BOARD[0],'环境巡回起点');
+    }
+    function buildPlayerModels(){pieceGroups=[];state.players.forEach((p,i)=>{const model=createZongzi(CHARS[p.char].color),position=cellPositions[p.pos]||cellPositions[0];model.position.copy(position);model.position.x+=(i-1.5)*.32;model.visible=!p.bankrupt;scene.add(model);pieceGroups.push(model)})}
+    function restoreGame(saved){state.selected=saved.selected||'sugar';state.quality=saved.quality||'auto';state.speed=Number(saved.speed)||1;state.volume=saved.volume??.55;state.mode=saved.mode||'ai';state.difficulty=saved.difficulty||'normal';state.winGoal=Number(saved.winGoal)||2500;$('#gameMode').value=state.mode;updateMode();$('#aiDifficulty').value=state.difficulty;$('#winGoal').value=state.winGoal;$('#speed').value=state.speed;$('#volume').value=Math.round(state.volume*100);state.current=Math.max(0,Math.min(saved.current||0,saved.players.length-1));state.rolled=Boolean(saved.rolled);state.busy=false;state.players=saved.players.map((p,id)=>({...p,id,ai:Boolean(p.ai),props:Array.isArray(p.props)?p.props:[],skillUsed:Boolean(p.skillUsed)}));BOARD.forEach((c,i)=>{c.owner=saved.board?.[i]?.owner??null;c.level=saved.board?.[i]?.level??0});buildPlayerModels();BOARD.filter(c=>c.owner!==null).forEach(refreshProperty);renderPlayers();renderCellCard(BOARD[current().pos],'回到仿真环境')}
+    function current(){return state.players[state.current]}
+    function propertyValue(c){return Math.floor(c.price*(.65+c.level*.2))}
+    function netWorth(p){return p.money+p.props.reduce((total,id)=>total+propertyValue(BOARD[id]),0)}
+    function cellInfo(c){
+      if(c.type==='property'){
+        if(c.owner!==null){
+          const owner=state.players[c.owner];
+          return `归属实例：${owner.name} · Lv.${c.level}｜预期资源收益 $${c.rent*(c.level+1)+(owner.char==='black'?5:0)}`
+        }
+        return `待获取资产｜获取消耗 $${c.price}｜基础收益 $${c.rent}`
+      }
+      return {
+        start:'巡回起点节点，可获取资源',
+        fortune:'随机事件节点',
+        gain:`资源补给节点，获得 $${c.price}`,
+        wheel:'随机能力执行节点',
+        tax:'强制资源消耗节点',
+        rest:'环境观测静止节点'
+      }[c.type]||'未知环境节点'
+    }
+    function renderCellCard(c,kicker='当前实例观测'){
+      const icons={start:'起',property:'资',fortune:'事',gain:'补',wheel:'随',tax:'耗',rest:'静'};
+      $('#cellKicker').textContent=kicker;
+      $('#cellName').textContent=c.name;
+      $('#cellDetail').textContent=cellInfo(c);
+      $('#cellCard').querySelector('.cell-seal').textContent=icons[c.type]||'节'
+    }
+    function renderPlayers(){
+      $('#players').innerHTML=state.players.map((p,i)=>`<div class="player-row ${i===state.current?'active':''} ${p.bankrupt?'bankrupt':''}"><img class="avatar" src="${CHARS[p.char].img}" alt="${CHARS[p.char].name}"><div><div class="player-name">${p.name} · ${CHARS[p.char].name}</div><div class="player-meta">可用资源 $${p.money} · 托管资产 ${p.props.length}</div></div><div class="money">$${netWorth(p)}</div></div>`).join('');
+      const p=current(),skill=CHARS[p.char].active;$('#turnName').textContent=`${p.name} · ${CHARS[p.char].name}`;$('#rollBtn').disabled=state.busy||state.rolled||p.ai;$('#endBtn').disabled=state.busy||!state.rolled||p.ai;$('#assetsBtn').disabled=state.busy||p.ai;$('#skillBtn').disabled=state.busy||state.rolled||p.ai||p.skillUsed;$('#skillBtn').title=p.skillUsed?'本回合能力已消耗':skill;$('#skillBtn').setAttribute('aria-label',p.skillUsed?'本回合能力已消耗':skill);persist();
+    }
+    function log(text,hot=false){const e=document.createElement('div');e.className='log-entry'+(hot?' hot':'');e.textContent=text;$('#logList').prepend(e);while($('#logList').children.length>8)$('#logList').lastChild.remove()}
+    function toast(text){const t=$('#toast');t.textContent=text;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800)}
+
+	function dialog(title,text,buttons=[['确认',true,'primary']],tag=''){
+      if(state.running&&current()?.ai&&tag!=='仿真结束'){toast(`${current().name}：${title}`);return Promise.resolve(true)}
+      return new Promise(resolve=>{const layer=$('#modalLayer');$('#modalTitle').textContent=title;$('#modalText').textContent=text;$('#modalTag').textContent=tag;$('#modalActions').innerHTML='';buttons.forEach(([label,value,style])=>{const b=document.createElement('button');b.className=`action ${style||'secondary'}`;b.textContent=label;b.onclick=()=>{layer.classList.remove('open');resolve(value)};$('#modalActions').appendChild(b)});layer.classList.add('open');setTimeout(()=>$('#modalActions button')?.focus(),80)})
+    }
+
+	async function animateDice(value){
+      cameraTo(dice.position,'dice');sound('roll');$('#diceReadout').textContent='…';const duration=1050/state.speed,start=performance.now(),base=dice.rotation.clone();while(performance.now()-start<duration){const q=(performance.now()-start)/duration;dice.rotation.set(base.x+q*17,base.y+q*21,base.z+q*14);dice.position.y=1.25+Math.sin(q*Math.PI)*2.4;dice.position.x=3.2+Math.sin(q*Math.PI*2)*.25;await new Promise(requestAnimationFrame)}dice.position.set(3.2,1.25,0);dice.rotation.set(.08,value*Math.PI/2,.08);const old=dice.getObjectByName('number');if(old){old.material.map?.dispose();dice.remove(old)}const n=textSprite(String(value),{size:76,bg:'rgba(0,0,0,0)',scale:.28});n.name='number';n.position.set(0,0,.58);dice.add(n);sparkleBurst(dice.position,COLORS.gold,7);sound('tap');$('#diceReadout').textContent=value;
+    }
+
+    async function movePlayer(p,steps){
+      const model=pieceGroups[p.id];
+      model.userData.moving=true;
+      followCamera=true;
+      for(let s=0;s<steps;s++){
+        const old=p.pos;
+        p.pos=(p.pos+1)%BOARD.length;
+        if(p.pos===0&&old===BOARD.length-1){
+          const bonus=200+(p.char==='mixed'?50:0)+(p.startBonus||0);
+          p.startBonus=0;
+          p.money+=bonus;
+          sound('coin');
+          log(`${p.name} 完成巡回，获取资源 $${bonus}`);
+          sparkleBurst(cellPositions[0],COLORS.gold,14);
+        }
+        const target=cellPositions[p.pos].clone();
+        cameraTo(target,'follow');
+        const from=model.position.clone();
+        for(let f=0;f<=16;f++){
+          const k=f/16,e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
+          model.position.lerpVectors(from,target,e);
+          model.position.y=.33+Math.sin(k*Math.PI)*.82;
+          model.rotation.y+=.12;
+          await wait(20);
+        }
+        renderPlayers();
+      }
+      model.userData.moving=false;
+      model.userData.baseY=.33;
+
+      //智能体观测气泡输出
+      const c = BOARD[p.pos];
+      let tipText="";
+      if(p.ai){
+        if(c.type==="property" && c.owner===null){
+          tipText="观测到可获取资产，评估投入产出";
+        }else if(c.type==="property" && c.owner!==null){
+          tipText="检测外部持有资产，将产生资源开销";
+        }else if(c.type==="fortune"){
+          tipText="触发随机事件节点，等待事件返回";
+        }else if(c.type==="wheel"){
+          tipText="进入随机能力执行节点";
+        }else if(c.type==="tax"){
+          tipText="检测强制资源消耗约束";
+        }else{
+          tipText="完成环境感知，推演后续策略";
+        }
+      }else{
+        tipText="位移执行完毕，启动环境观测";
+      }
+      showBubble(model, tipText);
+    }
+
+    async function roll(){if(state.busy||state.rolled||current().ai)return;state.busy=true;renderPlayers();const p=current(),bonus=p.rollBonus||0,n=Math.min(6,1+Math.floor(Math.random()*6)+bonus);p.rollBonus=0;await animateDice(n);log(`${p.name} 位移采样输出 ${n} 点${bonus?'（能力加成）':''}`);await movePlayer(p,n);await land(p);state.rolled=true;state.busy=false;renderPlayers();if(!checkWin())queueNextTurn()}
+    async function aiRoll(){if(!state.running)return;state.busy=true;renderPlayers();await wait(700);const n=1+Math.floor(Math.random()*6);await animateDice(n);log(`${current().name} 位移采样输出 ${n} 点`);await movePlayer(current(),n);await land(current());state.rolled=true;state.busy=false;renderPlayers();if(!checkWin())queueNextTurn()}
+
+	async function land(p){
+      const c=BOARD[p.pos];cameraTo(cellPositions[p.pos],'event');renderCellCard(c,`${p.name} 节点停靠`);
+	  log(`${p.name} 抵达环境节点「${c.name}」`);
+      if(c.type==='property')await property(p,c);
+	  else if(c.type==='fortune')await fortune(p);
+	  else if(c.type==='gain'){p.money+=c.price;await dialog('资源补给节点',`获取资源 $${c.price}，仿真环境补给。`)}
+	  else if(c.type==='tax'){await negative(p,p.props.length*c.price,`托管 ${p.props.length} 项资产，执行强制资源消耗 $${p.props.length*c.price}。`)}
+	  else if(c.type==='wheel')await spin(p);
+	  else if(c.type==='rest')toast('进入静止观测节点，无事件触发');
+renderPlayers();
+	  bankruptcy(p)
+    }
+
+    async function property(p,c){
+      if(c.owner===null){
+        const extra=p.discountBonus||0,cost=Math.max(0,c.price-(p.char==='egg'?10:0)-extra);
+        let buy=p.ai?(p.money>cost+aiReserve(p)?'buy':'auction'):await dialog(c.name,`资源消耗 $${cost}｜预期资产收益 $${c.rent}${extra?`\n资源抵扣：-$${extra}`:''}\n是否执行资产获取动作？`,[['执行获取','buy','primary'],['进入竞价博弈','auction','secondary'],['暂缓执行','skip','ghost']],'资产决策');
+        if(buy==='buy'&&p.money>=cost){
+          p.money-=cost;p.discountBonus=0;p.props.push(c.i);c.owner=p.id;refreshProperty(c);sound('coin');log(`${p.name} 执行资产获取「${c.name}」`,true)
+        }else if(buy==='auction')await auction(c,p);
+        else if(buy==='buy')await dialog('资源不足',`资源缺口 $${cost-p.money}，本次资产获取无法执行。`);
+        return
+      }
+      const owner=state.players[c.owner];
+      if(owner.id===p.id){
+        if(c.level>=3)return void toast('该资产已到达迭代上限');
+        const cost=Math.max(20,Math.floor(c.price*.45)-(p.char==='egg'?10:0));
+        const up=p.ai?p.money>cost+aiReserve(p)+50:await dialog('资产迭代',`${c.name} 当前迭代等级 Lv.${c.level+1}\n消耗资源 $${cost}，提升资产收益。`,[['执行迭代',true,'primary'],['保留现有资源',false,'ghost']]);
+        if(up&&p.money>=cost){
+          p.money-=cost;c.level++;refreshProperty(c);log(`${p.name} 执行资产迭代「${c.name}」`,true)
+        }
+        return
+      }
+      let rent=c.rent*(c.level+1)+(owner.char==='black'?5:0)+(owner.rentBonus||0);
+      await negative(p,rent,`该节点归属其他实例，需要支付资源 $${rent}。`,()=>{owner.money+=rent;owner.rentBonus=0});
+      log(`${p.name} 向其他实例支付资源 $${rent}`,true)
+    }
+
+    function aiReserve(){return {easy:460,normal:250,hard:110}[state.difficulty]??250}
+
+    async function auction(c,landingPlayer){
+      const minimum=Math.ceil(c.price*.55),step=Math.max(10,Math.ceil(c.price*.08/10)*10);
+      if(state.mode!=='local'){
+        const bidders=state.players.filter(p=>!p.bankrupt&&p.id!==landingPlayer.id&&p.money>minimum+120).map(p=>({p,bid:Math.min(p.money-120,minimum+Math.floor(Math.random()*Math.max(25,c.price*.22)))})).sort((a,b)=>b.bid-a.bid);
+        if(!bidders.length){log(`「${c.name}」竞价无有效参与方。`);return}
+        const winner=bidders[0];
+        winner.p.money-=winner.bid;winner.p.props.push(c.i);c.owner=winner.p.id;refreshProperty(c);sound('coin');
+        log(`多智能体竞价完成：${winner.p.name} 获取资产「${c.name}」，消耗资源 $${winner.bid}`,true);
+        await dialog('多智能体竞价博弈',`「${c.name}」竞价结束，${winner.p.name} 获取资产，消耗资源 $${winner.bid}。`,undefined,'博弈结果');
+        return
+      }
+      const active=new Set(state.players.filter(p=>!p.bankrupt&&p.money>=minimum).map(p=>p.id));
+      if(!active.size){
+        await dialog('多智能体竞价博弈',`「${c.name}」未收到有效报价，本次博弈终止。`,undefined,'博弈结果');
+        return
+      }
+      let leader=null,bid=minimum-step,cursor=(landingPlayer.id+1)%state.players.length;
+      while(active.size){
+        if(leader!==null&&active.size===1)break;
+        let p=null;
+        for(let i=0;i<state.players.length;i++){
+          const candidate=state.players[(cursor+i)%state.players.length];
+          if(active.has(candidate.id)&&candidate.id!==leader){
+            p=candidate;
+            cursor=(candidate.id+1)%state.players.length;
+            break
+          }
+        }
+        if(!p)break;
+        const next=bid+step;
+        if(p.money<next){active.delete(p.id);continue}
+        const choice=await dialog(`多智能体竞价博弈 · ${p.name}`,`「${c.name}」当前 ${leader?`${leader.name} 报价 $${bid}`:`最低报价 $${minimum}`}\n是否将报价提升至 $${next}？`,[[`提升报价 $${next}`,'bid','primary'],['放弃博弈','pass','ghost']],'实例交互');
+        if(choice==='bid'){bid=next;leader=p;log(`${p.name} 提交新报价 $${bid}`)}
+        else{active.delete(p.id);log(`${p.name} 退出本次竞价博弈`)}
+      }
+      if(!leader){
+        await dialog('多智能体竞价博弈',`「${c.name}」未收到有效报价，本次博弈终止。`,undefined,'博弈结果');
+        return
+      }
+      leader.money-=bid;leader.props.push(c.i);c.owner=leader.id;refreshProperty(c);sound('coin');
+      log(`多智能体竞价完成：${leader.name} 获取资产「${c.name}」，消耗资源 $${bid}`,true);
+      await dialog('多智能体竞价博弈',`「${c.name}」竞价结束，${leader.name} 获取资产，消耗资源 $${bid}。`,undefined,'博弈结果')
+    }
+
+    function upgradeCost(p,c){return Math.max(20,Math.floor(c.price*.45)-(p.char==='egg'?10:0))}
+
+    async function manageAssets(){
+      const p=current();
+      if(p.ai||state.busy)return;
+      if(!p.props.length)return void dialog('尚无托管资产','请先执行资产获取，再执行资源调度。');
+      const choices=[];
+      p.props.forEach(id=>{
+        const c=BOARD[id],rent=c.rent*(c.level+1)+(p.char==='black'?5:0);
+        if(c.level<3)choices.push([`${c.name} Lv.${c.level}｜资产迭代消耗 $${upgradeCost(p,c)}`,`upgrade:${id}`,'primary']);
+        choices.push([`${c.name}｜资产剥离，回收资源 +$${Math.floor(c.price*.6)}`,`sell:${id}`,'ghost']);
+      });
+      choices.push(['关闭','close','secondary']);
+      const action=await dialog('智能体资源面板',`可用资源 $${p.money}｜选择一项资产执行操作。`,choices,'资源调度');
+      if(action?.startsWith('upgrade:')){
+        const c=BOARD[Number(action.slice(8))],cost=upgradeCost(p,c);
+        if(p.money<cost)return void dialog('资源不足',`完成迭代还缺少资源 $${cost-p.money}。`);
+        p.money-=cost;c.level++;refreshProperty(c);
+        log(`${p.name} 执行资产迭代「${c.name}」`,true);renderPlayers()
+      }else if(action?.startsWith('sell:')){
+        const c=BOARD[Number(action.slice(5))],value=Math.floor(c.price*.6);
+        p.money+=value;p.props=p.props.filter(id=>id!==c.i);c.owner=null;c.level=0;refreshProperty(c);
+        log(`${p.name} 执行资产剥离「${c.name}」，回收资源 $${value}`,true);renderPlayers()
+      }
+      if(action!=='close')await manageAssets()
+    }
+
+    function refreshProperty(c){
+      const lot=cellGroups[c.i].getObjectByName('building');
+      lot.children.forEach(disposeObject);lot.clear();
+      if(c.owner!==null){
+        const b=makeBuilding(CHARS[state.players[c.owner].char].color,c.level);
+        b.scale.setScalar(.01);lot.add(b);
+        effects.push({object:b,life:.75,keep:true,update(dt,life){const k=1-Math.max(0,life)/.75;b.scale.setScalar(1-Math.pow(1-k,3))}});
+        sparkleBurst(cellPositions[c.i],CHARS[state.players[c.owner].char].color,10)
+      }
+    }
+
+    async function negative(p,amount,text,after){
+      if(p.immune){
+        p.immune=false;sound('tap');
+        await dialog('防护能力触发',`${CHARS[p.char].name} 拦截本次异常资源消耗事件！`);
+        return
+      }
+      p.money-=amount;sound('bad');
+      if(after)after();
+      await dialog('仿真异常事件',text,undefined,'约束触发')
+    }
+
+    async function fortune(p){
+      const cards=[
+        ['环境利好','获取资源 $150。',150],
+        ['实例增益','获取资源 $220。',220],
+        ['意外损耗','资源损耗 $80。',-80],
+        ['环境故障','装备损耗，损失资源 $60。',-60],
+        ['防护增益','获得一次异常事件拦截。','immune'],
+        ['合作收益','获取代言资源 $120。',120]
+      ];
+      const c=cards[Math.floor(Math.random()*cards.length)];
+      let v=c[2];
+      if(typeof v==='number'&&v>0){
+        v+=(p.char==='green'?30:0)+(p.fortuneBoost||0);
+        p.fortuneBoost=0;
+      }
+      if(v==='immune')p.immune=true;
+      else if(v<0)await negative(p,-v,c[1]);
+      else p.money+=v;
+      await dialog(c[0],typeof v==='number'&&v>0?`正向事件，获取资源 $${v}！`:c[1],undefined,'随机事件节点');
+      log(`${p.name} 触发随机事件「${c[0]}」`,v>0)
+    }
+
+  async function spin(p){
+  const rewards=[
+    ['获取资源 $200',200],
+    ['获取资源 $100',100],
+    ['资源损耗 $80',-80],
+    ['触发随机事件','fortune'],
+    ['免费资产迭代','upgrade'],
+    ['巡回节点额外资源',200]
+  ];
+  const pick=Math.floor(Math.random()*rewards.length),r=rewards[pick];
+  const from=wheel.rotation.y;
+  const to=from+Math.PI*8+pick*Math.PI/3;
+  sound('roll');
+
+  // 修复转盘动画：使用await循环，逐帧等待
+  const steps=90;
+  for(let f=0;f<=steps;f++){
+    const k=f/steps;
+    const e=1-Math.pow(1-k,3); //缓动
+    wheel.rotation.y = from + (to-from)*e;
+    await wait(22);
+  }
+
+  let v=r[1];
+  if(typeof v==='number'&&v>0&&p.char==='sugar')v+=50;
+  if(v==='fortune')await fortune(p);
+  else if(v==='upgrade'){
+    const c=BOARD.find(x=>x.owner===p.id&&x.level<3);
+    if(c){c.level++;refreshProperty(c)}else v=100;
+  }else if(v<0)await negative(p,-v,`转盘结果：资源损耗 $${-v}。`);
+  else if(typeof v==='number'){p.money+=v;sound('coin')}
+  await dialog('随机能力执行节点',typeof v==='number'&&v>0?`指针停在「${r[0]}」，实得资源 $${v}！`:`指针停在「${r[0]}」。`);
+  log(`${p.name} 执行转盘「${r[0]}」`,true)
+}
+
+    async function useSkill(){
+      const p=current();
+      if(p.ai||state.busy||state.rolled||p.skillUsed)return;
+      const active=CHARS[p.char].active;
+      p.skillUsed=true;
+      let detail='';
+      if(p.char==='sugar'){p.rollBonus=2;detail='下次位移采样额外 +2 步（上限6步）。'}
+      else if(p.char==='egg'){p.discountBonus=30;detail='下次资产获取获得资源抵扣。'}
+      else if(p.char==='black'){p.rentBonus=20;detail='下次持有资产收益提升。'}
+      else if(p.char==='green'){p.fortuneBoost=80;detail='下次正向事件收益增益。'}
+      else if(p.char==='taro'){p.immune=true;detail='已获得一次异常事件拦截防护。'}
+      else {p.startBonus=100;detail='下次巡回节点获得额外资源。'}
+      renderPlayers();sound('coin');
+      log(`${p.name} 激活智能体能力「${active.split('：')[0]}」`,true);
+      await dialog('智能体能力',`${active}\n${detail}`,[['确认',true,'primary']],'能力触发')
+    }
+
+    function bankruptcy(p){
+      if(p.money>=0||p.bankrupt)return;
+      p.bankrupt=true;
+      pieceGroups[p.id].visible=false;
+      p.props.forEach(i=>{BOARD[i].owner=null;BOARD[i].level=0;refreshProperty(BOARD[i])});
+      p.props=[];
+      log(`${p.name} 资源耗尽，智能体实例终止运行`,true)
+    }
+
+    function checkWin(){
+      const alive=state.players.filter(p=>!p.bankrupt),rich=state.players.find(p=>!p.bankrupt&&netWorth(p)>=state.winGoal);
+      if(rich||alive.length===1){
+        const winner=rich||alive[0];
+        state.running=false;clearSave();
+        cameraTo(cellPositions[winner.pos],'event');
+        celebrate(cellPositions[winner.pos]);sound('win');
+        dialog('仿真任务完成',`${winner.name}（${CHARS[winner.char].name}）完成仿真任务！\n实例总资源：$${netWorth(winner)}`,[['重新启动仿真',true,'primary']],'仿真结束').then(()=>location.reload());
+        return true
+      }
+      return false
+    }
+
+    function queueNextTurn(){
+      clearTimeout(nextTurnTimer);
+      const delay=state.mode==='local'?1500:950;
+      toast('本实例回合结算完成，准备切换实例');
+      nextTurnTimer=setTimeout(()=>{nextTurnTimer=null;endTurn()},delay/state.speed)
+    }
+
+    function endTurn(){
+      if(state.busy||!state.running)return;
+      clearTimeout(nextTurnTimer);nextTurnTimer=null;
+      state.rolled=false;
+      let tries=0;
+      do{state.current=(state.current+1)%state.players.length;tries++}while(state.players[state.current].bankrupt&&tries<=state.players.length);
+      renderPlayers();renderCellCard(BOARD[current().pos],`轮到 ${current().name}`);
+      if(current().ai)aiRoll()
+    }
+
+    function resetCamera(){
+      followCamera=false;
+      cameraTween={fromPos:camera.position.clone(),toPos:overviewPosition.clone(),fromTarget:controls.target.clone(),toTarget:overviewTarget.clone(),elapsed:0,duration:1};
+      toast('已回到仿真环境全景')
+    }
+
+   function showHelp(){
+  dialog('沙盒原型｜Agent模块映射与项目整体规划',
+`本3D博弈沙盒为我2025年竞赛参赛作品。
+
+【竞赛原始完整方案构想】
+原本计划接入LLM推理内核，搭建一套**通用可插拔工具调用框架**。
+工具分为两大类：一类是沙盒内置博弈工具；另一类对接各类外部第三方API，并非仅局限AI绘图。
+博弈仿真运行过程中，LLM作为实例的决策大脑，读取Agent记忆与环境观测结果，自主选择调用内置工具，或是调用外部工具接口。
+
+规划可接入的外部工具集合：
+• 文生图工具：事件触发后动态生成叙事插画；
+• TTS语音合成：依据Agent状态生成角色情绪配音；
+• 网页检索工具：联网获取信息辅助博弈策略推演；
+• 代码沙盒工具：Agent执行脚本完成收益计算、策略模拟；
+• 文档导出工具：导出对局决策日志，生成复盘报告；
+• 子Agent派生工具：动态派生子智能体处理细分任务。
+
+AI绘图只是众多外部工具其中之一，不是整个项目的最终目标。
+所有外部工具调用会经过统一沙箱校验与异常捕获；外部工具返回的结果只会写入Agent记忆，不允许直接篡改仿真世界状态。
+
+受限于竞赛周期、现场部署环境与硬件资源，LLM推理内核、外部API网络调用链路没有完成编码落地。
+我没有只输出一个玩具Demo，优先完整实现整套Agent仿真实验底座，所有感知、记忆、调度、安全、工具注册钩子全部预留，作为LLM‑Agent工程思想的验证原型。
+
+【各组件对应Agent技术概念与设计出发点】
+【1】角色移动、节点停靠逻辑 → Agent环境感知模块
+每一轮位移结束后采集当前环境节点、对手实例、自身资源状态。
+👉设计出发点：Agent执行决策的前提是环境观测。我增加头顶气泡将感知结果可视化，便于调试观测逻辑；后续接入LLM时，这部分采集到的环境信息既可以组装为Prompt上下文，也可以提取字段作为外部工具（绘图、检索）的入参素材。
+
+【2】资产获取 / 迭代 / 剥离、竞价博弈 → Agent标准化内置工具调用层
+资产操作、多实例竞价全部封装成独立标准化工具接口。
+👉设计出发点：贯彻Agent决策‑执行分离架构。上层无论是当前的规则逻辑，还是后续替换为LLM输出结构化JSON指令，都复用同一套工具集。决策层仅输出行为意图，禁止直接篡改仿真世界原始状态。这套接口和外部第三方工具复用同一套调用流水线，统一做参数校验。
+
+【3】角色技能Buff标记系统 → Agent短期工作记忆
+技能不会立刻生效，仅向实例写入状态标记，后续回合工作流读取、消费标记完成能力效果。
+👉设计出发点：模拟Agent跨回合短期记忆。把状态标记存在记忆层，业务逻辑交由环境消费，避免大模型需要记忆大量复杂业务细节，降低LLM提示词负担；记忆内的字段同样可以作为外部工具调用的输入素材。
+
+【4】资源、资产集合、运行状态本地快照存档 → Agent会话持久化记忆
+实例资源、资产、buff状态支持快照保存与恢复。
+👉设计出发点：对标生产级Agent会话快照机制，仿真可以随时中断、回滚恢复。接入外部工具之后，工具返回的图像、文本日志也可以一并存入快照，完整留存Agent运行全过程，方便开展多组仿真对照实验。
+
+【5】工具调用前置校验 + 破产后置兜底 → Agent幻觉安全沙箱防御
+所有工具（内置+外部）调用前做资源、权限、入参格式校验；执行完成后做异常状态检测拦截。
+👉设计出发点：真实LLM存在幻觉问题，不能无条件信任大模型输出。我刻意把全部安全约束下沉仿真环境层，提示词只负责高层策略推演，不靠Prompt做规则校验。
+即使外部API报错、返回异常垃圾数据，仅将错误信息写入Agent记忆，不会污染沙盒内部世界状态，实现内外工具统一安全隔离。
+
+【6】回合驱动异步事件工作流 → Agent多步规划调度器
+完整执行链路：环境感知 → 决策推理 → 工具调用（内置/外部） → 状态更新 → 切换实例。
+👉设计出发点：复刻串行多步Agent调度模型。当前使用规则Agent作为临时决策实现；整套环境、工具注册表、记忆、安全模块完全解耦。仅替换决策模块，即可无缝切换为LLM驱动智能体。
+
+【项目长期定位：全自动AI原生游戏技术底座】
+本原型不只是博弈Demo，是下一代全自动Agent游戏的最小验证底座。
+传统游戏NPC、剧情依赖大量预先编写脚本与行为树；全自动AI游戏由LLM‑Agent驱动实例，角色行为、故事剧情运行时动态涌现，摆脱预制脚本、预制美术素材的限制。
+
+分阶段演进规划：
+1.短期：接入LLM，替换规则决策层，实现多实例全自动博弈仿真，支持批量运行仿真做智能体策略对比；
+2.中期：按需插拔接入各类外部工具，完成内置工具与第三方API混合调用，补齐多模态、检索、计算等能力；
+3.长期：扩展社交、交易、结盟工具集，演化成为无预设主线的开放世界多Agent沙盒。角色自主合作、冲突、演化，玩家可以选择参与或者旁观整个世界的涌现。
+
+整套仿真环境、记忆、安全校验、调度器全部已经解耦完成，后续新增能力无需大规模改动底层仿真逻辑。`,
+  [['了解',true,'primary']],'原型说明')
+}
+
+
+    async function start(resume=false){
+      if(state.running)return;
+      const saved=resume?getSave():null;
+      if(!resume)clearSave();
+      if(saved?.quality)$('#quality').value=saved.quality;
+      state.mode=$('#gameMode').value;
+      state.difficulty=$('#aiDifficulty').value;
+      state.speed=Number($('#speed').value);
+      state.volume=Number($('#volume').value)/100;
+      state.winGoal=Number($('#winGoal').value)||2500;
+      init3D();
+      if(saved)restoreGame(saved);else setupPlayers();
+      $('#winChip').textContent=`$${state.winGoal.toLocaleString()} 目标阈值`;
+      state.running=true;
+      $('#startScreen').classList.add('hidden');$('#hud').hidden=false;
+      log(saved?'恢复历史仿真快照。':state.mode==='local'?'多实例手动调度仿真启动。':'3D博弈仿真沙盒启动',true);
+      renderPlayers();
+      if(saved){
+        await dialog('恢复仿真',`已恢复 ${current().name} 的回合与全部资产数据。`);
+        if(current().ai&&!state.rolled)aiRoll()
+      }else{
+        await dialog(state.mode==='local'?'多实例仿真':'欢迎进入Agent仿真沙盒',
+        state.mode==='local'?'请切换实例执行位移采样；竞价阶段依次完成交互。':'你是「'+CHARS[state.selected].name+'」。\n执行位移采样，获取、迭代资产，累积总资源到达阈值完成仿真。\n每个周期位移采样前可激活智能体能力。')
+      }
+    }
+
+    $('#startBtn').onclick=()=>start(false);
+    $('#continueBtn').onclick=()=>start(true);
+    $('#helpBtn').onclick=showHelp;
+    $('#assetsBtn').onclick=manageAssets;
+    $('#skillBtn').onclick=useSkill;
+    $('#rollBtn').onclick=roll;
+    $('#endBtn').onclick=endTurn;
+    $('#cameraBtn').onclick=resetCamera;
+    $('#volume').oninput=()=>{state.volume=Number($('#volume').value)/100;persist()};
+    $('#speed').onchange=()=>{state.speed=Number($('#speed').value);persist()};
+
+    addEventListener('visibilitychange',()=>{
+      if(!renderer)return;
+      if(document.hidden){persist();renderer.setAnimationLoop(null)}
+      else{clock?.getDelta();renderer.setAnimationLoop(render)}
+    });
+    addEventListener('beforeunload',persist);
+    addEventListener('keydown',e=>{
+      if(e.target.matches('button,select'))return;
+      if(e.key.toLowerCase()==='r')roll();
+      if(e.key.toLowerCase()==='e'&&!$('#endBtn').disabled)endTurn();
+      if(e.key.toLowerCase()==='c')resetCamera()
+    });
+  </script>
+</body>
+</html>
