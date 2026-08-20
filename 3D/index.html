@@ -278,28 +278,25 @@
     
     @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
 
-	  /* ===== 强制覆盖：手机横屏弹窗缩小 ===== */
-@media (max-width: 900px) and (orientation: landscape) {
+/* ===== 强制覆盖：手机端所有弹窗缩小 ===== */
+@media (max-width: 900px) {
   .modal-layer {
-    padding: 4px !important;
-    align-items: flex-start !important;
-    padding-top: 20px !important;
+    padding: 8px !important;
   }
   .modal {
-    width: 85vw !important;
-    max-width: 400px !important;
-    max-height: 60vh !important;
-    padding: 10px 14px !important;
+    width: 88vw !important;
+    max-width: 360px !important;
+    max-height: 50vh !important;
+    padding: 12px 14px !important;
     border-radius: 12px !important;
-    transform: none !important;
   }
   .modal h3 {
     font-size: 14px !important;
     margin: 2px 0 4px !important;
   }
   .modal p {
-    font-size: 10px !important;
-    line-height: 1.4 !important;
+    font-size: 11px !important;
+    line-height: 1.5 !important;
     max-height: 30vh !important;
     overflow-y: auto !important;
   }
@@ -312,15 +309,39 @@
     flex-wrap: wrap !important;
   }
   .modal .action {
-    padding: 4px 10px !important;
-    font-size: 9px !important;
+    padding: 5px 12px !important;
+    font-size: 10px !important;
     border-radius: 6px !important;
-    min-width: 40px !important;
+    min-width: 44px !important;
     flex: 0 1 auto !important;
   }
   #modalText {
     max-height: 30vh !important;
-    font-size: 10px !important;
+    font-size: 11px !important;
+  }
+}
+
+/* ===== 手机横屏弹窗更小 ===== */
+@media (max-width: 900px) and (orientation: landscape) {
+  .modal {
+    max-width: 320px !important;
+    max-height: 40vh !important;
+    padding: 8px 12px !important;
+  }
+  .modal h3 {
+    font-size: 12px !important;
+  }
+  .modal p {
+    font-size: 9px !important;
+    max-height: 20vh !important;
+  }
+  .modal .action {
+    padding: 3px 8px !important;
+    font-size: 8px !important;
+  }
+  #modalText {
+    font-size: 9px !important;
+    max-height: 20vh !important;
   }
 }
   </style>
