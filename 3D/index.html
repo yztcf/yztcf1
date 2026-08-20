@@ -120,79 +120,161 @@
       .toast{top:10px;padding:6px 12px;font-size:10px}
     }
     
-    /* ===== 手机横屏 - 核心优化 ===== */
-    @media(max-width:900px) and (orientation:landscape){
-      /* 隐藏标题 */
-      .brand h1{display:none}
-      .brand p{display:none}
-      .brand{grid-column:1;padding:4px 8px;border-radius:10px;gap:4px}
-      .brand-mark{width:20px;height:20px;border-radius:6px;font-size:10px}
-      
-      /* 整体布局改为右侧操作区 */
-      .hud{grid-template-columns:1fr auto;grid-template-rows:auto 1fr auto;gap:4px;padding:4px}
-      
-      /* 玩家面板缩小 */
-      .score-panel{grid-column:1;grid-row:1/3;padding:4px 6px;border-radius:10px;max-width:none}
-      .panel-title{font-size:7px;margin-bottom:2px}
-      .panel-title .stage-chip{font-size:6px;padding:1px 4px}
-      #players{grid-template-columns:1fr;gap:2px}
-      .player-row{grid-template-columns:16px 1fr auto;gap:3px;padding:2px 4px;border-radius:5px}
-      .avatar{width:16px;height:16px;border-radius:4px}
-      .player-name{font-size:7px}
-      .player-meta{display:none}
-      .money{font-size:7px}
-      
-      /* 顶部节点卡片移到左下 */
-      .cell-card{grid-column:1;grid-row:3;position:fixed;left:4px;bottom:52px;right:auto;min-width:0;max-width:180px;padding:3px 6px;gap:4px;border-radius:8px}
-      .cell-seal{width:16px;height:16px;border-radius:5px;font-size:8px}
-      .cell-kicker{font-size:5px}
-      .cell-name{font-size:9px;font-weight:700}
-      .cell-detail{font-size:6px;margin-top:0}
-      
-      /* 右侧操作栏 - 竖排小按钮 */
-      .turn-dock{grid-column:2;grid-row:1/4;position:fixed;right:4px;top:50%;transform:translateY(-50%);left:auto;bottom:auto;width:auto;min-width:0;padding:4px 3px;border-radius:12px;flex-direction:column;gap:3px;justify-content:center;align-items:center;background:rgba(255,244,216,.88)}
-      .turn-copy{display:none}
-      .turn-kicker{display:none}
-      .turn-name{display:none}
-      .dice-readout{width:22px;height:22px;border-radius:6px;font-size:11px;flex:0 0 22px}
-      
-      .action{padding:3px 4px;font-size:6px;border-radius:6px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;flex:0 0 28px}
-      .action:hover:not(:disabled){transform:none}
-      
-      #helpBtn{display:none}
-      #assetsBtn,#skillBtn,#cameraBtn{width:28px;height:28px;padding:0;font-size:0;flex:0 0 28px;border-radius:6px}
-      #assetsBtn::after{content:'资';font-size:8px;font-weight:900}
-      #skillBtn::after{content:'技';font-size:8px;font-weight:900}
-      #cameraBtn::after{content:'全';font-size:8px;font-weight:900}
-      #rollBtn{width:28px;height:28px;flex:0 0 28px;padding:0;font-size:0;border-radius:6px}
-      #rollBtn::after{content:'掷';font-size:8px;font-weight:900}
-      #endBtn{width:28px;height:28px;flex:0 0 28px;padding:0;font-size:0;border-radius:6px;display:flex!important}
-      #endBtn::after{content:'结';font-size:8px;font-weight:900}
-      
-      .log-panel{display:none}
-      .camera-help{display:none}
-    }
-    
-    /* ===== 手机横屏 - 启动页面缩小到一页 ===== */
-    @media(max-width:900px) and (orientation:landscape){
-      .start-screen{padding:6px}
-      .start-card{padding:8px 10px;border-radius:14px;max-height:98vh;width:min(600px,98vw)}
-      .start-card h2{font-size:clamp(16px,3vw,24px);margin:4px 0 6px}
-      .start-card h2 span{display:inline}
-      .setup-grid{grid-template-columns:1fr 1.2fr;gap:8px}
-      .label{font-size:8px;margin-bottom:2px}
-      .characters{grid-template-columns:repeat(3,1fr);gap:3px}
-      .character{padding:3px 4px;border-radius:8px}
-      .character img{height:24px}
-      .character strong{font-size:8px}
-      .character small{font-size:6px;margin-top:0}
-      .setup-side{gap:6px}
-      .field{padding:4px 6px;border-radius:8px}
-      .field select{padding:3px 5px;font-size:9px}
-      .launch{padding:5px 10px;font-size:11px}
-      .license-note{font-size:6px}
-      .start-card:before{inset:6px;border-radius:12px}
-    }
+   /* ===== 手机横屏 - 核心优化 ===== */
+@media(max-width:900px) and (orientation:landscape){
+  /* 隐藏标题 */
+  .brand h1{display:none}
+  .brand p{display:none}
+  .brand{grid-column:1;padding:4px 8px;border-radius:10px;gap:4px}
+  .brand-mark{width:20px;height:20px;border-radius:6px;font-size:10px}
+  
+  .hud{grid-template-columns:1fr auto;grid-template-rows:auto 1fr auto;gap:4px;padding:4px}
+  
+  .score-panel{grid-column:1;grid-row:1/3;padding:4px 6px;border-radius:10px;max-width:none}
+  .panel-title{font-size:7px;margin-bottom:2px}
+  .panel-title .stage-chip{font-size:6px;padding:1px 4px}
+  #players{grid-template-columns:1fr;gap:2px}
+  .player-row{grid-template-columns:16px 1fr auto;gap:3px;padding:2px 4px;border-radius:5px}
+  .avatar{width:16px;height:16px;border-radius:4px}
+  .player-name{font-size:7px}
+  .player-meta{display:none}
+  .money{font-size:7px}
+  
+  .cell-card{grid-column:1;grid-row:3;position:fixed;left:4px;bottom:52px;right:auto;min-width:0;max-width:180px;padding:3px 6px;gap:4px;border-radius:8px}
+  .cell-seal{width:16px;height:16px;border-radius:5px;font-size:8px}
+  .cell-kicker{font-size:5px}
+  .cell-name{font-size:9px;font-weight:700}
+  .cell-detail{font-size:6px;margin-top:0}
+  
+  .turn-dock{grid-column:2;grid-row:1/4;position:fixed;right:4px;top:50%;transform:translateY(-50%);left:auto;bottom:auto;width:auto;min-width:0;padding:4px 3px;border-radius:12px;flex-direction:column;gap:3px;justify-content:center;align-items:center;background:rgba(255,244,216,.88)}
+  .turn-copy{display:none}
+  .turn-kicker{display:none}
+  .turn-name{display:none}
+  .dice-readout{width:22px;height:22px;border-radius:6px;font-size:11px;flex:0 0 22px}
+  
+  .action{padding:3px 4px;font-size:6px;border-radius:6px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;flex:0 0 28px}
+  .action:hover:not(:disabled){transform:none}
+  
+  #helpBtn{display:none}
+  #assetsBtn,#skillBtn,#cameraBtn{width:28px;height:28px;padding:0;font-size:0;flex:0 0 28px;border-radius:6px}
+  #assetsBtn::after{content:'资';font-size:8px;font-weight:900}
+  #skillBtn::after{content:'技';font-size:8px;font-weight:900}
+  #cameraBtn::after{content:'全';font-size:8px;font-weight:900}
+  #rollBtn{width:28px;height:28px;flex:0 0 28px;padding:0;font-size:0;border-radius:6px}
+  #rollBtn::after{content:'掷';font-size:8px;font-weight:900}
+  #endBtn{width:28px;height:28px;flex:0 0 28px;padding:0;font-size:0;border-radius:6px;display:flex!important}
+  #endBtn::after{content:'结';font-size:8px;font-weight:900}
+  
+  .log-panel{display:none}
+  .camera-help{display:none}
+  
+  /* ===== 弹窗缩小 ===== */
+  .modal-layer{padding:8px}
+  .modal{padding:10px 12px;border-radius:12px;max-height:70vh}
+  .modal h3{font-size:14px;margin:4px 0 6px}
+  .modal p{font-size:10px;line-height:1.5;max-height:40vh}
+  .modal .action{padding:4px 10px;font-size:8px;border-radius:6px}
+  .modal-tag{font-size:7px}
+  .modal-actions{gap:4px;margin-top:6px}
+}
+
+/* ===== 手机横屏 - 启动页面缩小到一页 ===== */
+@media(max-width:900px) and (orientation:landscape){
+  .start-screen{padding:6px}
+  .start-card{padding:8px 10px;border-radius:14px;max-height:98vh;width:min(600px,98vw)}
+  .start-card h2{font-size:clamp(16px,3vw,24px);margin:4px 0 6px}
+  .start-card h2 span{display:inline}
+  .setup-grid{grid-template-columns:1fr 1.2fr;gap:8px}
+  .label{font-size:8px;margin-bottom:2px}
+  .characters{grid-template-columns:repeat(3,1fr);gap:3px}
+  .character{padding:3px 4px;border-radius:8px}
+  .character img{height:24px}
+  .character strong{font-size:8px}
+  .character small{font-size:6px;margin-top:0}
+  .setup-side{gap:6px}
+  .field{padding:4px 6px;border-radius:8px}
+  .field select{padding:3px 5px;font-size:9px}
+  .launch{padding:5px 10px;font-size:11px}
+  .license-note{font-size:6px}
+  .start-card:before{inset:6px;border-radius:12px}
+}/* ===== 手机横屏 - 核心优化 ===== */
+@media(max-width:900px) and (orientation:landscape){
+  /* 隐藏标题 */
+  .brand h1{display:none}
+  .brand p{display:none}
+  .brand{grid-column:1;padding:4px 8px;border-radius:10px;gap:4px}
+  .brand-mark{width:20px;height:20px;border-radius:6px;font-size:10px}
+  
+  .hud{grid-template-columns:1fr auto;grid-template-rows:auto 1fr auto;gap:4px;padding:4px}
+  
+  .score-panel{grid-column:1;grid-row:1/3;padding:4px 6px;border-radius:10px;max-width:none}
+  .panel-title{font-size:7px;margin-bottom:2px}
+  .panel-title .stage-chip{font-size:6px;padding:1px 4px}
+  #players{grid-template-columns:1fr;gap:2px}
+  .player-row{grid-template-columns:16px 1fr auto;gap:3px;padding:2px 4px;border-radius:5px}
+  .avatar{width:16px;height:16px;border-radius:4px}
+  .player-name{font-size:7px}
+  .player-meta{display:none}
+  .money{font-size:7px}
+  
+  .cell-card{grid-column:1;grid-row:3;position:fixed;left:4px;bottom:52px;right:auto;min-width:0;max-width:180px;padding:3px 6px;gap:4px;border-radius:8px}
+  .cell-seal{width:16px;height:16px;border-radius:5px;font-size:8px}
+  .cell-kicker{font-size:5px}
+  .cell-name{font-size:9px;font-weight:700}
+  .cell-detail{font-size:6px;margin-top:0}
+  
+  .turn-dock{grid-column:2;grid-row:1/4;position:fixed;right:4px;top:50%;transform:translateY(-50%);left:auto;bottom:auto;width:auto;min-width:0;padding:4px 3px;border-radius:12px;flex-direction:column;gap:3px;justify-content:center;align-items:center;background:rgba(255,244,216,.88)}
+  .turn-copy{display:none}
+  .turn-kicker{display:none}
+  .turn-name{display:none}
+  .dice-readout{width:22px;height:22px;border-radius:6px;font-size:11px;flex:0 0 22px}
+  
+  .action{padding:3px 4px;font-size:6px;border-radius:6px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;flex:0 0 28px}
+  .action:hover:not(:disabled){transform:none}
+  
+  #helpBtn{display:none}
+  #assetsBtn,#skillBtn,#cameraBtn{width:28px;height:28px;padding:0;font-size:0;flex:0 0 28px;border-radius:6px}
+  #assetsBtn::after{content:'资';font-size:8px;font-weight:900}
+  #skillBtn::after{content:'技';font-size:8px;font-weight:900}
+  #cameraBtn::after{content:'全';font-size:8px;font-weight:900}
+  #rollBtn{width:28px;height:28px;flex:0 0 28px;padding:0;font-size:0;border-radius:6px}
+  #rollBtn::after{content:'掷';font-size:8px;font-weight:900}
+  #endBtn{width:28px;height:28px;flex:0 0 28px;padding:0;font-size:0;border-radius:6px;display:flex!important}
+  #endBtn::after{content:'结';font-size:8px;font-weight:900}
+  
+  .log-panel{display:none}
+  .camera-help{display:none}
+  
+  /* ===== 弹窗缩小 ===== */
+  .modal-layer{padding:8px}
+  .modal{padding:10px 12px;border-radius:12px;max-height:70vh}
+  .modal h3{font-size:14px;margin:4px 0 6px}
+  .modal p{font-size:10px;line-height:1.5;max-height:40vh}
+  .modal .action{padding:4px 10px;font-size:8px;border-radius:6px}
+  .modal-tag{font-size:7px}
+  .modal-actions{gap:4px;margin-top:6px}
+}
+
+/* ===== 手机横屏 - 启动页面缩小到一页 ===== */
+@media(max-width:900px) and (orientation:landscape){
+  .start-screen{padding:6px}
+  .start-card{padding:8px 10px;border-radius:14px;max-height:98vh;width:min(600px,98vw)}
+  .start-card h2{font-size:clamp(16px,3vw,24px);margin:4px 0 6px}
+  .start-card h2 span{display:inline}
+  .setup-grid{grid-template-columns:1fr 1.2fr;gap:8px}
+  .label{font-size:8px;margin-bottom:2px}
+  .characters{grid-template-columns:repeat(3,1fr);gap:3px}
+  .character{padding:3px 4px;border-radius:8px}
+  .character img{height:24px}
+  .character strong{font-size:8px}
+  .character small{font-size:6px;margin-top:0}
+  .setup-side{gap:6px}
+  .field{padding:4px 6px;border-radius:8px}
+  .field select{padding:3px 5px;font-size:9px}
+  .launch{padding:5px 10px;font-size:11px}
+  .license-note{font-size:6px}
+  .start-card:before{inset:6px;border-radius:12px}
+}
     
     @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
   </style>
